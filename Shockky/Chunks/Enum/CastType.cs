@@ -1,21 +1,83 @@
 ﻿namespace Shockky.Chunks
 {
+    /// <summary>
+    /// Represents the types of cast member properties available.
+    /// </summary>
     public enum CastType
     {
+        /// <summary>
+        /// Represents static bitmap image.
+        /// </summary>
         Bitmap = 1,
-        FilmLoop,
-        StyledText,
-        Palette,
-        Picture,
-        Sound,
-        Button,
-        Shape,
-        Movie,
-        DigitalVideo,
-        Script,
-        Text,
-        OLE,
-        Transition,
-        Xtra
+
+        /// <summary>
+        /// Represents a looped section of the Score, containing one or more sprites.
+        /// </summary>
+        FilmLoop = 2,
+        
+        /// <summary>
+        /// Represents a block of styled text.
+        /// </summary>
+        Text = 3,
+
+        /// <summary>
+        /// Represents a color look-up table associated with bitmap cast members.
+        /// </summary>
+        Palette = 4,
+
+        /// <summary>
+        /// Represents Macintosh PICT (metafile-like) object.
+        /// </summary>
+        Picture = 5,
+
+        /// <summary>
+        /// Represents a sound chunk.
+        /// </summary>
+        Sound = 6,
+
+        /// <summary>
+        /// Represents a button.
+        /// </summary>
+        Button = 7,
+
+        /// <summary>
+        /// Represents a shape.
+        /// </summary>
+        Shape = 8,
+        
+        /// <summary>
+        /// Represents a externally linked fully-interactive Director movie.
+        /// </summary>
+        Movie = 9,
+
+        /// <summary>
+        /// Represents a QuickTime or AVI movie
+        /// </summary>
+        DigitalVideo = 10,
+
+        /// <summary>
+        /// Represents a Lingo script.
+        /// </summary>
+        Script = 11,
+
+        /// <summary>
+        /// Represents a block of Rich Text.
+        /// </summary>
+        RichText = 12,
+
+        /// <summary>
+        /// Represents a Microsoft OLE object.
+        /// </summary>
+        OLE = 13,
+
+        /// <summary>
+        /// Represents transition and its associated properties.
+        /// </summary>
+        Transition = 14,
+
+        /// <summary>
+        /// Represents an external required component.
+        /// </summary>
+        Xtra = 15
     }
 }
