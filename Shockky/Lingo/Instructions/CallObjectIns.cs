@@ -9,17 +9,16 @@
             set
             {
                 _functionNameIndex = value;
-                TargetFunction = Pool.NameList[value];
             }
         }
 
-        public CallObjectIns(LingoHandler handler)
-            : base(OPCode.CallObj, handler)
+        public CallObjectIns(LingoFunction function)
+            : base(OPCode.CallObj, function)
         {
             IsObjectCall = true;
         }
-        public CallObjectIns(LingoHandler handler, int handlerNameIndex)
-            : this(handler)
+        public CallObjectIns(LingoFunction function, int handlerNameIndex)
+            : this(function)
         {
             FunctionNameIndex = handlerNameIndex;
         }

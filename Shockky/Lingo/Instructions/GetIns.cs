@@ -1,14 +1,11 @@
-﻿using System.Diagnostics;
-
-namespace Shockky.Lingo.Instructions
+﻿namespace Shockky.Lingo.Instructions
 {
     public class GetIns : Instruction
     {
-        public GetIns(LingoHandler handler, int value)
-            : base(OPCode.Get, handler)
+        public GetIns(LingoFunction function, int value)
+            : base(OPCode.Get, function)
         {
             Value = value;
-            //Debug.WriteLine("GET: " + value);
         }
     }
 }

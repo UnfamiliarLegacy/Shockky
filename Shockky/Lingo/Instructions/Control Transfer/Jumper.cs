@@ -7,16 +7,14 @@
         protected Jumper(OPCode op)
             : base(op)
         { }
-        protected Jumper(OPCode op, LingoHandler handler)
-            : base(op, handler)
+        protected Jumper(OPCode op, LingoFunction function)
+            : base(op, function)
         { }
-        protected Jumper(OPCode op, LingoHandler handler, int offset)
-            : base(op, handler)
+        protected Jumper(OPCode op, LingoFunction function, int offset)
+            : base(op, function)
         {
             Value = offset;
         }
-
-        public abstract bool? RunCondition(LingoMachine machine);
 
         public static bool IsConditional(OPCode op) => (op == OPCode.IfFalse);
 

@@ -1,6 +1,4 @@
-﻿using System;
-
-using Shockky.IO;
+﻿using Shockky.IO;
 
 namespace Shockky.Lingo.Instructions
 {
@@ -13,16 +11,14 @@ namespace Shockky.Lingo.Instructions
             set
             {
                 _value = value;
-                base.Value = SetValue(value);
             }
         }
 
         protected Primitive(OPCode op)
             : base(op)
         { }
-
-        protected Primitive(OPCode op, LingoHandler handler)
-            : base(op, handler)
+        protected Primitive(OPCode op, LingoFunction function)
+            : base(op, function)
         { }
 
         public override int GetPushCount() => 1;
@@ -32,56 +28,37 @@ namespace Shockky.Lingo.Instructions
             base.WriteTo(output);
         }
 
-        public override void Execute(LingoMachine machine)
-        {
-            machine.Values.Push(Value);
-        }
-
-        protected abstract int SetValue(object value);
-
         public static bool IsValid(OPCode op)
         {
             switch (op)
             {
                 case OPCode.PushInt0:
                 case OPCode.PushInt:
-                case OPCode.PushInt2:
+                case OPCode.PushInt16:
+                case OPCode.PushInt32:
                 case OPCode.PushFloat:
                 case OPCode.PushConstant:
-                //case OPCode.PushSymbol: //TODO:
+                case OPCode.PushSymbol:
                     return true;
                 default:
                     return false;
             }
         }
-        public static Primitive Create(LingoHandler handler, object value)
+        public static Primitive Create(LingoFunction function, object value)
         {
             return Type.GetTypeCode(value.GetType()) switch
             {
-                TypeCode.Byte => new PushIntIns(handler, (byte)value),
-                TypeCode.Int16 => new PushIntIns(handler, (short)value),
-                TypeCode.Int32 => new PushConstantIns(handler, (int)value),
-                TypeCode.Int64 => new PushFloatIns(handler, (float)value),
+                TypeCode.Byte => new PushIntIns(function, (byte)value),
+                TypeCode.Int16 => new PushIntIns(function, (short)value),
+                TypeCode.Int32 => new PushConstantIns(function, (int)value),
+                TypeCode.Int64 => new PushFloatIns(function, (float)value),
 
-                TypeCode.String => new PushConstantIns(handler, (string)value),
+                TypeCode.String => new PushConstantIns(function, (string)value),
                 //case TypeCode.Double => return new PushConstantIns(abc, (double)value),
                
                 // case TypeCode.Empty => new PushNullIns(),
                 _ => null
             };
-        }
-
-        public override void AcceptVisitor(InstructionVisitor visitor)
-        {
-            visitor.VisitPrimitiveInstruction(this);
-        }
-        public override void AcceptVisitor<TContext>(InstructionVisitor<TContext> visitor, TContext context)
-        {
-            visitor.VisitPrimitiveInstruction(this, context);
-        }
-        public override T AcceptVisitor<TContext, T>(InstructionVisitor<TContext, T> visitor, TContext context)
-        {
-            return visitor.VisitPrimitiveInstruction(this, context);
         }
     }
 }

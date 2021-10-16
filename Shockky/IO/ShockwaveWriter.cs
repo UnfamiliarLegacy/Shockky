@@ -1,9 +1,10 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using System.Drawing;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
+
+using Shockky.Resources.Cast;
 
 namespace Shockky.IO
 {
@@ -12,8 +13,9 @@ namespace Shockky.IO
     {
         private int _position;
         private readonly bool _isBigEndian;
-
         private readonly Span<byte> _data;
+
+        public readonly Span<byte> CurrentSpan => _data.Slice(_position);
 
         public ShockwaveWriter(Span<byte> data, bool isBigEndian)
         {
@@ -24,7 +26,9 @@ namespace Shockky.IO
 
         //TODO: Measure, with and without inlining
         //Advance? - Zero fill variant?
-        //AdvanceTo - ohno
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Advance(int count) => _position += count;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Write(byte value) => _data[_position++] = value;
@@ -126,6 +130,27 @@ namespace Shockky.IO
             _position += sizeof(uint);
         }
 
+        public void Write(ulong value)
+        {
+            if (_isBigEndian)
+            {
+                value = BinaryPrimitives.ReverseEndianness(value);
+            }
+
+            MemoryMarshal.Write(_data.Slice(_position), ref value);
+            _position += sizeof(ulong);
+        }
+        public void WriteBE(ulong value)
+        {
+            if (!_isBigEndian)
+            {
+                value = BinaryPrimitives.ReverseEndianness(value);
+            }
+
+            MemoryMarshal.Write(_data.Slice(_position), ref value);
+            _position += sizeof(ulong);
+        }
+
         public void WriteVarInt(int value)
         {
             int size = GetVarIntSize(value);
@@ -160,11 +185,10 @@ namespace Shockky.IO
             int len = Encoding.UTF8.GetBytes(value, _data.Slice(_position));
             _position += len;
         }
-        public void WriteNullString(ReadOnlySpan<char> value)
+        public void WriteCString(ReadOnlySpan<char> value)
         {
             int len = Encoding.UTF8.GetBytes(value, _data.Slice(_position));
             _data[_position + len] = 0;
-
             _position += len + 1;
         }
 
@@ -188,6 +212,11 @@ namespace Shockky.IO
             Write((short)value.Left);
             Write((short)value.Bottom);
             Write((short)value.Right);
+        }
+        public void Write(CastMemberId memberId)
+        {
+            Write(memberId.CastLib);
+            Write(memberId.MemberNum);
         }
     }
 }

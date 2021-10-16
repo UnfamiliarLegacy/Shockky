@@ -9,25 +9,21 @@
             set
             {
                 _valueIndex = value;
-                Value = Pool.Literals[value].Value;
             }
         }
 
-        public PushConstantIns(LingoHandler handler)
-            : base(OPCode.PushConstant, handler)
+        public PushConstantIns(LingoFunction function)
+            : base(OPCode.PushConstant, function)
         { }
-        public PushConstantIns(LingoHandler handler, int valueIndex)
-            : this(handler)
+        public PushConstantIns(LingoFunction function, int valueIndex)
+            : this(function)
         {
             ValueIndex = valueIndex;
         }
-        public PushConstantIns(LingoHandler handler, object value)
-            : this(handler)
+        public PushConstantIns(LingoFunction function, object value)
+            : this(function)
         {
             Value = value;
         }
-
-        protected override int SetValue(object value)
-            => _valueIndex = Pool.AddLiteral(value);
     }
 }

@@ -9,22 +9,21 @@
             set
             {
                 _valueIndex = value;
-                Name = Pool.NameList[value];
             }
         }
 
-        public GetMovieInfoIns(LingoHandler handler)
-            : base(OPCode.GetMovieInfo, handler)
+        public GetMovieInfoIns(LingoFunction function)
+            : base(OPCode.GetMovieInfo, function)
         {
             IsMovieReference = true;
         }
-        public GetMovieInfoIns(LingoHandler handler, int nameIndex)
-            : this(handler)
+        public GetMovieInfoIns(LingoFunction function, int nameIndex)
+            : this(function)
         {
             ValueIndex = nameIndex;
         }
-        public GetMovieInfoIns(LingoHandler handler, string name)
-            : this(handler)
+        public GetMovieInfoIns(LingoFunction function, string name)
+            : this(function)
         {
             Name = name;
         }

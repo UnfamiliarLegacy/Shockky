@@ -1,15 +1,12 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 using System.Drawing;
 using System.Buffers.Binary;
 using System.IO.Compression;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 
-using Shockky.Chunks;
+using Shockky.Resources;
+using System.Diagnostics;
 
 namespace Shockky.IO
 {
@@ -23,7 +20,7 @@ namespace Shockky.IO
         public readonly int Length => _data.Length;
         public readonly bool IsDataAvailable => Position < _data.Length;
 
-        private readonly ReadOnlySpan<byte> _currentSpan => _data.Slice(Position);
+        private readonly ReadOnlySpan<byte> CurrentSpan => _data.Slice(Position);
 
         public ShockwaveReader(ReadOnlySpan<byte> data, bool isBigEndian = false)
         {
@@ -33,7 +30,6 @@ namespace Shockky.IO
             IsBigEndian = isBigEndian;
         }
 
-        //TODO: Measure, measure and measure
         public T ReadReverseEndian<T>()
             where T : struct
         {
@@ -48,14 +44,11 @@ namespace Shockky.IO
                 buffer.Reverse();
                 value = MemoryMarshal.Read<T>(buffer);
             }
-            else value = MemoryMarshal.Read<T>(_currentSpan);
+            else value = MemoryMarshal.Read<T>(CurrentSpan);
 
             Position += size;
             return value;
         }
-
-        //TODO: Try-methods? yoloing this right now
-        //TODO: Check inlining
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Advance(int count) => Position += count;
@@ -81,11 +74,10 @@ namespace Shockky.IO
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ReadBoolean() => _data[Position++] == 1;
 
-        //Should be one less branch (only emit bswap when), should ignore machine endianness afaik
         //TODO: BigEndian => "ReverseEndian"
         public short ReadInt16()
         {
-            short value = MemoryMarshal.Read<short>(_currentSpan);
+            short value = MemoryMarshal.Read<short>(CurrentSpan);
             Advance(sizeof(short));
         
             return IsBigEndian ? 
@@ -93,7 +85,7 @@ namespace Shockky.IO
         }
         public short ReadBEInt16()
         {
-            short value = MemoryMarshal.Read<short>(_currentSpan);
+            short value = MemoryMarshal.Read<short>(CurrentSpan);
             Advance(sizeof(short));
 
             return IsBigEndian ?
@@ -102,7 +94,7 @@ namespace Shockky.IO
 
         public ushort ReadUInt16()
         {
-            ushort value = MemoryMarshal.Read<ushort>(_currentSpan);
+            ushort value = MemoryMarshal.Read<ushort>(CurrentSpan);
             Advance(sizeof(ushort));
 
             return IsBigEndian ?
@@ -110,7 +102,7 @@ namespace Shockky.IO
         }
         public ushort ReadBEUInt16()
         {
-            ushort value = MemoryMarshal.Read<ushort>(_currentSpan);
+            ushort value = MemoryMarshal.Read<ushort>(CurrentSpan);
             Advance(sizeof(ushort));
 
             return IsBigEndian ?
@@ -119,7 +111,7 @@ namespace Shockky.IO
 
         public int ReadInt32()
         {
-            int value = MemoryMarshal.Read<int>(_currentSpan);
+            int value = MemoryMarshal.Read<int>(CurrentSpan);
             Advance(sizeof(int));
 
             return IsBigEndian ?
@@ -127,7 +119,7 @@ namespace Shockky.IO
         }
         public int ReadBEInt32()
         {
-            int value = MemoryMarshal.Read<int>(_currentSpan);
+            int value = MemoryMarshal.Read<int>(CurrentSpan);
             Advance(sizeof(int));
 
             return IsBigEndian ?
@@ -136,7 +128,7 @@ namespace Shockky.IO
 
         public uint ReadUInt32()
         {
-            uint value = MemoryMarshal.Read<uint>(_currentSpan);
+            uint value = MemoryMarshal.Read<uint>(CurrentSpan);
             Advance(sizeof(uint));
 
             return IsBigEndian ?
@@ -144,18 +136,34 @@ namespace Shockky.IO
         }
         public uint ReadBEUInt32()
         {
-            uint value = MemoryMarshal.Read<uint>(_currentSpan);
+            uint value = MemoryMarshal.Read<uint>(CurrentSpan);
             Advance(sizeof(uint));
 
             return IsBigEndian ?
                 value : BinaryPrimitives.ReverseEndianness(value);
         }
 
+        public ulong ReadUInt64()
+        {
+            ulong value = MemoryMarshal.Read<ulong>(CurrentSpan);
+            Advance(sizeof(ulong));
+
+            return IsBigEndian ?
+                BinaryPrimitives.ReverseEndianness(value) : value;
+        }
+        public ulong ReadBEUInt64()
+        {
+            ulong value = MemoryMarshal.Read<ulong>(CurrentSpan);
+            Advance(sizeof(ulong));
+
+            return IsBigEndian ?
+                value : BinaryPrimitives.ReverseEndianness(value);
+        }
         public double ReadDouble()
         {
             double value = IsBigEndian ?
-                BitConverter.Int64BitsToDouble(BinaryPrimitives.ReverseEndianness(MemoryMarshal.Read<long>(_currentSpan))) :
-                MemoryMarshal.Read<double>(_currentSpan);
+                BitConverter.Int64BitsToDouble(BinaryPrimitives.ReverseEndianness(MemoryMarshal.Read<long>(CurrentSpan))) :
+                MemoryMarshal.Read<double>(CurrentSpan);
 
             Advance(sizeof(double));
             return value;
@@ -163,8 +171,8 @@ namespace Shockky.IO
         public double ReadBEDouble()
         {
             double value = IsBigEndian ?
-                MemoryMarshal.Read<double>(_currentSpan) :
-                BitConverter.Int64BitsToDouble(BinaryPrimitives.ReverseEndianness(MemoryMarshal.Read<long>(_currentSpan)));
+                MemoryMarshal.Read<double>(CurrentSpan) :
+                BitConverter.Int64BitsToDouble(BinaryPrimitives.ReverseEndianness(MemoryMarshal.Read<long>(CurrentSpan)));
 
             Advance(sizeof(double));
             return value;
@@ -195,15 +203,11 @@ namespace Shockky.IO
         }
         public string ReadNullString()
         {
-            int length = _currentSpan.IndexOf((byte)0);
+            int length = CurrentSpan.IndexOf((byte)0);
+            Debug.Assert(length != -1);
             string value = Encoding.UTF8.GetString(_data.Slice(Position, length));
 
-            //TODO: Check? maxlength?
-            //if (length == -1) 
-            //  length = _data.Length - Position;
-
-            Position += length + 1; //+ terminator
-
+            Position += length + 1;
             return value;
         }
         public string ReadInternationalString()
@@ -227,7 +231,7 @@ namespace Shockky.IO
         }
         public Point ReadPoint()
         {
-            return new Point(ReadInt16(), ReadInt16());
+            return new(ReadInt16(), ReadInt16());
         }
         public Rectangle ReadRect()
         {
@@ -239,7 +243,7 @@ namespace Shockky.IO
             return Rectangle.FromLTRB(left, top, right, bottom);
         }
 
-        public unsafe ChunkItem ReadCompressedChunk(AfterBurnerMapEntry entry)
+        public unsafe Chunk ReadCompressedChunk(AfterBurnerMapEntry entry)
         {
             Span<byte> decompressedData = entry.DecompressedLength <= 1024 ?
                     stackalloc byte[entry.DecompressedLength] : new byte[entry.DecompressedLength];
@@ -253,23 +257,8 @@ namespace Shockky.IO
             }
             Advance(entry.Length);
 
-            ShockwaveReader input = new ShockwaveReader(decompressedData, IsBigEndian);
-            return ChunkItem.Read(ref input, entry.Header);
-        }
-
-        //TODO: PrefixedReader
-        public void PopulateVList<T>(int offset,
-            List<T> list, Func<T> reader, bool forceLengthCheck = true)
-        {
-            if (forceLengthCheck && list.Capacity == 0) return;
-
-            Position = offset;
-
-            for (int i = 0; i < list.Capacity; i++)
-            {
-                T value = reader();
-                list.Add(value);
-            }
+            var input = new ShockwaveReader(decompressedData, IsBigEndian);
+            return Chunk.Read(ref input, entry.Header);
         }
     }
 }

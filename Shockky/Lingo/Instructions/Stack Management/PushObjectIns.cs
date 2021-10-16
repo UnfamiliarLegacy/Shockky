@@ -9,7 +9,6 @@
             set
             {
                 _name = value;
-                base.Value = _nameIndex = Pool.AddName(value);
             }
         }
 
@@ -21,20 +20,19 @@
             {
                 base.Value = value;
                 _nameIndex = value;
-                _name = Pool.NameList[value];
             }
         }
 
-        public PushObjectIns(LingoHandler handler)
-            : base(OPCode.PushObject, handler)
+        public PushObjectIns(LingoFunction function)
+            : base(OPCode.PushObject, function)
         { }
-        public PushObjectIns(LingoHandler handler, int nameIndex)
-            : this(handler)
+        public PushObjectIns(LingoFunction function, int nameIndex)
+            : this(function)
         {
             NameIndex = nameIndex;
         }
-        public PushObjectIns(LingoHandler handler, string name)
-            : this(handler)
+        public PushObjectIns(LingoFunction function, string name)
+            : this(function)
         {
             Name = name;
         }

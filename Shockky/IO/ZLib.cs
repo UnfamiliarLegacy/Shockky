@@ -1,20 +1,19 @@
-﻿using System;
-using System.IO;
-using System.IO.Compression;
+﻿using System.IO.Compression;
 
 namespace Shockky.IO
 {
     public static class ZLib
     {
-        //           Prayer circle
-        //            🕯      🕯
-        //    🕯                       🕯
-        //           Spanified API
-        // 🕯        For Deflate           🕯 
-        //           [De]compression
-        //    🕯                       🕯
-        //            🕯      🕯
-        public static unsafe int Decompress(ReadOnlySpan<byte> input, Span<byte> output)
+        //           🙏 Summoning circle 🙏 
+        //
+        //             🕯       🕯       🕯
+        //     🕯                               🕯
+        // https://github.com/dotnet/runtime/issues/39327
+        // 🕯                                       🕯 
+        //            
+        //     🕯                               🕯
+        //             🕯       🕯       🕯
+        internal static unsafe int Decompress(ReadOnlySpan<byte> input, Span<byte> output)
         {
             fixed (byte* pBuffer = &input.Slice(2)[0]) //Skip ZLib header
             {

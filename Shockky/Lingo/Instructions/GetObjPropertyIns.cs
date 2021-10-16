@@ -9,22 +9,21 @@
             set
             {
                 _propertyNameIndex = value;
-                Name = Pool.NameList[value];
             }
         }
 
-        public GetObjPropertyIns(LingoHandler handler)
-            : base(OPCode.GetObjProp, handler)
+        public GetObjPropertyIns(LingoFunction function)
+            : base(OPCode.GetObjProp, function)
         {
             IsObjectReference = true;
         }
-        public GetObjPropertyIns(LingoHandler handler, int propertyNameIndex)
-            : this(handler)
+        public GetObjPropertyIns(LingoFunction function, int propertyNameIndex)
+            : this(function)
         {
             PropertyNameIndex = propertyNameIndex;
         }
-        public GetObjPropertyIns(LingoHandler handler, string propertyName)
-            : this(handler)
+        public GetObjPropertyIns(LingoFunction function, string propertyName)
+            : this(function)
         {
             Name = propertyName;
         }

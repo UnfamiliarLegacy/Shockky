@@ -8,18 +8,17 @@
             get => _nameIndex;
             set
             {
-                Value = value;
-                Name = Pool.NameList[value];
+                _nameIndex = Value = value;
             }
         }
 
-        public SetMoviePropertryIns(LingoHandler handler)
-            : base(OPCode.SetMovieProp, handler)
+        public SetMoviePropertryIns(LingoFunction function)
+            : base(OPCode.SetMovieProp, function)
         {
             IsMoviePropertyReference = true;
         }
-        public SetMoviePropertryIns(LingoHandler handler, int moviePropertyIndex)
-            : this(handler)
+        public SetMoviePropertryIns(LingoFunction function, int moviePropertyIndex)
+            : this(function)
         {
             NameIndex = moviePropertyIndex;
         }

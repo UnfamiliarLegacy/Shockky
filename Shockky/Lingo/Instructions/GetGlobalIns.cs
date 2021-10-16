@@ -9,24 +9,21 @@
             set
             {
                 _valueIndex = value;
-                Name = Pool.NameList[value];
             }
         }
 
-        public GetGlobalIns(LingoHandler handler)
-            : base(OPCode.GetGlobal, handler)
+        public GetGlobalIns(LingoFunction function)
+            : base(OPCode.GetGlobal, function)
         { }
-        public GetGlobalIns(LingoHandler handler, int globalNameIndex)
-            : this(handler)
+        public GetGlobalIns(LingoFunction function, int globalNameIndex)
+            : this(function)
         {
             ValueIndex = globalNameIndex;
         }
-        public GetGlobalIns(LingoHandler handler, string global)
-            : this(handler)
+        public GetGlobalIns(LingoFunction function, string global)
+            : this(function)
         {
             Name = global;
         }
-
-        protected override int SetName(string name) => Pool.AddName(name);
     }
 }

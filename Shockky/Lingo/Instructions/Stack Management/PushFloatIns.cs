@@ -1,24 +1,19 @@
-﻿using System;
-
-namespace Shockky.Lingo.Instructions
+﻿namespace Shockky.Lingo.Instructions
 {
     public class PushFloatIns : Primitive
     {
-        public PushFloatIns(LingoHandler handler)
-            : base(OPCode.PushFloat, handler)
+        public PushFloatIns(LingoFunction function)
+            : base(OPCode.PushFloat, function)
         { }
-        public PushFloatIns(LingoHandler handler, int value)
-            : this(handler)
+        public PushFloatIns(LingoFunction function, int value)
+            : this(function)
         {
             Value = BitConverter.Int32BitsToSingle(value);
         }
-        public PushFloatIns(LingoHandler handler, float value)
-            : this(handler)
+        public PushFloatIns(LingoFunction function, float value)
+            : this(function)
         {
             Value = value;
         }
-
-        protected override int SetValue(object value)
-            => BitConverter.SingleToInt32Bits((float)Value);
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Collections;
-using System.Collections.Generic;
 
 using Shockky.Lingo.Instructions;
 
@@ -12,10 +11,9 @@ namespace Shockky.Lingo.ControlFlow
     [DebuggerDisplay("Kind: {Kind}")]
     public class BasicBlock : IEnumerable<Instruction> //TODO: BB<T>?
     {
-        public IList<Instruction> Body { get; set; } //SEQ //Not aware of it's location in dissassembly
+        public IList<Instruction> Body { get; set; }
         public IList<BasicBlock> Predecessors { get; set; }
         
-        //Successors
         public BasicBlock Conditional { get; set; }
         public BasicBlock FallThrough { get; set; }
 

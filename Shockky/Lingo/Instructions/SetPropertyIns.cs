@@ -9,15 +9,14 @@
             set
             {
                 _propertNameIndex = value;
-                Name = Pool.NameList[value];
             }
         }
 
-        public SetPropertyIns(LingoHandler handler)
-            : base(OPCode.SetProperty, handler)
+        public SetPropertyIns(LingoFunction function)
+            : base(OPCode.SetProperty, function)
         { }
-        public SetPropertyIns(LingoHandler handler, int propertyNameIndex)
-            : this(handler)
+        public SetPropertyIns(LingoFunction function, int propertyNameIndex)
+            : this(function)
         {
             PropertyNameIndex = propertyNameIndex;
         }

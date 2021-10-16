@@ -1,14 +1,11 @@
-﻿using System.Diagnostics;
-
-namespace Shockky.Lingo.Instructions
+﻿namespace Shockky.Lingo.Instructions
 {
     public class SetIns : Instruction
     {
-        public SetIns(LingoHandler handler, int value) 
-            : base(OPCode.Set, handler)
+        public SetIns(LingoFunction function, int value) 
+            : base(OPCode.Set, function)
         {
             Value = value;
-            //Debug.WriteLine("SET: " + value);
         }
     }
 }

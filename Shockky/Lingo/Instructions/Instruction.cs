@@ -1,35 +1,29 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 using Shockky.IO;
 
 namespace Shockky.Lingo.Instructions
 {
+    [DebuggerDisplay("{OP}")]
     public abstract class Instruction : ShockwaveItem, ICloneable
     {
-        protected override string DebuggerDisplay 
-            => OP.ToString() + ((byte)OP > 0x40 ? " " + Value : string.Empty); //Operand for debugging purposes, to be removed
-
         public OPCode OP { get; }
         public virtual int Value { protected get; set; }
 
-        protected LingoHandler Handler { get; }
-        protected LingoValuePool Pool => Handler.Script.Pool;
+        protected LingoFunction Function { get; }
 
         protected Instruction(OPCode op)
         {
             OP = op;
         }
-        protected Instruction(OPCode op, LingoHandler handler)
+        protected Instruction(OPCode op, LingoFunction function)
             : this(op)
         {
-            Handler = handler;
+            Function = function;
         }
 
         public override void WriteTo(ShockwaveWriter output)
         {
-            //TODO:
-
             byte op = (byte)OP;
 
             if (Value > byte.MaxValue)
@@ -45,31 +39,16 @@ namespace Shockky.Lingo.Instructions
             else if (op > 0x40) output.Write((byte)Value);
         }
 
-        public virtual void Execute(LingoMachine machine)
-        { }
-
-        public virtual void AcceptVisitor(InstructionVisitor visitor)
-        {
-            Console.WriteLine($"{OP} has not implemented InstructionVisitor");
-        }
-        public virtual void AcceptVisitor<TContext>(InstructionVisitor<TContext> visitor, TContext context)
-        {
-            Console.WriteLine($"{OP} has not implemented InstructionVisitor");
-        }
-        public virtual T AcceptVisitor<TContext, T>(InstructionVisitor<TContext, T> visitor, TContext context)
-        {
-            Console.WriteLine($"{OP} has not implemented InstructionVisitor");
-            return default;
-        }
-
         public virtual int GetPopCount() => 0;
         public virtual int GetPushCount() => 0;
 
         public override int GetBodySize() => throw new NotImplementedException();
 
-        public static Instruction Create(LingoHandler handler, ref ShockwaveReader input)
+        public static Instruction Create(ref ShockwaveReader input)
         {
             int operandValue = 0;
+
+            LingoFunction function = null; //TODO:
 
             byte op = input.ReadByte();
             byte ogOp = op;
@@ -79,7 +58,8 @@ namespace Shockky.Lingo.Instructions
                 op %= 0x40;
                 op += 0x40;
 
-                if (ogOp > 0xC0) operandValue = input.ReadInt32();
+                if (ogOp > 0xC0)
+                    operandValue = input.ReadInt32();
                 else if (ogOp > 0x80) operandValue = input.ReadInt16();
                 else operandValue = input.ReadByte();
             }
@@ -90,16 +70,12 @@ namespace Shockky.Lingo.Instructions
             {
                 OPCode.Return => new ReturnIns(),
                 OPCode.PushInt0 => new PushZeroIns(),
-
-                #region Arithmetic
                 OPCode.Multiple => new MultipleIns(),
                 OPCode.Add => new AddIns(),
                 OPCode.Substract => new SubtractIns(),
                 OPCode.Divide => new DivideIns(),
                 OPCode.Modulo => new ModuloIns(),
                 OPCode.Inverse => new InverseIns(),
-                #endregion
-
                 OPCode.JoinString => new JoinStringIns(),
                 OPCode.JoinPadString => new JoinPadStringIns(),
                 OPCode.LessThan => new LessThanIns(),
@@ -107,73 +83,82 @@ namespace Shockky.Lingo.Instructions
                 OPCode.NotEqual => new NotEqualIns(),
                 OPCode.Equals => new EqualsIns(),
                 OPCode.GreaterThan => new GreaterThanIns(),
-                OPCode.GreaterEquals => new GreaterEqualsIns(),
+                OPCode.GreaterThanEquals => new GreaterEqualsIns(),
                 OPCode.And => new AndIns(),
                 OPCode.Or => new OrIns(),
                 OPCode.Not => new NotIns(),
                 OPCode.ContainsString => new ContainsStringIns(),
                 OPCode.StartsWith => new StartsWithIns(),
-                OPCode.SplitString => new SplitStringIns(),
-                OPCode.Hilite => new HiliteStringIns(),
+                OPCode.ChunkExpression => new ChunkExpressionIns(),
+                OPCode.Hilite => new HiliteIns(),
                 OPCode.OntoSprite => new OntoSpriteIns(),
                 OPCode.IntoSprite => new IntoSpriteIns(),
                 OPCode.CastString => new CastStringIns(),
-                OPCode.StartObject => new StartObjectIns(), //PushScopeIns
-                OPCode.StopObject => new StopObjectIns(), //PopScopeIns
+                OPCode.StartTell => new StartTellIns(),
+                OPCode.EndTell => new EndTellIns(),
                 OPCode.WrapList => new WrapListIns(),
                 OPCode.NewPropList => new NewPropListIns(),
                 OPCode.Swap => new SwapIns(),
 
                 //Multi 
-                OPCode.PushInt => new PushIntIns(handler, operandValue),
-                OPCode.NewArgList => new NewListIns(handler, operandValue, true), //unparanthesized
-                OPCode.NewList => new NewListIns(handler, operandValue, false), //in paranthesized call expression
-                OPCode.PushConstant => new PushConstantIns(handler, operandValue),
-                OPCode.PushSymbol => new PushSymbolIns(handler, operandValue),
-                OPCode.PushObject => new PushObjectIns(handler, operandValue),
-                //OPCode.Op_47:
-                //OPCode.Op_48:
-                OPCode.GetGlobal => new GetGlobalIns(handler, operandValue),
-                OPCode.GetProperty => new GetPropertyIns(handler, operandValue),
-                OPCode.GetParameter => new GetParameterIns(handler, operandValue),
-                OPCode.GetLocal => new GetLocalIns(handler, operandValue),
-                OPCode.SetGlobal => new SetGlobalIns(handler, operandValue),
-                OPCode.SetProperty => new SetPropertyIns(handler, operandValue),
-                OPCode.SetParameter => new SetParameterIns(handler, operandValue),
-                OPCode.SetLocal => new SetLocalIns(handler, operandValue),
-                OPCode.Jump => new JumpIns(handler, operandValue),
-                OPCode.EndRepeat => new EndRepeatIns(handler, operandValue),
-                OPCode.IfFalse => new IfFalseIns(handler, operandValue),
-                OPCode.CallLocal => new CallLocalIns(handler, operandValue),
-                OPCode.CallExternal => new CallExternalIns(handler, operandValue),
-                //OPCode.CallObjOld:
-                OPCode.InsertString => new InsertStringIns(handler, operandValue),
-                OPCode.Insert => new InsertIns(handler, operandValue),
-                //OPCode.Op_5b:
-                OPCode.Get => new GetIns(handler, operandValue),
-                OPCode.Set => new SetIns(handler, operandValue),
-                OPCode.GetMovieProp => new GetMoviePropertyIns(handler, operandValue),
-                OPCode.SetMovieProp => new SetMoviePropertryIns(handler, operandValue),
-                OPCode.GetObjProp => new GetObjPropertyIns(handler, operandValue),
-                OPCode.SetObjProp => new SetObjPropertyIns(handler, operandValue),
-                //OPCode.Op_63:
+                OPCode.PushInt => new PushIntIns(function, operandValue),
+                OPCode.NewArgList => new NewListIns(function, operandValue, true), //unparanthesized
+                OPCode.NewList => new NewListIns(function, operandValue, false), //in paranthesized call expression
+                OPCode.PushConstant => new PushConstantIns(function, operandValue),
+                OPCode.PushSymbol => new PushSymbolIns(function, operandValue),
+                OPCode.PushObject => new PushObjectIns(function, operandValue),
+                OPCode.GetGlobal => new GetGlobalIns(function, operandValue),
+                OPCode.GetProperty => new GetPropertyIns(function, operandValue),
+                OPCode.GetParameter => new GetParameterIns(function, operandValue),
+                OPCode.GetLocal => new GetLocalIns(function, operandValue),
+                OPCode.SetGlobal => new SetGlobalIns(function, operandValue),
+                OPCode.SetProperty => new SetPropertyIns(function, operandValue),
+                OPCode.SetParameter => new SetParameterIns(function, operandValue),
+                OPCode.SetLocal => new SetLocalIns(function, operandValue),
+                OPCode.Jump => new JumpIns(function, operandValue),
+                OPCode.EndRepeat => new EndRepeatIns(function, operandValue),
+                OPCode.IfFalse => new IfFalseIns(function, operandValue),
+                OPCode.CallLocal => new CallLocalIns(function, operandValue),
+                OPCode.CallExternal => new CallExternalIns(function, operandValue),
+                OPCode.InsertString => new InsertStringIns(function, operandValue),
+                OPCode.Insert => new InsertIns(function, operandValue),
+                OPCode.Get => new GetIns(function, operandValue),
+                OPCode.Set => new SetIns(function, operandValue),
+                OPCode.GetMovieProp => new GetMoviePropertyIns(function, operandValue),
+                OPCode.SetMovieProp => new SetMoviePropertryIns(function, operandValue),
+                OPCode.GetObjProp => new GetObjPropertyIns(function, operandValue),
+                OPCode.SetObjProp => new SetObjPropertyIns(function, operandValue),
                 OPCode.Dup => new DupIns(operandValue),
                 OPCode.Pop => new PopIns(operandValue),
-                OPCode.GetMovieInfo => new GetMovieInfoIns(handler, operandValue),
-                OPCode.CallObj => new CallObjectIns(handler, operandValue),
-                //OPCode.Op_6d
-                OPCode.PushInt2 => new PushIntIns(handler, operandValue),
-                OPCode.PushInt3 => new PushIntIns(handler, operandValue),
-
-                //OPCode.GetSpecial => null,
-                //    string specialField = handler.Script.Pool.GetName(operandValue),
-
-                OPCode.PushFloat => new PushFloatIns(handler, operandValue),
+                OPCode.GetMovieInfo => new GetMovieInfoIns(function, operandValue),
+                OPCode.CallObj => new CallObjectIns(function, operandValue),
+                OPCode.PushInt16 => new PushIntIns(function, operandValue),
+                OPCode.PushInt32 => new PushIntIns(function, operandValue),
+                OPCode.PushFloat => new PushFloatIns(function, operandValue),
+                OPCode.ReturnFactory => throw new NotImplementedException(),
+                
+                OPCode.Op_47 => throw new NotImplementedException(),
+                OPCode.Op_48 => throw new NotImplementedException(),
+                OPCode.Op_4d => throw new NotImplementedException(),
+                OPCode.Op_4e => throw new NotImplementedException(),
+                OPCode.CallObjOld => throw new NotImplementedException(),
+                OPCode.DeleteString => throw new NotImplementedException(),
+                OPCode.Op_5E => throw new NotImplementedException(),
+                OPCode.TellCall => throw new NotImplementedException(),
+                OPCode.Op_68 => throw new NotImplementedException(),
+                OPCode.Op_69 => throw new NotImplementedException(),
+                OPCode.Op_6A => throw new NotImplementedException(),
+                OPCode.Op_6B => throw new NotImplementedException(),
+                OPCode.Op_6C => throw new NotImplementedException(),
+                OPCode.Op_6D => throw new NotImplementedException(),
+                OPCode.GetChainedProp => throw new NotImplementedException(),
+                OPCode.GetTopLevelProp => throw new NotImplementedException(),
+                OPCode.Op_73 => throw new NotImplementedException(),
+                OPCode.Op_7d => throw new NotImplementedException(),
                 //OPCode.Op_72:
                 //Operand points to names prefixed by "_", is this another special movie property get? 
                 //TODO: inspect stack at this OP. 
                 //string _prefixed = handler.Script.Pool.GetName(operandValue), //Occurred values: _movie, _global, _system
-                _ => null//new DummyInstruction((OPCode)op, handler, operandValue),
             };
         }
 

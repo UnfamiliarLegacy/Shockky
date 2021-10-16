@@ -2,15 +2,13 @@
 {
     public class JumpIns : Jumper
     {
-        public JumpIns(LingoHandler handler)
-            : base(OPCode.Jump, handler)
+        public JumpIns(LingoFunction function)
+            : base(OPCode.Jump, function)
         { }
-        public JumpIns(LingoHandler handler, int offset)
-            : this(handler)
+        public JumpIns(LingoFunction function, int offset)
+            : this(function)
         {
             Value = offset;
         }
-
-        public override bool? RunCondition(LingoMachine machine) => true;
     }
 }

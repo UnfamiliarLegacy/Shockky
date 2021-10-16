@@ -3,8 +3,8 @@
     public enum OPCode : byte
     {
         Return = 0x01,
-        //TODO: 0x02 has been spotted as another return instruction - ScummVM
-        PushInt0 = 0x03,
+        ReturnFactory,
+        PushInt0,
         Multiple,
         Add,
         Substract,
@@ -18,39 +18,45 @@
         NotEqual,
         Equals,
         GreaterThan,
-        GreaterEquals,
+        GreaterThanEquals,
         And,
         Or,
         Not,
         ContainsString,
         StartsWith,
-        SplitString, //ChunkExpression
+        ChunkExpression,
         Hilite,
         OntoSprite,
         IntoSprite,
         CastString,
-        StartObject, //tell, startscope
-        StopObject,
+        StartTell,
+        EndTell,
         WrapList,
         NewPropList,
+        Op_20,
 
-        Swap = 0x21,
-        ExecuteJavascript = 0x26,
+        Swap,
+        Op_22, //OD: chunk_expr_related
+        Op_23, //OD: chunk_expr_related - pas
+        Op_25 = 0x25,
+        ExecuteJavascript,
 
         //Multi
         PushInt = 0x41,
-        NewArgList,
+        NewArgList, //load uint - csnover
         NewList,
         PushConstant,
         PushSymbol,
         PushObject,
-        Op_47,
-        Op_48,
+        Op_47, //TODO: LoadVar - csnover //TODO: VariableKind - maps from 47.. and 4d..
+        Op_48, //TODO: GetGlobal - EventScripts - ScummVM (factories)
         GetGlobal,
         GetProperty,
         GetParameter,
         GetLocal,
-        SetGlobal = 0x4f,
+        Op_4d, //TODO: StoreVar - csnover eq-rust
+        Op_4e, //TODO: SetGlobal - EventScrips - ScummVM (factories)
+        SetGlobal,
         SetProperty,
         SetParameter,
         SetLocal,
@@ -59,28 +65,34 @@
         IfFalse,
         CallLocal,
         CallExternal,
-        CallObjOld, //?
+        CallObjOld,
         InsertString, //TODO: ChunkExpressions
         Insert,
         DeleteString,
         Get,
         Set,
-        Op_5d,
+        Op_5E,
         GetMovieProp,
         SetMovieProp,
         GetObjProp,
         SetObjProp,
-        Op_63, //seems to be scoped call
+        TellCall,
         Dup,
         Pop,
-        GetMovieInfo, //"push path"
+        GetMovieInfo, //TODO: builtin
         CallObj,
-        Op_6d = 0x6d,
-        PushInt2,
-        PushInt3,
-        GetSpecial, //TODO:
+        Op_68, //OD: ChunkExpr
+        Op_69, //OD
+        Op_6A, //OD
+        Op_6B, //OD
+        Op_6C, //OD
+        Op_6D,
+        PushInt16,
+        PushInt32,
+        GetChainedProp,
         PushFloat,
-        Op_72,
-        Op_7d = 0x7d
+        GetTopLevelProp,
+        Op_73, //OD: immediate is builtin function symbol?
+        Op_7d = 0x7d //TODO: does this exist
     }
 }

@@ -1,13 +1,9 @@
-﻿using System.Linq;
-using System.Diagnostics;
-using System.Collections.Generic;
+﻿using System.Diagnostics;
 
 namespace Shockky.Lingo.ControlFlow
 {
     public class ControlFlowGraphBuilder
     {
-        //TODO: ?????????????no thoughts, just a stateful mess
-
         private readonly BasicBlock _entry;
         private readonly BasicBlock _exit;
 

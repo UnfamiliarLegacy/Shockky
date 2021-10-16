@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using System.Buffers.Binary;
 
 namespace Shockky.IO
@@ -28,7 +27,7 @@ namespace Shockky.IO
             return value;
         }
 
-        public string ReadNullString()
+        public string ReadCString()
         {
             char currentChar;
             string value = string.Empty;

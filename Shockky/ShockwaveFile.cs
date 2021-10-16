@@ -1,24 +1,18 @@
-﻿using System;
-using System.IO;
-using System.Collections.Generic;
-
-using Shockky.IO;
-using Shockky.Chunks;
+﻿using Shockky.IO;
+using Shockky.Resources;
 
 namespace Shockky
 {
+    //TODO: RIFF Container abstraction coming soon
     public class ShockwaveFile
     {
-        private ReadOnlyMemory<byte> _input;
-
-        //TODO: Some kind of abstraction, adding and modifying is a bit annoying like this. Also doing chunk lookups etc is weird now.
-        public IDictionary<int, ChunkItem> Chunks { get; set; }
+        public IDictionary<int, Chunk> Chunks { get; set; }
 
         public DirectorVersion Version { get; set; }
-        public FileMetadataChunk Metadata { get; set; }
+        public FileMetadata Metadata { get; set; }
 
 #nullable enable
-        public ChunkItem? this[int id]
+        public Chunk? this[int id]
         {
             get
             {
@@ -29,74 +23,65 @@ namespace Shockky
 
         public ShockwaveFile()
         {
-            Chunks = new Dictionary<int, ChunkItem>();
-        }
-        public ShockwaveFile(string path)
-            : this(File.ReadAllBytes(path))
-        { }
-        public ShockwaveFile(byte[] data)
-            : this()
-        {
-            _input = data;
-
-            var input = new ShockwaveReader(_input.Span);
-            Metadata = new FileMetadataChunk(ref input);
+            Chunks = new Dictionary<int, Chunk>();
         }
 
-        public void Disassemble()
+        public void Load(ReadOnlySpan<byte> data)
         {
-            var input = new ShockwaveReader(_input.Span, Metadata.IsBigEndian);
-            input.Advance(Metadata.Header.GetBodySize() + Metadata.GetBodySize());
+            var input = new ShockwaveReader(data);
+            Metadata = new FileMetadata(ref input);
+            input.IsBigEndian = Metadata.IsBigEndian;
 
-            if (Metadata.Codec == CodecKind.FGDM ||
-                Metadata.Codec == CodecKind.FGDC)
+            if (Metadata.Codec is CodecKind.FGDM or CodecKind.FGDC)
             {
-                if (ChunkItem.Read(ref input) is FileVersionChunk version &&
-                    ChunkItem.Read(ref input) is FileCompressionTypesChunk compressionTypes &&
-                    ChunkItem.Read(ref input) is AfterburnerMapChunk afterburnerMap &&
-                    ChunkItem.Read(ref input) is FileGzipEmbeddedImageChunk fgei)
+                if (Chunk.Read(ref input) is FileVersion version &&
+                    Chunk.Read(ref input) is FileCompressionTypes compressionTypes &&
+                    Chunk.Read(ref input) is AfterburnerMap afterburnerMap &&
+                    Chunk.Read(ref input) is FileGzipEmbeddedImage fgei)
                 {
                     Chunks = fgei.ReadChunks(ref input, afterburnerMap.Entries);
                 }
             }
             else if (Metadata.Codec == CodecKind.MV93)
             {
-                if (ChunkItem.Read(ref input) is InitialMapChunk initialMap)
+                if (Chunk.Read(ref input) is not InitialMap initialMap)
+                    throw new InvalidDataException($"Failed to read {nameof(InitialMap)}");
+
+                Version = initialMap.Version;
+
+                foreach (int offset in initialMap.MemoryMapOffsets)
                 {
-                    Version = initialMap.Version;
+                    input.Position = offset;
 
-                    foreach (int offset in initialMap.MemoryMapOffsets)
+                    if (Chunk.Read(ref input) is not MemoryMap memoryMap)
+                        throw new InvalidDataException($"Failed to read {nameof(MemoryMap)} at offset {offset}.");
+
+                    for (int i = 1; i < memoryMap.Entries.Length; i++)
                     {
-                        input.Position = offset;
-                        if (ChunkItem.Read(ref input) is MemoryMapChunk memoryMap)
-                        {
-                            foreach (ChunkEntry entry in memoryMap.Entries)
-                            {
-                                if (entry.Header.Kind == ChunkKind.RIFX) continue; //TODO: HACK
+                        var entry = memoryMap.Entries[i];
 
-                                if (entry.Flags.HasFlag(ChunkEntryFlags.Ignore))
-                                {
-                                    Chunks.Add(entry.Id, new UnknownChunk(ref input, entry.Header));
-                                    continue;
-                                }
+                        if (entry.Flags.HasFlag(ChunkEntryFlags.Invalid))
+                            continue;
 
-                                input.Position = entry.Offset;
-                                Chunks.Add(entry.Id, ChunkItem.Read(ref input));
-                            }
-                        }
-                        else throw new InvalidDataException($"Failed to read {nameof(MemoryMapChunk)} at offset {offset}.");
+                        input.Position = entry.Offset;
+                        Chunks.Add(i, Chunk.Read(ref input));
                     }
                 }
-                else throw new InvalidDataException($"Failed to read {nameof(InitialMapChunk)}");
             }
-
-            //TODO:
-            _input = null;
         }
 
         public void Assemble()
         {
             throw new NotImplementedException();
+        }
+
+        public static ShockwaveFile Load(string path)
+        {
+            ReadOnlySpan<byte> data = File.ReadAllBytes(path);
+            var shockwaveFile = new ShockwaveFile();
+            shockwaveFile.Load(data);
+
+            return shockwaveFile;
         }
     }
 }

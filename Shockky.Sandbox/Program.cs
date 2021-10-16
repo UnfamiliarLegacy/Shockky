@@ -1,12 +1,10 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Collections.Generic;
+﻿using System.Text;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
-using Shockky.Chunks;
-using Shockky.Chunks.Cast;
+using Shockky.Resources;
+using Shockky.Resources.Cast;
+using Shockky.Resources.Types;
 
 using System.CommandLine;
 using System.CommandLine.Invocation;
@@ -25,21 +23,18 @@ namespace Shockky.Sandbox
             //TODO: Verbose and Quiet levels, and rest of the resources of course
             var rootCommand = new RootCommand()
             {
-                new Argument<IEnumerable<FileInfo>>("input")
+                new Argument<IEnumerable<System.IO.FileInfo>>("input")
                 {
                     Arity = ArgumentArity.OneOrMore,
                     Description = "Director movie (.dir, .dxt, .dcr) or external cast (.cst, .cxt, .cct) file(s)."
                 }.ExistingOnly(),
-
-                new Option<bool>("--images",
-                    description: "Extract (not all yet) bitmaps from the file."),
 
                 new Option<DirectoryInfo>("--output",
                     getDefaultValue: () => new DirectoryInfo("Output/"),
                     description: "Directory for the extracted resources")
                 .LegalFilePathsOnly()
             };
-            rootCommand.Handler = CommandHandler.Create<IEnumerable<FileInfo>, bool, DirectoryInfo>(HandleExtractCommand);
+            rootCommand.Handler = CommandHandler.Create<IEnumerable<System.IO.FileInfo>, bool, DirectoryInfo>(HandleExtractCommand);
 
             return rootCommand.Invoke(args);
         }
@@ -90,11 +85,8 @@ namespace Shockky.Sandbox
             };
         }
 
-        private static int HandleExtractCommand(IEnumerable<FileInfo> input, bool images, DirectoryInfo output)
+        private static int HandleExtractCommand(IEnumerable<System.IO.FileInfo> input, bool images, DirectoryInfo output)
         {
-            if (!images)
-                return 0;
-            
             output.Create();
 
             //Load the built-in system palettes
@@ -107,114 +99,90 @@ namespace Shockky.Sandbox
 
                 Console.Write($"Disassembling file \"{file.Name}\"..");
 
-                var shockwaveFile = new ShockwaveFile(file.FullName);
-                shockwaveFile.Disassemble();
+                var shockwaveFile = ShockwaveFile.Load(file.FullName);
 
-                Console.WriteLine("Done!");
-
-                List<(CastMemberPropertiesChunk Member, ChunkItem Media)> memberMedia = new List<(CastMemberPropertiesChunk, ChunkItem)>();
-
-                var associationTable = shockwaveFile.Chunks.Values
-                    .FirstOrDefault(c => c.Kind == ChunkKind.KEYPtr) as AssociationTableChunk;
-
-                var castAssociationTable = shockwaveFile.Chunks.Values
-                    .FirstOrDefault(c => c.Kind == ChunkKind.CASPtr) as CastAssociationTableChunk;
-
-                if (associationTable == null)
+                if (shockwaveFile.Chunks.Values
+                    .FirstOrDefault(c => c.Kind == ResourceKind.KEYPtr) is not AssociationTable associationTable)
                 {
-                    Console.WriteLine($"Chunk \"{nameof(AssociationTableChunk)}\" was not found!");
+                    Console.WriteLine(nameof(AssociationTable) + " was not found!");
                     continue;
                 }
-
-                if (castAssociationTable == null)
+                if (shockwaveFile.Chunks.Values
+                    .FirstOrDefault(c => c.Kind == ResourceKind.CASPtr) is not CastAssociationTable castAssociationTable)
                 {
-                    Console.WriteLine($"Chunk \"{nameof(CastAssociationTableChunk)}\" was not found!");
+                    Console.WriteLine(nameof(CastAssociationTable) + " was not found!");
                     continue;
                 }
-                Console.Write("Extracting resources..");
+                Console.Write("Extracting bitmaps..");
 
-                //TODO: Report progress, try some of those System.CommandLine goodies?
-
-                //Build a list of the cast member-media pairs.
-                foreach (int memberId in castAssociationTable.Members)
+                //TODO: This is currently just hacks all around. Shockky should have these lookups abstracted away.
+                foreach ((ResourceId resourceId, int index) in associationTable.ResourceMap)
                 {
-                    if (memberId == 0) continue;
+                    if (resourceId.Kind != ResourceKind.BITD) continue;
 
-                    var castMemberChunk = shockwaveFile[memberId] as CastMemberPropertiesChunk;
+                    var member = shockwaveFile[resourceId.Id] as CastMemberProperties;
+                    var bitmapData = shockwaveFile[index] as BitmapData;
 
-                    var mediaEntries = associationTable.CastEntries.Where(e => e.OwnerId == memberId);
+                    if (member?.Properties is not BitmapCastProperties bitmapProperties)
+                        continue;
 
-                    foreach (var mediaEntry in mediaEntries)
+                    //TODO: external castlibs
+                    if (bitmapProperties.PaletteRef.CastLib > 0)
+                        continue;
+
+                    if (bitmapProperties.Rectangle.IsEmpty)
+                        continue;
+
+                    string outputFileName = CoerceValidFileName(member?.Metadata?.Name ?? "member-" + resourceId.Id);
+
+                    if (bitmapProperties.PaletteRef.MemberNum > 0 && bitmapProperties.PaletteRef.MemberNum < castAssociationTable.Members.Length)
                     {
-                        //TODO: filter mediaEntry.Kind here to extract only wanted resources
+                        continue;
+                        //TODO:
 
-                        memberMedia.Add((castMemberChunk, shockwaveFile[mediaEntry.Id]));
+                        //int paletteOwnerIndex = castAssociationTable.Members[bitmapProperties.PaletteRef.MemberNum];
+                        //if (shockwaveFile[paletteOwnerIndex] is not CastMemberProperties paletteMember)
+                        //    continue;
+                        //
+                        //var paletterResId = new ResourceId(ResourceKind.CLUT, paletteOwnerIndex);
+                        //
+                        //if (associationTable.ResourceMap.TryGetValue(paletterResId, out int paletteChunkIndex))
+                        //{
+                        //    var palette = shockwaveFile[paletteChunkIndex] as Palette;
+                        //    bitmapData.PopulateMedia(bitmapProperties);
+                        //    if (!TryExtractBitmapResource(fileOutputDirectory, outputFileName, bitmapData, palette.Colors))
+                        //        continue;
+                        //}
                     }
-                }
-
-                //TODO: DIB and others..
-                foreach (var (memberChunk, mediaChunk) in memberMedia.Where(entry => entry.Media?.Kind == ChunkKind.BITD))
-                {
-                    var bitmapDataChunk = mediaChunk as BitmapDataChunk;
-                    var bitmapProperties = memberChunk?.Properties as BitmapCastProperties;
-
-                    if (bitmapProperties == null) continue;
-
-                    string outputFileName = CoerceValidFileName(memberChunk?.Common?.Name ?? "NONAME-" + memberChunk.Header.Length);
-
-                    int paletteIndex = bitmapProperties.Palette - 1; //castMemRef
-
-                    if (paletteIndex >= 0 && paletteIndex < castAssociationTable.Members.Length)
+                    else if (systemPalettes.TryGetValue(bitmapProperties.PaletteRef.MemberNum - 1, out System.Drawing.Color[] palette))
                     {
-                        //TODO: Research why these safety checks still fail for some files.. CastMemRef's seems to point to non palette members?
-
-                        int paletteMemberChunkId = castAssociationTable.Members[paletteIndex];
-
-                        if (shockwaveFile[paletteMemberChunkId] is CastMemberPropertiesChunk paletteMember)
-                        {
-                            if (memberMedia.FirstOrDefault(entry => entry.Member == paletteMember).Media is PaletteChunk paletteChunk)
-                            {
-                                bitmapDataChunk.PopulateMedia(bitmapProperties);
-                                if (TryExtractBitmapResource(fileOutputDirectory, outputFileName, bitmapDataChunk, paletteChunk.Colors))
-                                {
-                                    Console.Write('.');
-                                    continue;
-                                }
-                            }
-                        }
-                    }
-                    else if (systemPalettes.TryGetValue(paletteIndex, out System.Drawing.Color[] palette))
-                    {
-                        bitmapDataChunk.PopulateMedia(bitmapProperties);
-                        if (TryExtractBitmapResource(fileOutputDirectory, outputFileName, bitmapDataChunk, palette))
-                        {
-                            Console.Write('.');
+                        bitmapData.PopulateMedia(bitmapProperties);
+                        if (!TryExtractBitmapResource(fileOutputDirectory, outputFileName, bitmapData, palette))
                             continue;
-                        }
                     }
-                    Console.Write('x');
+                    Console.WriteLine($"({bitmapProperties.PaletteRef.CastLib}, {bitmapProperties.PaletteRef.MemberNum}) {member.Metadata?.Name}:");
+                    Console.WriteLine($"    BitDepth: {bitmapProperties.BitDepth}");
                 }
-                Console.WriteLine(" Done!");
+                Console.WriteLine();
+                Console.WriteLine("Done!");
             }
-
             return 0;
         }
 
-        //TODO: Look more into ImageSharp, could offer some helpful tools to do this
-        private static bool TryExtractBitmapResource(DirectoryInfo outputDirectory, string name, BitmapDataChunk bitmapDataChunk, System.Drawing.Color[] palette)
+        //TODO: Can we use ImageSharp's PixelOperations here?
+        private static bool TryExtractBitmapResource(DirectoryInfo outputDirectory, string name, BitmapData bitmapData, System.Drawing.Color[] palette)
         {
             //TODO: Properly render flags etc.
+            Span<byte> buffer = bitmapData.Data.AsSpan();
 
-            Span<byte> buffer = bitmapDataChunk.Data.AsSpan();
+            int width = bitmapData.Width < bitmapData.Stride ? bitmapData.Width : bitmapData.Stride;
 
-            int width = bitmapDataChunk.Width < bitmapDataChunk.TotalWidth ? bitmapDataChunk.Width : bitmapDataChunk.TotalWidth;
-
-            using var image = new Image<Bgra32>(bitmapDataChunk.Width, bitmapDataChunk.Height);
-            for (int y = 0; y < bitmapDataChunk.Height; y++)
+            using var image = new Image<Rgba32>(bitmapData.Width, bitmapData.Height);
+            for (int y = 0; y < bitmapData.Height; y++)
             {
-                Span<byte> row = buffer.Slice(y * bitmapDataChunk.TotalWidth, bitmapDataChunk.TotalWidth);
+                Span<byte> row = buffer.Slice(y * bitmapData.Stride, bitmapData.Stride);
 
-                if (bitmapDataChunk.BitDepth == 32) //TODO: Can't get this right yet, probably wrong PixelFormat
+                if (bitmapData.BitDepth == 32) //TODO: Can't get this right yet, probably wrong PixelFormat
                 {
                     return false;
 
@@ -225,7 +193,26 @@ namespace Shockky.Sandbox
                     //    image[x, y] = pixels[x];
                     //}
                 }
-                else if (bitmapDataChunk.BitDepth == 4)
+                else if (bitmapData.BitDepth == 16)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        int pixelColor = MemoryMarshal.Read<short>(row.Slice(x*2));
+                        byte r = (byte)((pixelColor & 0b111100000000) >> 8);
+                        byte g = (byte)((pixelColor & 0b000011110000) >> 4);
+                        byte b = (byte)(pixelColor  & 0b000000001111);
+                        image[x, y] = new Rgba32(r, g, b);
+                    }
+                }
+                else if (bitmapData.BitDepth == 8)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        System.Drawing.Color pixelColor = palette[row[x]];
+                        image[x, y] = new Rgba32(pixelColor.R, pixelColor.G, pixelColor.B);
+                    }
+                }
+                else if (bitmapData.BitDepth == 4)
                 {
                     return false;
 
@@ -237,12 +224,15 @@ namespace Shockky.Sandbox
                     //    //image[x, y] = new Bgra32(pixelColor.R, pixelColor.G, pixelColor.B);
                     //}
                 }
-                else
+                else if (bitmapData.BitDepth == 1)
                 {
-                    for (int x = 0; x < width; x++)
+                    for (int x = 0; x < bitmapData.Width; )
                     {
-                        System.Drawing.Color pixelColor = palette[row[x]];
-                        image[x, y] = new Bgra32(pixelColor.R, pixelColor.G, pixelColor.B);
+                        for (int c = 0; c < 8 && x < bitmapData.Width; c++, x++)
+                        {
+                            int p = row[x / 8] & (1 << (7 - c));
+                            image[x, y] = new Rgba32(p, p, p);
+                        }
                     }
                 }
             }

@@ -9,21 +9,16 @@
             set
             {
                 _argumentNameIndex = value;
-                Name = Pool.NameList[Handler.Arguments[value]];
             }
         }
 
-        public SetParameterIns(LingoHandler handler)
-            : base(OPCode.SetParameter, handler)
+        public SetParameterIns(LingoFunction function)
+            : base(OPCode.SetParameter, function)
         { }
-        public SetParameterIns(LingoHandler handler, int argumentNameIndex)
-            : this(handler)
+        public SetParameterIns(LingoFunction function, int argumentNameIndex)
+            : this(function)
         {
             ArgumentNameIndex = argumentNameIndex;
-            //TODO: index under int16 in namelist with this one too
         }
-
-        protected override int SetName(string name)
-            => Handler.Arguments[Value] = (short)Pool.AddName(name);
     }
 }

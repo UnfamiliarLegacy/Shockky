@@ -1,16 +1,14 @@
 ﻿namespace Shockky.Lingo.Instructions
 {
-    public class PushIntIns : Primitive //TODO: OPCode.PushInt2
+    public class PushIntIns : Primitive
     {
-        public PushIntIns(LingoHandler handler)
-            : base(OPCode.PushInt, handler)
+        public PushIntIns(LingoFunction function)
+            : base(OPCode.PushInt, function)
         { }
-        public PushIntIns(LingoHandler handler, int value)
-            : this(handler)
+        public PushIntIns(LingoFunction function, int value)
+            : this(function)
         {
             Value = value;
         }
-
-        protected override int SetValue(object value) => (int)value;
     }
 }

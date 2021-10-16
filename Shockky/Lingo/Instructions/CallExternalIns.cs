@@ -9,15 +9,14 @@
             set
             {
                 _functionNameIndex = value;
-                TargetFunction = Pool.NameList[value];
             }
         }
 
-        public CallExternalIns(LingoHandler handler)
-            : base(OPCode.CallExternal, handler)
+        public CallExternalIns(LingoFunction function)
+            : base(OPCode.CallExternal, function)
         { }
-        public CallExternalIns(LingoHandler handler, int externalFunctionNameIndex)
-            : this(handler)
+        public CallExternalIns(LingoFunction function, int externalFunctionNameIndex)
+            : this(function)
         {
             FunctionNameIndex = externalFunctionNameIndex;
         }

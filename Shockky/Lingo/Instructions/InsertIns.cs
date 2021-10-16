@@ -2,28 +2,15 @@
 {
     public class InsertIns : Instruction
     {
-        public InsertIns(LingoHandler handler) 
-            : base(OPCode.Insert, handler)
+        public InsertIns(LingoFunction function) 
+            : base(OPCode.Insert, function)
         { }
-        public InsertIns(LingoHandler handler, int value)
-            : this(handler)
+        public InsertIns(LingoFunction function, int value)
+            : this(function)
         {
             Value = value;
         }
 
         public override int GetPopCount() => 10;
-
-        public override void AcceptVisitor(InstructionVisitor visitor)
-        {
-            visitor.VisitInsertInstruction(this);
-        }
-        public override void AcceptVisitor<TContext>(InstructionVisitor<TContext> visitor, TContext context)
-        {
-            visitor.VisitInsertInstruction(this, context);
-        }
-        public override T AcceptVisitor<TContext, T>(InstructionVisitor<TContext, T> visitor, TContext context)
-        {
-            return visitor.VisitInsertInstruction(this, context);
-        }
     }
 }

@@ -9,22 +9,16 @@
             set
             {
                 _handlerIndex = value;
-                TargetFunction = Pool.Handlers[value].Name;
             }
         }
 
-        public LingoHandler TargetHandler => Pool.Handlers[Value];
-
-        public CallLocalIns(LingoHandler handler)
-            : base(OPCode.CallLocal, handler)
+        public CallLocalIns(LingoFunction function)
+            : base(OPCode.CallLocal, function)
         { }
-        public CallLocalIns(LingoHandler handler, int handlerIndex)
-            : this(handler)
+        public CallLocalIns(LingoFunction function, int handlerIndex)
+            : this(function)
         {
             HandlerIndex = handlerIndex;
         }
-
-        protected override int SetTarget(string functionName)
-            => Pool.Handlers.FindIndex(handler => handler.Name == functionName);
     }
 }

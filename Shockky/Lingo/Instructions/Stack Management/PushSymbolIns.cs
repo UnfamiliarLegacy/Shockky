@@ -9,7 +9,6 @@
             set
             {
                 _name = value;
-                base.Value = _nameIndex = Pool.AddName(value);
             }
         }
 
@@ -21,37 +20,23 @@
             {
                 base.Value = value;
                 _nameIndex = value;
-                _name = Pool.NameList[value];
             }
         }
 
-        public PushSymbolIns(LingoHandler handler)
-            : base(OPCode.PushSymbol, handler)
+        public PushSymbolIns(LingoFunction function)
+            : base(OPCode.PushSymbol, function)
         { }
-        public PushSymbolIns(LingoHandler handler, int nameIndex)
-            : this(handler)
+        public PushSymbolIns(LingoFunction function, int nameIndex)
+            : this(function)
         {
             NameIndex = nameIndex;
         }
-        public PushSymbolIns(LingoHandler handler, string name)
-            : this(handler)
+        public PushSymbolIns(LingoFunction function, string name)
+            : this(function)
         {
             Name = name;
         }
 
         public override int GetPushCount() => 1;
-
-        public override void AcceptVisitor(InstructionVisitor visitor)
-        {
-            visitor.VisitSymbolInstruction(this);
-        }
-        public override void AcceptVisitor<TContext>(InstructionVisitor<TContext> visitor, TContext context)
-        {
-            visitor.VisitSymbolInstruction(this, context);
-        }
-        public override T AcceptVisitor<TContext, T>(InstructionVisitor<TContext, T> visitor, TContext context)
-        {
-            return visitor.VisitSymbolInstruction(this, context);
-        }
     }
 }

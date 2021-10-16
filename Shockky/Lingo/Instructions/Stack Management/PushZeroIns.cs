@@ -8,13 +8,6 @@
             Value = 0;
         }
 
-        public override void Execute(LingoMachine machine)
-        {
-            machine.Values.Push(0);
-        }
-
-        protected override int SetValue(object value) => 0;
-
         public override int GetPushCount() => 1;
     }
 }

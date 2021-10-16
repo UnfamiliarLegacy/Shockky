@@ -1,21 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-
-using Shockky.Lingo.Instructions;
+﻿using Shockky.Lingo.Instructions;
 
 namespace Shockky.Lingo.ControlFlow
 {
+    /// <summary>
+    /// Represents a control flow graph of the code - directed graph.
+    /// </summary>
     public class ControlFlowGraph
     {
-        //public BasicBlock Entry => Blocks[0];
         public IList<BasicBlock> Blocks { get; set; }
 
         //Graph G = (B, E) where B = Blocks
         //and where E = Edges =>
-        //(BasicBlock predecessor, BasicBlock succcessor)[] Edges = (b_i, b_j)
+        //(BasicBlock pred, BasicBlock succc)[] Edges = (b_i, b_j)
 
         public ControlFlowGraph()
         { }
+
+        //TODO: Detects shortcircuits, build dominator trees etc. fun stuff to look into
+
+        // Immediate dominators
+        //TODO: Form structured control-flow.
 
         public static ControlFlowGraph Create(LingoCode code)
         {

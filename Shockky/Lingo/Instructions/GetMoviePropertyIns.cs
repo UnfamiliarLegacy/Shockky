@@ -9,22 +9,21 @@
             set
             {
                 _valueIndex = value;
-                Name = Pool.NameList[value];
             }
         }
 
-        public GetMoviePropertyIns(LingoHandler handler)
-            : base(OPCode.GetMovieProp, handler)
+        public GetMoviePropertyIns(LingoFunction function)
+            : base(OPCode.GetMovieProp, function)
         {
             IsMoviePropertyReference = true;
         }
-        public GetMoviePropertyIns(LingoHandler handler, int propertyNameIndex)
-            : this(handler)
+        public GetMoviePropertyIns(LingoFunction function, int propertyNameIndex)
+            : this(function)
         {
             ValueIndex = propertyNameIndex;
         }
-        public GetMoviePropertyIns(LingoHandler handler, string moviePropertyName)
-            : this(handler)
+        public GetMoviePropertyIns(LingoFunction function, string moviePropertyName)
+            : this(function)
         {
             Name = moviePropertyName;
         }

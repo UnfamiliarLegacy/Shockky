@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 
 using Shockky.IO;
 using Shockky.Lingo.Instructions;
 
 namespace Shockky.Lingo
 {
-    public class LingoCode : ShockwaveItem, IList<Instruction>
+    public class LingoCode : IList<Instruction>
     {
-        private readonly LingoHandlerBody _body;
         private readonly List<Instruction> _instructions;
 
         private readonly Dictionary<Instruction, int> _indices;
@@ -30,7 +27,7 @@ namespace Shockky.Lingo
             get => _instructions[index];
             set => _instructions[index] = value;
         }
-        public Instruction[] this[Range range]
+        public Instruction[] this[Range range] //TODO: this is just a copy, probably dont want this to be "hidden"
         {
             get
             {
@@ -42,35 +39,33 @@ namespace Shockky.Lingo
             }
         }
 
-        public LingoCode(LingoHandlerBody body)
+        public LingoCode(byte[] bytecode)
         {
-            _body = body;
-
             _instructions = new List<Instruction>();
             _indices = new Dictionary<Instruction, int>();
             _opGroups = new Dictionary<OPCode, List<Instruction>>();
 
             JumpExits = new Dictionary<Jumper, Instruction>();
 
-            LoadInstruction();
+            Disassemble(bytecode);
         }
         
-        public void LoadInstruction()
+        private void Disassemble(ReadOnlySpan<byte> bytecode)
         {
             var marks = new Dictionary<long, Instruction>();
             var sharedExits = new Dictionary<long, List<Jumper>>();
 
-            var input = new ShockwaveReader(_body.Code);
+            var input = new ShockwaveReader(bytecode);
             while (input.IsDataAvailable)
             {
                 long previousPosition = input.Position;
-                var instruction = Instruction.Create(_body.Handler, ref input);
+                var instruction = Instruction.Create(ref input);
                 marks[previousPosition] = instruction;
 
                 _instructions.Add(instruction);
-
-                if (instruction == null) continue; //TODO: TEMPORARY DEBUGGING MEASURE
-
+#if DEBUG
+                if (instruction == null) continue;
+#endif
                 _indices.Add(instruction, _indices.Count);
 
                 if (!_opGroups.TryGetValue(instruction.OP, out List<Instruction> instructions))
@@ -126,10 +121,10 @@ namespace Shockky.Lingo
         }
         public Jumper GetJumperEntry(Instruction exit)
         {
-            foreach (KeyValuePair<Jumper, Instruction> jumpExit in JumpExits)
+            foreach ((Jumper jumper, Instruction jumpExit) in JumpExits)
             {
-                if (jumpExit.Value != exit) continue;
-                return jumpExit.Key;
+                if (jumpExit != exit) continue;
+                return jumper;
             }
             return null;
         }
@@ -208,9 +203,7 @@ namespace Shockky.Lingo
             _instructions.RemoveAt(index);
         }
 
-        public override int GetBodySize() => _body.Code.Length;
-
-        public override void WriteTo(ShockwaveWriter output)
+        public void WriteTo(ShockwaveWriter output)
         {
             foreach (var instruction in _instructions)
             {
