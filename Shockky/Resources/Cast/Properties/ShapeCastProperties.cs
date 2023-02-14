@@ -2,68 +2,68 @@
 
 using Shockky.IO;
 
-namespace Shockky.Resources.Cast
+namespace Shockky.Resources.Cast;
+
+public class ShapeCastProperties : IMemberProperties
 {
-    public class ShapeCastProperties : ShockwaveItem, IMemberProperties
+    public ShapeType Type { get; set; }
+    public Rectangle Rectangle { get; set; }
+    public short Pattern { get; set; }
+    public byte ForegroundColor { get; set; }
+    public byte BackgroundColor { get; set; }
+    public bool IsFilled { get; set; }
+    public InkType Ink { get; set; }
+    public byte LineSize { get; set; }
+    public byte LineDirection { get; set; }
+
+    public ShapeCastProperties()
+    { }
+    public ShapeCastProperties(ref ShockwaveReader input, ReaderContext context)
     {
-        public ShapeType Type { get; set; }
-        public Rectangle Rectangle { get; set; }
-        public short Pattern { get; set; }
-        public byte ForegroundColor { get; set; }
-        public byte BackgroundColor { get; set; }
-        public bool IsFilled { get; set; }
-        public InkType Ink { get; set; }
-        public byte LineSize { get; set; }
-        public byte LineDirection { get; set; }
+        Type = (ShapeType)input.ReadInt16();
+        Rectangle = input.ReadRect();
 
-        public ShapeCastProperties()
-        { }
-        public ShapeCastProperties(ref ShockwaveReader input)
-        {
-            Type = (ShapeType)input.ReadInt16();
-            Rectangle = input.ReadRect();
+        Pattern = input.ReadInt16();
+        ForegroundColor = input.ReadByte();
+        BackgroundColor = input.ReadByte();
 
-            Pattern = input.ReadInt16();
-            ForegroundColor = input.ReadByte();
-            BackgroundColor = input.ReadByte();
+        byte flags = input.ReadByte(); //TODO:
+        IsFilled = (flags << 1) == 1;
+        Ink = (InkType)(flags & 0x3F);
 
-            byte flags = input.ReadByte(); //TODO:
-            IsFilled = (flags << 1) == 1;
-            Ink = (InkType)(flags & 0x3F);
+        // csnover:
+        // Director does not normalise file data, nor data to/from Lingo,
+        // so this value can be anything 0-255. Only in the paint function
+        // does it get clamped by (effectively) `max(0, (line_size & 0xf) - 1)`.
+        LineSize = (byte)(input.ReadByte() - 1);
+        LineDirection = (byte)(input.ReadByte() - 5);
+    }
 
-            // Director does not normalise file data, nor data to/from Lingo,
-            // so this value can be anything 0-255. Only in the paint function
-            // does it get clamped by (effectively) `max(0, (line_size & 0xf) - 1)`.
-            LineSize = (byte)(input.ReadByte() - 1);
-            LineDirection = (byte)(input.ReadByte() - 5);
-        }
+    public int GetBodySize(WriterOptions options)
+    {
+        int size = 0;
+        size += sizeof(short);
+        size += sizeof(short) * 4;
+        size += sizeof(short);
+        size += sizeof(byte);
+        size += sizeof(byte);
+        size += sizeof(bool);
+        size += sizeof(byte);
+        size += sizeof(byte);
+        return size;
+    }
 
-        public override int GetBodySize()
-        {
-            int size = 0;
-            size += sizeof(short);
-            size += sizeof(short) * 4;
-            size += sizeof(short);
-            size += sizeof(byte);
-            size += sizeof(byte);
-            size += sizeof(bool);
-            size += sizeof(byte);
-            size += sizeof(byte);
-            return size;
-        }
+    public void WriteTo(ShockwaveWriter output, WriterOptions options)
+    {
+        output.Write((short)Type);
+        output.Write(Rectangle);
 
-        public override void WriteTo(ShockwaveWriter output)
-        {
-            output.Write((short)Type);
-            output.Write(Rectangle);
+        output.Write(Pattern);
+        output.Write(ForegroundColor);
+        output.Write(BackgroundColor);
 
-            output.Write(Pattern);
-            output.Write(ForegroundColor);
-            output.Write(BackgroundColor);
-
-            output.Write((byte)(IsFilled ? 1 : 0)); //TODO:
-            output.Write((byte)(LineSize + 1));
-            output.Write((byte)(LineDirection + 5));
-        }
+        output.Write((byte)(IsFilled ? 1 : 0)); //TODO:
+        output.Write((byte)(LineSize + 1));
+        output.Write((byte)(LineDirection + 5));
     }
 }

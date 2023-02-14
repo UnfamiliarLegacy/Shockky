@@ -1,8 +1,7 @@
-﻿namespace Shockky.Resources
+﻿namespace Shockky.Resources;
+
+public enum LineDirection : byte
 {
-    public enum LineDirection : byte
-    {
-        TopToBottom = 5,
-        BottomToTop
-    }
+    TopToBottom = 5,
+    BottomToTop
 }

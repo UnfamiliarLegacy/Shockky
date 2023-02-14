@@ -2,38 +2,32 @@
 
 using Shockky.IO;
 
-namespace Shockky.Resources
+namespace Shockky.Resources;
+
+public sealed class Palette : IShockwaveItem, IResource
 {
-    public class Palette : Chunk
+    public OsType Kind => OsType.CLUT;
+
+    public Color[] Colors { get; set; }
+
+    public Palette()
+    { }
+    public Palette(ref ShockwaveReader input, ReaderContext context)
     {
-        public Color[] Colors { get; set; }
-
-        public Palette()
-            : base(ResourceKind.CLUT)
-        { }
-        public Palette(ref ShockwaveReader input, ChunkHeader header)
-            : base(header)
+        Colors = new Color[input.Length / 6];
+        for (int i = 0; i < Colors.Length; i++)
         {
-            Colors = new Color[header.Length / 6];
-            for (int i = 0; i < Colors.Length; i++)
-            {
-                Colors[i] = input.ReadColor();
-            }
+            Colors[i] = input.ReadColor();
         }
+    }
 
-        public override void WriteBodyTo(ShockwaveWriter output)
-        {
-            foreach (Color color in Colors)
-            {
-                output.Write(color);
-            }
-        }
+    public int GetBodySize(WriterOptions options) => Colors.Length * 6;
 
-        public override int GetBodySize()
+    public void WriteTo(ShockwaveWriter output, WriterOptions options)
+    {
+        foreach (Color color in Colors)
         {
-            int size = 0;
-            size += (Colors.Length * 6);
-            return size;
+            output.Write(color);
         }
     }
 }

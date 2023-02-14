@@ -1,9 +1,8 @@
-﻿namespace Shockky.Resources
+﻿namespace Shockky.Resources;
+
+public enum RichTextBoxType : byte
 {
-    public enum RichTextBoxType : byte
-    {
-        Fit = 0,
-        Scroll = 1,
-        Crop = 2
-    }
+    Fit = 0,
+    Scroll = 1,
+    Crop = 2
 }

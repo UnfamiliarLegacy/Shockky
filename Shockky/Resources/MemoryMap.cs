@@ -1,72 +1,68 @@
 ﻿using Shockky.IO;
 
-namespace Shockky.Resources
+namespace Shockky.Resources;
+
+public sealed class MemoryMap : IShockwaveItem, IResource
 {
-    public class MemoryMap : Chunk
+    public OsType Kind => OsType.mmap;
+
+    public const short ENTRIES_OFFSET = 24;
+    public const short ENTRY_SIZE = 20;
+
+    public ResourceEntry[] Entries { get; set; }
+
+    public int LastJunkIndex { get; set; }
+    public int SomeLinkedIndex { get; set; }
+    public int LastFreeIndex { get; set; }
+
+    public ResourceEntry this[int index] => Entries[index];
+
+    public MemoryMap(ref ShockwaveReader input, ReaderContext context)
     {
-        public const short ENTRIES_OFFSET = 24;
-        public const short ENTRY_SIZE = 20;
+        input.ReadBEInt16();
+        input.ReadBEInt16();
 
-        public ChunkEntry[] Entries { get; set; }
+        input.ReadBEInt32();
+        var entries = new ResourceEntry[input.ReadBEInt32()];
 
-        public int LastJunkIndex { get; set; }
-        public int SomeLinkedIndex { get; set; }
-        public int LastFreeIndex { get; set; }
+        int lastJunkIndex = input.ReadBEInt32();
+        int someLinkedIndex = input.ReadBEInt32();
+        int lastFreeIndex = input.ReadBEInt32();
 
-        public ChunkEntry this[int index] => Entries[index];
-
-        public MemoryMap()
-            : base(ResourceKind.mmap)
-        { }
-        public MemoryMap(ref ShockwaveReader input, ChunkHeader header)
-            : base(header)
+        for (int i = 0; i < Entries.Length; i++)
         {
-            input.ReadBEInt16();
-            input.ReadBEInt16();
-
-            input.ReadBEInt32();
-            Entries = new ChunkEntry[input.ReadBEInt32()];
-
-            LastJunkIndex = input.ReadBEInt32();
-            SomeLinkedIndex = input.ReadBEInt32();
-            LastFreeIndex = input.ReadBEInt32();
-
-            System.Diagnostics.Debug.Assert(SomeLinkedIndex == -1); //TODO:
-            for (int i = 0; i < Entries.Length; i++)
-            {
-                Entries[i] = new ChunkEntry(ref input);
-            }
+            Entries[i] = new ResourceEntry(ref input, context);
         }
-        
-        public override void WriteBodyTo(ShockwaveWriter output)
+    }
+
+    public int GetBodySize(WriterOptions options)
+    {
+        int size = 0;
+        size += sizeof(short);
+        size += sizeof(short);
+        size += sizeof(int);
+        size += sizeof(int);
+        size += sizeof(int);
+        size += sizeof(int);
+        size += sizeof(int);
+        size += Entries.Length * ENTRY_SIZE;
+        return size;
+    }
+
+    public void WriteTo(ShockwaveWriter output, WriterOptions options)
+    {
+        output.WriteBE(ENTRIES_OFFSET);
+        output.WriteBE(ENTRY_SIZE);
+
+        output.WriteBE(Entries.Length);
+        output.WriteBE(Entries.Length);
+
+        output.WriteBE(LastJunkIndex);
+        output.WriteBE(SomeLinkedIndex);
+        output.WriteBE(LastFreeIndex);
+        foreach (var entry in Entries)
         {
-            output.WriteBE(ENTRIES_OFFSET);
-            output.WriteBE(ENTRY_SIZE);
-
-            output.WriteBE(Entries.Length);
-            output.WriteBE(Entries.Length);
-
-            output.WriteBE(LastJunkIndex);
-            output.WriteBE(SomeLinkedIndex);
-            output.WriteBE(LastFreeIndex);
-            foreach (var entry in Entries)
-            {
-                entry.WriteTo(output);
-            }
-        }
-
-        public override int GetBodySize()
-        {
-            int size = 0;
-            size += sizeof(short);
-            size += sizeof(short);
-            size += sizeof(int);
-            size += sizeof(int);
-            size += sizeof(int);
-            size += sizeof(int);
-            size += sizeof(int);
-            size += Entries.Length * ENTRY_SIZE;
-            return size;
+            entry.WriteTo(output, options);
         }
     }
 }

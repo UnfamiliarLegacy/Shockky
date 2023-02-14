@@ -1,9 +1,8 @@
-﻿namespace Shockky.Resources
+﻿namespace Shockky.Resources;
+
+public enum TextAlignment
 {
-    public enum TextAlignment
-    {
-        Right = -1,
-        Left = 0,
-        Center = 1
-    }
+    Right = -1,
+    Left = 0,
+    Center = 1
 }

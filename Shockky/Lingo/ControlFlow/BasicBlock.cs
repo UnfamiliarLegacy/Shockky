@@ -3,31 +3,30 @@ using System.Collections;
 
 using Shockky.Lingo.Instructions;
 
-namespace Shockky.Lingo.ControlFlow
+namespace Shockky.Lingo.ControlFlow;
+
+/// <summary>
+/// Represents a Lingo VM instruction sequence in the <see cref="ControlFlowGraph"/>
+/// </summary>
+[DebuggerDisplay("Kind: {Kind}")]
+public class BasicBlock : IEnumerable<Instruction>
 {
-    /// <summary>
-    /// Represents a Lingo VM instruction sequence in the <see cref="ControlFlowGraph"/>
-    /// </summary>
-    [DebuggerDisplay("Kind: {Kind}")]
-    public class BasicBlock : IEnumerable<Instruction> //TODO: BB<T>?
+    public IList<Instruction> Body { get; set; }
+    public IList<BasicBlock> Predecessors { get; set; }
+    
+    public BasicBlock Conditional { get; set; }
+    public BasicBlock FallThrough { get; set; }
+
+    //public int Ordinal { get; set; }
+    public BasicBlockKind Kind { get; }
+
+    public BasicBlock(BasicBlockKind kind = BasicBlockKind.Block)
     {
-        public IList<Instruction> Body { get; set; }
-        public IList<BasicBlock> Predecessors { get; set; }
-        
-        public BasicBlock Conditional { get; set; }
-        public BasicBlock FallThrough { get; set; }
+        Kind = kind;
 
-        //public int Ordinal { get; set; }
-        public BasicBlockKind Kind { get; }
-
-        public BasicBlock(BasicBlockKind kind = BasicBlockKind.Block)
-        {
-            Kind = kind;
-
-            Predecessors = new List<BasicBlock>();
-        }
-
-        public IEnumerator<Instruction> GetEnumerator() => Body.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        Predecessors = new List<BasicBlock>();
     }
+
+    public IEnumerator<Instruction> GetEnumerator() => Body.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

@@ -1,43 +1,47 @@
 ﻿using Shockky.IO;
 
-namespace Shockky.Resources
+namespace Shockky.Resources;
+
+public class LingoContextItem : IShockwaveItem
 {
-    public class LingoContextItem : ShockwaveItem
+    public int ChunkIndex { get; set; }
+    public LingoContextItemFlags Flags { get; set; }
+
+    /// <summary>
+    /// Points to next free context item.
+    /// </summary>
+    public short Link { get; set; }
+
+    public LingoContextItem()
+    { }
+    public LingoContextItem(ref ShockwaveReader input)
     {
-        public int ChunkIndex { get; set; }
-        public LingoContextItemFlags Flags { get; set; }
+        input.ReadInt32();
+        ChunkIndex = input.ReadInt32();
+        Flags = (LingoContextItemFlags)input.ReadInt16();
+        Link = input.ReadInt16();
+    }
 
-        /// <summary>
-        /// Points to next free context item.
-        /// </summary>
-        public short Link { get; set; }
+    public int GetBodySize(WriterOptions options)
+    {
+        int size = 0;
+        size += sizeof(int);
+        size += sizeof(int);
+        size += sizeof(short);
+        size += sizeof(short);
+        return size;
+    }
 
-        public LingoContextItem()
-        { }
-        public LingoContextItem(ref ShockwaveReader input)
-        {
-            input.ReadInt32();
-            ChunkIndex = input.ReadInt32();
-            Flags = (LingoContextItemFlags)input.ReadInt16();
-            Link = input.ReadInt16();
-        }
+    public void WriteTo(ShockwaveWriter output, WriterOptions options)
+    {
+        output.Write(0);
+        output.Write(ChunkIndex);
+        output.Write((short)Flags);
+        output.Write(Link);
+    }
 
-        public override int GetBodySize()
-        {
-            int size = 0;
-            size += sizeof(int);
-            size += sizeof(int);
-            size += sizeof(short);
-            size += sizeof(short);
-            return size;
-        }
-
-        public override void WriteTo(ShockwaveWriter output)
-        {
-            output.Write(0);
-            output.Write(ChunkIndex);
-            output.Write((short)Flags);
-            output.Write(Link);
-        }
+    public static LingoContext Read(ref ShockwaveReader input, ReaderContext context)
+    {
+        throw new NotImplementedException();
     }
 }

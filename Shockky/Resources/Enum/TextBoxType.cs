@@ -1,10 +1,9 @@
-﻿namespace Shockky.Resources
+﻿namespace Shockky.Resources;
+
+public enum TextBoxType : byte
 {
-    public enum TextBoxType : byte
-    {
-        Adjust = 0,
-        Scroll = 1,
-        Fixed = 2,
-        Limit = 3
-    }
+    Adjust = 0,
+    Scroll = 1,
+    Fixed = 2,
+    Limit = 3
 }

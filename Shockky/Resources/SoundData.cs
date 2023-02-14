@@ -1,14 +1,13 @@
 ﻿using Shockky.IO;
 
-namespace Shockky.Resources
+namespace Shockky.Resources;
+
+public class SoundData : IBinaryData
 {
-    public class SoundData : BinaryData
-    {
-        public SoundData()
-            : base(ResourceKind.snd)
-        { }
-        public SoundData(ref ShockwaveReader input, ChunkHeader header)
-            : base(ref input, header)
-        { }
-    }
+    public OsType Kind => OsType.snd;
+
+    public byte[] Data { get; set; }
+
+    public SoundData(ref ShockwaveReader input)
+    { }
 }

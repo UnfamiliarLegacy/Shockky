@@ -1,9 +1,8 @@
-﻿namespace Shockky.Lingo.ControlFlow
+﻿namespace Shockky.Lingo.ControlFlow;
+
+public enum BasicBlockKind
 {
-    public enum BasicBlockKind
-    {
-        Entry,
-        Block,
-        Exit
-    }
+    Entry,
+    Block,
+    Exit
 }

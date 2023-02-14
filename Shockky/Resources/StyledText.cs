@@ -1,65 +1,60 @@
 ﻿using Shockky.IO;
 
-namespace Shockky.Resources
+namespace Shockky.Resources;
+
+public class StyledText : IShockwaveItem, IResource
 {
-    public class StyledText : Chunk
+    public OsType Kind => OsType.STXT;
+
+    public string Text { get; set; }
+    public TextFormat[] Formats { get; set; } = Array.Empty<TextFormat>();
+
+    public StyledText(ref ShockwaveReader input, ReaderContext context)
     {
-        public string Text { get; set; }
-        public TextFormat[] Formats { get; set; }
+        input.IsBigEndian = true;
 
-        public StyledText()
-            : base(ResourceKind.STXT)
+        input.ReadInt32();
+        int textLength = input.ReadInt32();
+        input.ReadInt32();
+
+        Text = input.ReadString(textLength);
+
+        Formats = new TextFormat[input.ReadInt16()];
+        for (int i = 0; i < Formats.Length; i++)
         {
-            Formats = Array.Empty<TextFormat>();
+            Formats[i] = new TextFormat(ref input, context);
         }
-        public StyledText(ref ShockwaveReader input, ChunkHeader header)
-            : base(header)
+    }
+
+    public void WriteTo(ShockwaveWriter output, WriterOptions options)
+    {
+        const int TEXT_OFFSET = 12;
+        const int TEXT_FORMAT_SIZE = 20;
+
+        output.Write(TEXT_OFFSET);
+        output.Write(Text.Length);
+        output.Write(sizeof(short) + (Formats.Length * TEXT_FORMAT_SIZE));
+
+        output.Write(Text); //TODO: 
+
+        output.Write((short)Formats.Length);
+        for (int i = 0; i < Formats.Length; i++)
         {
-            input.IsBigEndian = true;
-
-            input.ReadInt32();
-            int textLength = input.ReadInt32();
-            input.ReadInt32();
-
-            Text = input.ReadString(textLength);
-
-            Formats = new TextFormat[input.ReadInt16()];
-            for (int i = 0; i < Formats.Length; i++)
-            {
-                Formats[i] = new TextFormat(ref input);
-            }
+            Formats[i].WriteTo(output, options);
         }
+    }
 
-        public override void WriteBodyTo(ShockwaveWriter output)
-        {
-            const int TEXT_OFFSET = 12;
-            const int TEXT_FORMAT_SIZE = 20;
+    public int GetBodySize(WriterOptions options)
+    {
+        const int TEXT_FORMAT_SIZE = 20;
 
-            output.Write(TEXT_OFFSET);
-            output.Write(Text.Length);
-            output.Write(sizeof(short) + (Formats.Length * TEXT_FORMAT_SIZE));
-
-            output.Write(Text); //TODO: 
-
-            output.Write((short)Formats.Length);
-            for (int i = 0; i < Formats.Length; i++)
-            {
-                Formats[i].WriteTo(output);
-            }
-        }
-
-        public override int GetBodySize()
-        {
-            const int TEXT_FORMAT_SIZE = 20;
-
-            int size = 0;
-            size += sizeof(int);
-            size += sizeof(int);
-            size += sizeof(int);
-            size += Text.Length;
-            size += sizeof(short);
-            size += Formats.Length * TEXT_FORMAT_SIZE;
-            return size;
-        }
+        int size = 0;
+        size += sizeof(int);
+        size += sizeof(int);
+        size += sizeof(int);
+        size += Text.Length;
+        size += sizeof(short);
+        size += Formats.Length * TEXT_FORMAT_SIZE;
+        return size;
     }
 }

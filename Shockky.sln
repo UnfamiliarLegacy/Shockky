@@ -1,11 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29311.281
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32314.265
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shockky", "Shockky\Shockky.csproj", "{0F807D73-1838-4227-B6D3-932D83E99D9C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shockky.Sandbox", "Shockky.Sandbox\Shockky.Sandbox.csproj", "{0BD542DD-87A2-4BAD-8528-87D209C48BE5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shockky.Tests", "Shockky.Tests\Shockky.Tests.csproj", "{54449B04-39E9-4EA9-92D1-00EB7287E49A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shockky.Generators", "Shockky.Generators\Shockky.Generators.csproj", "{2FE1AA17-698A-465A-AC2A-B9424D250BC3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{0BD542DD-87A2-4BAD-8528-87D209C48BE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0BD542DD-87A2-4BAD-8528-87D209C48BE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0BD542DD-87A2-4BAD-8528-87D209C48BE5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54449B04-39E9-4EA9-92D1-00EB7287E49A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54449B04-39E9-4EA9-92D1-00EB7287E49A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54449B04-39E9-4EA9-92D1-00EB7287E49A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54449B04-39E9-4EA9-92D1-00EB7287E49A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FE1AA17-698A-465A-AC2A-B9424D250BC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FE1AA17-698A-465A-AC2A-B9424D250BC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FE1AA17-698A-465A-AC2A-B9424D250BC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FE1AA17-698A-465A-AC2A-B9424D250BC3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,6 +1,5 @@
-﻿namespace Shockky.Resources
-{
-    [Flags]
-    public enum LegacyCastMemberFlags
-    { }
-}
+﻿namespace Shockky.Resources;
+
+[Flags]
+public enum LegacyCastMemberFlags
+{ }

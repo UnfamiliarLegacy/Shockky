@@ -1,28 +1,27 @@
 ﻿using Shockky.IO;
 
-namespace Shockky.Resources.Cast
+namespace Shockky.Resources.Cast;
+
+public class ScriptCastProperties : IMemberProperties
 {
-    public class ScriptCastProperties : ShockwaveItem, IMemberProperties
+    public ScriptKind Kind { get; set; }
+
+    public ScriptCastProperties()
+    { }
+    public ScriptCastProperties(ref ShockwaveReader input, ReaderContext context)
     {
-        public ScriptKind Kind { get; set; }
+        Kind = (ScriptKind)input.ReadInt16(); 
+    }
 
-        public ScriptCastProperties()
-        { }
-        public ScriptCastProperties(ref ShockwaveReader input)
-        {
-            Kind = (ScriptKind)input.ReadInt16(); 
-        }
+    public int GetBodySize(WriterOptions options)
+    {
+        int size = 0;
+        size += sizeof(short);
+        return size;
+    }
 
-        public override int GetBodySize()
-        {
-            int size = 0;
-            size += sizeof(short);
-            return size;
-        }
-
-        public override void WriteTo(ShockwaveWriter output)
-        {
-            output.Write((short)Kind);
-        }
+    public void WriteTo(ShockwaveWriter output, WriterOptions options)
+    {
+        output.Write((short)Kind);
     }
 }

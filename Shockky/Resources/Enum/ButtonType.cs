@@ -1,9 +1,8 @@
-﻿namespace Shockky.Resources
+﻿namespace Shockky.Resources;
+
+public enum ButtonType : short
 {
-    public enum ButtonType : short
-    {
-        PushButton = 1,
-        CheckBox = 2,
-        RadioButton = 3,
-    }
+    PushButton = 1,
+    CheckBox = 2,
+    RadioButton = 3,
 }

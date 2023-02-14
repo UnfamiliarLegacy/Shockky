@@ -1,73 +1,72 @@
-﻿namespace Shockky.Resources
+﻿namespace Shockky.Resources;
+
+public enum TransitionType
 {
-    public enum TransitionType
-    {
-        None = 0,
-        
-        WipeRight,
-        WipeLeft,
-        WipeDown,
-        WipeUp,
-        
-        CenterOutHorizontal,
-        EdgesInHorizontal,
-        
-        CenterOutVertical,
-        EdgesInVertical,
-        
-        CenterOutSquare,
-        EdgesInSquare,
-        
-        PushLeft,
-        PushRight,
-        PushDown,
-        PushUp,
+    None = 0,
+    
+    WipeRight,
+    WipeLeft,
+    WipeDown,
+    WipeUp,
+    
+    CenterOutHorizontal,
+    EdgesInHorizontal,
+    
+    CenterOutVertical,
+    EdgesInVertical,
+    
+    CenterOutSquare,
+    EdgesInSquare,
+    
+    PushLeft,
+    PushRight,
+    PushDown,
+    PushUp,
 
-        RevealUp,
-        RevealUpRight,
-        RevealRight,
-        RevealDownRight,
-        RevealDown,
-        RevealDownLeft,
-        RevealLeft,
-        RevealUpLeft,
+    RevealUp,
+    RevealUpRight,
+    RevealRight,
+    RevealDownRight,
+    RevealDown,
+    RevealDownLeft,
+    RevealLeft,
+    RevealUpLeft,
 
-        DissolvePixelsFast,
-        DissolveBoxyRects,
-        DissolveBoxySquares,
-        DissolvePatterns,
+    DissolvePixelsFast,
+    DissolveBoxyRects,
+    DissolveBoxySquares,
+    DissolvePatterns,
 
-        RandomRows,
-        RandomColumns,
+    RandomRows,
+    RandomColumns,
 
-        CoverDown,
-        CoverDownLeft,
-        CoverDownRight,
-        CoverLeft,
-        CoverRight,
-        CoverUp,
-        CoverUpLeft,
-        CoverUpRight,
+    CoverDown,
+    CoverDownLeft,
+    CoverDownRight,
+    CoverLeft,
+    CoverRight,
+    CoverUp,
+    CoverUpLeft,
+    CoverUpRight,
 
-        VenetianBlind,
-        Checkerboard,
+    VenetianBlind,
+    Checkerboard,
 
-        StripsBottomBuildLeft,
-        StripsBottomBuildRight,
-        StripsLeftBuildDown,
-        StripsLeftBuildUp,
-        StripsRightBuildDown,
-        StripsRightBuildUp,
-        StripsTopBuildLeft,
-        StripsTopBuildRight,
+    StripsBottomBuildLeft,
+    StripsBottomBuildRight,
+    StripsLeftBuildDown,
+    StripsLeftBuildUp,
+    StripsRightBuildDown,
+    StripsRightBuildUp,
+    StripsTopBuildLeft,
+    StripsTopBuildRight,
 
-        ZoomOpen,
-        ZoomClose,
+    ZoomOpen,
+    ZoomClose,
 
-        VerticalBinds,
+    VerticalBinds,
 
-        DissolveBitsFast,
-        DissolvePixels,
-        DissolveBits
-    }
+    DissolveBitsFast,
+    DissolvePixels,
+    DissolveBits
 }

@@ -1,10 +1,9 @@
-﻿namespace Shockky.Resources
+﻿namespace Shockky.Resources;
+
+public enum Platform : short
 {
-    public enum Platform : short
-    {
-        Unknown = 0,
-        Mac,
-        Win,
-        Unix
-    }
+    Unknown = 0,
+    Mac,
+    Win,
+    Unix
 }

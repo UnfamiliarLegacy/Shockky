@@ -3,42 +3,56 @@
 using Shockky.IO;
 using Shockky.Resources.Cast;
 
-namespace Shockky.Resources
+namespace Shockky.Resources;
+
+//TODO: v5 = memberNum or MemberId
+public record Tile(CastMemberId Id, Rectangle Rect) : IShockwaveItem
 {
-    //TODO: v5 = memberNum or MemberId
-    public record Tile(CastMemberId Id, Rectangle Rect);
+    public Tile(ref ShockwaveReader input, ReaderContext context)
+        : this(new CastMemberId(input.ReadInt16(), input.ReadInt16()), input.ReadRect())
+    { }
 
-    public class Tiles : Chunk
+    public int GetBodySize(WriterOptions options)
     {
-        public Tile[] Items { get; }
+        int size = 0;
+        return size;
+    }
 
-        public Tiles()
-            : base(ResourceKind.VWTL)
-        {
-            Items = new Tile[8];
-        }
-        public Tiles(ref ShockwaveReader input)
-            : this()
-        {
-            for (int i = 0; i < Items.Length; i++)
-            {
-                input.ReadInt32();
-                input.ReadInt32();
+    public void WriteTo(ShockwaveWriter output, WriterOptions options)
+    {
+        throw new NotImplementedException();
+    }
 
-                Items[i] = new Tile(
-                    Id: new(input.ReadInt16(), input.ReadInt16()),
-                    Rect: input.ReadRect());
-            }
-        }
+    public static Tile Read(ref ShockwaveReader input, ReaderContext context)
+    {
+        throw new NotImplementedException();
+    }
+}
 
-        public override int GetBodySize()
-        {
-            throw new NotImplementedException();
-        }
+public sealed class Tiles : IShockwaveItem, IResource
+{
+    public OsType Kind => OsType.VWTL;
 
-        public override void WriteBodyTo(ShockwaveWriter output)
+    public Tile[] Items { get; } = new Tile[8];
+
+    public Tiles(ref ShockwaveReader input, ReaderContext context) 
+    {
+        for (int i = 0; i < Items.Length; i++)
         {
-            throw new NotImplementedException();
+            input.ReadInt32();
+            input.ReadInt32();
+
+            Items[i] = new Tile(ref input, context);
         }
+    }
+
+    public int GetBodySize(WriterOptions options)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void WriteTo(ShockwaveWriter output, WriterOptions options)
+    {
+        throw new NotImplementedException();
     }
 }

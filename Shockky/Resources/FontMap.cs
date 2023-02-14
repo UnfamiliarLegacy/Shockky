@@ -1,14 +1,19 @@
 ﻿using Shockky.IO;
 
-namespace Shockky.Resources
+namespace Shockky.Resources;
+
+public class FontMap : IShockwaveItem, IResource, IBinaryData
 {
-    public class FontMap : BinaryData
+    public OsType Kind => OsType.Fmap;
+
+    public byte[] Data { get; set; }
+
+    public FontMap(ref ShockwaveReader input, ReaderContext context)
     {
-        public FontMap()
-            : base(ResourceKind.FXmp)
-        { }
-        public FontMap(ref ShockwaveReader input, ChunkHeader header)
-            : base(ref input, header)
-        { }
+        Data = new byte[input.Length];
+        input.ReadBytes(Data);
     }
+
+    public int GetBodySize(WriterOptions options) => Data.Length;
+    public void WriteTo(ShockwaveWriter output, WriterOptions options) => output.Write(Data);
 }

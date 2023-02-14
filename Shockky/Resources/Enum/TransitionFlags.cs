@@ -1,10 +1,9 @@
-﻿namespace Shockky.Resources
+﻿namespace Shockky.Resources;
+
+[Flags]
+public enum TransitionFlags : byte
 {
-    [Flags]
-    public enum TransitionFlags : byte
-    {
-        None,
-        EntireStage = 1 << 0,
-        Standard    = 1 << 1
-    }
+    None,
+    EntireStage = 1 << 0,
+    Standard    = 1 << 1
 }

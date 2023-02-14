@@ -1,9 +1,8 @@
-﻿namespace Shockky.Lingo
+﻿namespace Shockky.Lingo;
+
+public enum ConstantKind
 {
-    public enum ConstantKind
-    {
-        Integer,
-        Name,
-        String
-    }
+    Integer,
+    Name,
+    String
 }

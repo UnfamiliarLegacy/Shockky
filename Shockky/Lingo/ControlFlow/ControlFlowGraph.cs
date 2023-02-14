@@ -1,108 +1,108 @@
 ﻿using Shockky.Lingo.Instructions;
 
-namespace Shockky.Lingo.ControlFlow
+namespace Shockky.Lingo.ControlFlow;
+/*
+/// <summary>
+/// Represents a control flow graph of the code - directed graph.
+/// </summary>
+public class ControlFlowGraph
 {
-    /// <summary>
-    /// Represents a control flow graph of the code - directed graph.
-    /// </summary>
-    public class ControlFlowGraph
+    public IList<BasicBlock> Blocks { get; set; }
+
+    //Graph G = (B, E) where B = Blocks
+    //and where E = Edges =>
+    //(BasicBlock pred, BasicBlock succc)[] Edges = (b_i, b_j)
+
+    public ControlFlowGraph()
+    { }
+
+    //TODO: Detects shortcircuits, build dominator trees etc. fun stuff to look into
+
+    // Immediate dominators
+    //TODO: Form structured control-flow.
+
+    public static ControlFlowGraph Create(LingoCode code)
     {
-        public IList<BasicBlock> Blocks { get; set; }
+        //TODO: Remove temp comment rambling
+        //TODO: For later tranforms, check BBs which are "pure" and only exist as a exit and as "a jumper". BB.Body.Count == 1
+        //TODO: Number the blocks topologically or nah? BB.Ordinal?
 
-        //Graph G = (B, E) where B = Blocks
-        //and where E = Edges =>
-        //(BasicBlock pred, BasicBlock succc)[] Edges = (b_i, b_j)
+        var builder = new ControlFlowGraphBuilder();
 
-        public ControlFlowGraph()
-        { }
+        var forwardBranches = new Dictionary<Instruction, BasicBlock>(code.JumpExits.Count);
+        var backEdges = new Dictionary<Jumper, BasicBlock>();
 
-        //TODO: Detects shortcircuits, build dominator trees etc. fun stuff to look into
-
-        // Immediate dominators
-        //TODO: Form structured control-flow.
-
-        public static ControlFlowGraph Create(LingoCode code)
+        Range currentBlockRange = default; //0..0
+        for (int i = 0; i < code.Count; i++)
         {
-            //TODO: Remove temp comment rambling
-            //TODO: For later tranforms, check BBs which are "pure" and only exist as a exit and as "a jumper". BB.Body.Count == 1
-            //TODO: Number the blocks topologically or nah? BB.Ordinal?
+            Instruction instruction = code[i];
 
-            var builder = new ControlFlowGraphBuilder();
-
-            var forwardBranches = new Dictionary<Instruction, BasicBlock>(code.JumpExits.Count);
-            var backEdges = new Dictionary<Jumper, BasicBlock>();
-
-            Range currentBlockRange = default; //0..0
-            for (int i = 0; i < code.Count; i++)
+            //We are hunting here for those dangling JumpExits. If we find one which is a back-edge exit, we break and leave that to be targeted for future.
+            if (code.JumpExits.ContainsValue(instruction)) //TODO: if the jumpExit OP = Return -> BBKind.Exit, or have another round for transformations like that? //TODO: Check how much ContainsValue slows this down
             {
-                Instruction instruction = code[i];
+                currentBlockRange = currentBlockRange.End..i;
 
-                //We are hunting here for those dangling JumpExits. If we find one which is a back-edge exit, we break and leave that to be targeted for future.
-                if (code.JumpExits.ContainsValue(instruction)) //TODO: if the jumpExit OP = Return -> BBKind.Exit, or have another round for transformations like that? //TODO: Check how much ContainsValue slows this down
+                if (!currentBlockRange.Equals(i..i))
                 {
-                    currentBlockRange = currentBlockRange.End..i;
-
-                    if (!currentBlockRange.Equals(i..i))
-                    {
-                        builder.CurrentBlock.Body = code[currentBlockRange];
-                    }
-
-                    if (forwardBranches.TryGetValue(instruction, out var successor))
-                    {
-                        //Resolving the forward-edge
-                        if (builder.CurrentBlock.FallThrough == null) //TODO: Doesn't feel right? Maybe abuse the shit out of CurrentBlock getter-setter?
-                        {
-                            builder.AppendBlock(successor); //If
-                        }
-                        else builder.AddBlock(successor); //usually If-Else
-                    }
-                    else
-                    {
-                        //Back-edge target
-                        var nextBlock = new BasicBlock();
-
-                        backEdges.Add(code.GetJumperEntry(instruction), nextBlock);
-                        builder.AppendBlock(nextBlock);
-                    }
+                    builder.CurrentBlock.Body = code[currentBlockRange];
                 }
 
-                if (Jumper.IsValid(instruction.OP))
+                if (forwardBranches.TryGetValue(instruction, out var successor))
                 {
-                    Jumper jumper = (Jumper)instruction;
-
-                    currentBlockRange = currentBlockRange.End..(i + 1);
-                    builder.CurrentBlock.Body = code[currentBlockRange];
-
-                    if (code.IsBackwardsJump(jumper))
+                    //Resolving the forward-edge
+                    if (builder.CurrentBlock.FallThrough == null) //TODO: Doesn't feel right? Maybe abuse the shit out of CurrentBlock getter-setter?
                     {
-                        //Fallthrough back-edge jumper
-                        builder.LinkBlocks(builder.CurrentBlock, backEdges[jumper]);
+                        builder.AppendBlock(successor); //If
                     }
-                    else
-                    {
-                        //Forward jump to successor
-                        if (!forwardBranches.TryGetValue(code.JumpExits[jumper], out BasicBlock successor))
-                            forwardBranches.Add(code.JumpExits[jumper], successor = new BasicBlock());
+                    else builder.AddBlock(successor); //usually If-Else
+                }
+                else
+                {
+                    //Back-edge target
+                    var nextBlock = new BasicBlock();
 
-                        builder.LinkBlocks(builder.CurrentBlock, successor);
-
-                        if (Jumper.IsConditional(instruction.OP))
-                        {
-                            builder.AppendBlock(new BasicBlock(), isConditionalBranch: true);
-                        }
-                    }
+                    backEdges.Add(code.GetJumperEntry(instruction), nextBlock);
+                    builder.AppendBlock(nextBlock);
                 }
             }
 
-            currentBlockRange = currentBlockRange.End..code.Count;
-            builder.CurrentBlock.Body = code[currentBlockRange];
-
-            builder.AppendBlock(new BasicBlock(BasicBlockKind.Exit)); //TODO:
-
-            return new ControlFlowGraph()
+            if (Jumper.IsValid(instruction.OP))
             {
-                Blocks = builder.Blocks
-            };
+                Jumper jumper = (Jumper)instruction;
+
+                currentBlockRange = currentBlockRange.End..(i + 1);
+                builder.CurrentBlock.Body = code[currentBlockRange];
+
+                if (code.IsBackwardsJump(jumper))
+                {
+                    //Fallthrough back-edge jumper
+                    builder.LinkBlocks(builder.CurrentBlock, backEdges[jumper]);
+                }
+                else
+                {
+                    //Forward jump to successor
+                    if (!forwardBranches.TryGetValue(code.JumpExits[jumper], out BasicBlock successor))
+                        forwardBranches.Add(code.JumpExits[jumper], successor = new BasicBlock());
+
+                    builder.LinkBlocks(builder.CurrentBlock, successor);
+
+                    if (Jumper.IsConditional(instruction.OP))
+                    {
+                        builder.AppendBlock(new BasicBlock(), isConditionalBranch: true);
+                    }
+                }
+            }
         }
+
+        currentBlockRange = currentBlockRange.End..code.Count;
+        builder.CurrentBlock.Body = code[currentBlockRange];
+
+        builder.AppendBlock(new BasicBlock(BasicBlockKind.Exit)); //TODO:
+
+        return new ControlFlowGraph()
+        {
+            Blocks = builder.Blocks
+        };
     }
 }
+*/

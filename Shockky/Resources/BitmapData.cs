@@ -1,58 +1,39 @@
-﻿using Shockky.IO;
+﻿using System.Buffers;
+
+using Shockky.IO;
 using Shockky.Resources.Cast;
 
-namespace Shockky.Resources
+namespace Shockky.Resources;
+
+public sealed partial class BitmapData : IShockwaveItem, IResource
 {
-    public class BitmapData : BinaryData, ICastMemberMediaChunk<BitmapCastProperties>
+    public OsType Kind => OsType.BITD;
+
+    public byte[] Data { get; set; }
+
+    public BitmapData(ref ShockwaveReader input, ReaderContext context)
     {
-        public byte BitDepth { get; set; }
-        public BitmapFlags Flags { get; set; }
-
-        public int Stride { get; set; }
-
-        public int Width { get; set; }
-        public int Height { get; set; }
-
-        public BitmapData()
-            : base(ResourceKind.BITD)
-        { }
-        public BitmapData(ref ShockwaveReader input, ChunkHeader header)
-            : base(ref input, header)
-        { }
-
-        public void PopulateMedia(BitmapCastProperties properties)
-        {
-            BitDepth = properties.BitDepth;
-
-            Flags = properties.Flags;
-
-            Stride = properties.Stride;
-            Width = properties.Rectangle.Width;
-            Height = properties.Rectangle.Height;
-
-            int outputLength = Stride * Height;
-            if (outputLength == 0 || Data.Length == outputLength)
-                return;
-
-            Span<byte> outputSpan = outputLength < 1024 ? stackalloc byte[outputLength] : new byte[outputLength];
-            var output = new ShockwaveWriter(outputSpan, false);
-            var input = new ShockwaveReader(Data.AsSpan());
-            
-            while (input.IsDataAvailable)
-            {
-                byte marker = input.ReadByte();
-                if ((marker & 0x80) != 0)
-                {
-                    int length = 257 - marker;
-                    output.CurrentSpan
-                        .Slice(0, length)
-                        .Fill(input.ReadByte());
-                    output.Advance(length);
-                }
-                else output.Write(input.ReadBytes(marker + 1));
-            }
-
-            Data = outputSpan.ToArray(); //TODO: Can I avoid this copy? I don't think so
-        }
+        Data = new byte[input.Length];
+        input.ReadBytes(Data);
     }
+
+    public bool TryDecompress(BitmapCastProperties properties, Span<byte> output, out int bytesWritten)
+    {
+        int outputLength = properties.Stride * properties.Rectangle.Height;
+
+        bytesWritten = 0;
+        if (outputLength == 0)
+            return false;
+        
+        if (Data.Length == outputLength)
+        {
+            Data.CopyTo(output);
+            bytesWritten = Data.Length;
+            return true;
+        }
+        return RLE.TryDecompress(Data, output, out bytesWritten);
+    }
+
+    public int GetBodySize(WriterOptions options) => Data.Length;
+    public void WriteTo(ShockwaveWriter output, WriterOptions options) => output.Write(Data);
 }

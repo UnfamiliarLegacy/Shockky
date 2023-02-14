@@ -1,9 +1,8 @@
-﻿namespace Shockky.Resources
+﻿namespace Shockky.Resources;
+
+public enum ScriptKind : short
 {
-    public enum ScriptKind : short
-    {
-        Score = 1,
-        Movie = 3,
-        Parent = 7
-    }
+    Score = 1,
+    Movie = 3,
+    Parent = 7
 }

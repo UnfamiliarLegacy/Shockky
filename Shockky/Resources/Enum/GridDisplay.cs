@@ -1,8 +1,7 @@
-﻿namespace Shockky.Resources
+﻿namespace Shockky.Resources;
+
+public enum GridDisplay : short
 {
-    public enum GridDisplay : short
-    {
-        Dots = 1,
-        Lines = 2
-    }
+    Dots = 1,
+    Lines = 2
 }

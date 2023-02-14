@@ -1,22 +1,20 @@
 ﻿using Shockky.IO;
 
-namespace Shockky.Resources
+namespace Shockky.Resources;
+
+public sealed class UnknownResource : IShockwaveItem, IResource
 {
-    public class UnknownChunk : Chunk
+    public OsType Kind { get; }
+    public byte[] Data { get; set; }
+
+    public UnknownResource(ref ShockwaveReader input, ReaderContext context, OsType kind)
     {
-        public byte[] Data { get; set; }
+        Kind = kind;
 
-        public UnknownChunk(ref ShockwaveReader input, ChunkHeader header)
-            : base(header)
-        {
-            Data = input.ReadBytes(header.Length).ToArray();
-        }
-
-        public override int GetBodySize() => Data.Length;
-
-        public override void WriteBodyTo(ShockwaveWriter output)
-        {
-            output.Write(Data);
-        }
+        Data = new byte[input.Length];
+        input.ReadBytes(Data);
     }
+
+    public int GetBodySize(WriterOptions options) => Data.Length;
+    public void WriteTo(ShockwaveWriter output, WriterOptions options) => output.Write(Data);
 }

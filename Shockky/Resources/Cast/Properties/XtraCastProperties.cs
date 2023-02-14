@@ -1,35 +1,34 @@
 ﻿using Shockky.IO;
 
-namespace Shockky.Resources.Cast
+namespace Shockky.Resources.Cast;
+
+public class XtraCastProperties : IMemberProperties
 {
-    public class XtraCastProperties : ShockwaveItem, IMemberProperties
+    public string SymbolName { get; set; }
+    public byte[] Data { get; set; }
+
+    public XtraCastProperties(ref ShockwaveReader input, ReaderContext context)
     {
-        public string SymbolName { get; set; }
-        public byte[] Data { get; set; }
+        SymbolName = input.ReadString(input.ReadInt32());
+        Data = new byte[input.ReadInt32()];
+        input.ReadBytes(Data);
+    }
 
-        public XtraCastProperties(ref ShockwaveReader input)
-        {
-            SymbolName = input.ReadString(input.ReadInt32());
-            Data = new byte[input.ReadInt32()];
-            input.ReadBytes(Data);
-        }
+    public int GetBodySize(WriterOptions options)
+    {
+        int size = 0;
+        size += sizeof(int);
+        size += SymbolName.Length;
+        size += sizeof(int);
+        size += Data.Length;
+        return size;
+    }
 
-        public override int GetBodySize()
-        {
-            int size = 0;
-            size += sizeof(int);
-            size += SymbolName.Length;
-            size += sizeof(int);
-            size += Data.Length;
-            return size;
-        }
-
-        public override void WriteTo(ShockwaveWriter output)
-        {
-            throw new NotImplementedException(nameof(XtraCastProperties));
-            output.Write(SymbolName.Length);
-            output.Write(Data.Length);
-            output.Write(Data);
-        }
+    public void WriteTo(ShockwaveWriter output, WriterOptions options)
+    {
+        throw new NotImplementedException(nameof(XtraCastProperties));
+        output.Write(SymbolName.Length);
+        output.Write(Data.Length);
+        output.Write(Data);
     }
 }

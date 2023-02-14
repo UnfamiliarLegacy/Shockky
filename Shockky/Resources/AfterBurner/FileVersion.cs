@@ -1,37 +1,33 @@
-﻿using System.Text;
+﻿using Shockky.IO;
 
-using Shockky.IO;
+namespace Shockky.Resources;
 
-namespace Shockky.Resources
+public sealed class FileVersion : IResource, IShockwaveItem
 {
-    public class FileVersion : Chunk
+    public OsType Kind => OsType.Fver;
+
+    public DirectorVersion Version { get; set; }
+    public string VersionString { get; set; }
+
+    public FileVersion(ref ShockwaveReader input, ReaderContext context)
     {
-        public DirectorVersion Version { get; set; }
-        public string VersionString { get; set; }
+        int version = input.ReadVarInt();
+        if (version < 0x401) return;
+        int unk1 = input.ReadVarInt();
+        var versions = (DirectorVersion)input.ReadVarInt();
 
-        public FileVersion()
-            : base(ResourceKind.Fver)
-        { }
-        public FileVersion(ref ShockwaveReader input, ChunkHeader header)
-            : base(header)
-        {
-            int version = input.ReadVarInt();
-            if (version < 0x401) return;
-            int unk1 = input.ReadVarInt();
-            Version = (DirectorVersion)input.ReadVarInt();
-            
-            if (version < 0x501) return;
-            VersionString = input.ReadString();
-        }
-
-        public override int GetBodySize()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void WriteBodyTo(ShockwaveWriter output)
-        {
-            throw new NotImplementedException();
-        }
+        if (version < 0x501) return;
+        string versionString = input.ReadString();
     }
+
+    public int GetBodySize(WriterOptions options)
+    {
+        throw new NotImplementedException();
+    }
+    public void WriteTo(ShockwaveWriter output, WriterOptions options)
+    {
+        throw new NotImplementedException();
+    }
+
+    public static FileVersion Read(ref ShockwaveReader input, ReaderContext context) => new FileVersion(ref input, context);
 }

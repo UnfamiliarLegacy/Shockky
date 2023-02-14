@@ -1,70 +1,54 @@
 ﻿using Shockky.IO;
+using System.Buffers;
 
-namespace Shockky.Resources
+namespace Shockky.Resources;
+
+public static class FileGzipEmbeddedImage
 {
-    public class FileGzipEmbeddedImage : Chunk
+    // TODO: Tidy up more.
+    public static IDictionary<int, IResource> ReadResources(ref ShockwaveReader input, AfterburnerMap afterburnerMap)
     {
-        public FileGzipEmbeddedImage()
-            : base(ResourceKind.FGEI)
-        { }
-        public FileGzipEmbeddedImage(ChunkHeader header)
-            : base(header)
-        { }
+        int chunkStart = input.Position;
+        var chunks = new Dictionary<int, IResource>(afterburnerMap.Entries.Count);
 
-        //TODO: Tidy up more.
-        public IDictionary<int, Chunk> ReadChunks(ref ShockwaveReader input, AfterBurnerMapEntry[] entries)
+        ReadInitialLoadSegment(ref input, afterburnerMap, chunks);
+
+        foreach ((int index, AfterburnerMapEntry entry) in afterburnerMap.Entries)
         {
-            int chunkStart = input.Position;
-            var chunks = new Dictionary<int, Chunk>(entries.Length);
+            if (entry.Offset < 1) continue; //TODO: ILS always at offset 0?
 
-            ReadInitialLoadSegment(ref input, entries, chunks);
-
-            for (int i = 1; i < entries.Length; i++)
-            {
-                AfterBurnerMapEntry entry = entries[i];
-                if (entry.Offset == -1) continue;
-
-                input.Position = chunkStart + entry.Offset;
-                chunks.Add(entry.Index, Read(ref input, entry));
-            }
-            return chunks;
+            input.Position = chunkStart + entry.Offset;
+            chunks.Add(index, IResource.Read(ref input, entry));
         }
+        return chunks;
+    }
 
-        private void ReadInitialLoadSegment(ref ShockwaveReader input, AfterBurnerMapEntry[] entries, Dictionary<int, Chunk> chunks)
+    private static OperationStatus ReadInitialLoadSegment(ref ShockwaveReader input, AfterburnerMap afterburnerMap, Dictionary<int, IResource> chunks)
+    {
+        // First entry in the AfterburnerMap must be ILS.
+        AfterburnerMapEntry ilsEntry = afterburnerMap.Entries.First().Value;
+        input.Advance(ilsEntry.Offset);
+
+        // TODO: this shouldn't be here
+        ReadOnlySpan<byte> compressedData = input.ReadBytes(ilsEntry.Length);
+
+        Span<byte> decompressedData = ilsEntry.DecompressedLength <= 1024 ?
+                stackalloc byte[1024].Slice(0, ilsEntry.DecompressedLength) : new byte[ilsEntry.DecompressedLength];
+
+        ZLib.Decompress(compressedData, decompressedData);
+
+        var ilsReader = new ShockwaveReader(decompressedData, input.IsBigEndian);
+
+        while (ilsReader.IsDataAvailable)
         {
-            //First entry in the AfterBurnerMap must be ILS.
-            AfterBurnerMapEntry ilsEntry = entries[0];
-            input.Advance(ilsEntry.Offset);
+            int index = ilsReader.ReadVarInt();
 
-            //TODO: this shouldn't be here
-            ReadOnlySpan<byte> compressedData = input.ReadBytes(ilsEntry.Length);
+            if (index < 1 || index > afterburnerMap.LastIndex) 
+                return OperationStatus.InvalidData;
 
-            Span<byte> decompressedData = ilsEntry.DecompressedLength <= 1024 ?
-                    stackalloc byte[ilsEntry.DecompressedLength] : new byte[ilsEntry.DecompressedLength];
-
-            ZLib.Decompress(compressedData, decompressedData);
-
-            var ilsReader = new ShockwaveReader(decompressedData, input.IsBigEndian);
-
-            while (ilsReader.IsDataAvailable)
-            {
-                int id = ilsReader.ReadVarInt();
-
-                AfterBurnerMapEntry entry = entries.FirstOrDefault(e => e.Index == id); //TODO: Chunk entries as dictionary
-                if (entry == null) break;
-
-                chunks.Add(id, Read(ref ilsReader, entry.Header));
-            }
+            AfterburnerMapEntry entry = afterburnerMap.Entries[index];
+            chunks.Add(index, IResource.Read(ref ilsReader, entry.Kind, entry.DecompressedLength));
         }
-
-        public override int GetBodySize()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void WriteBodyTo(ShockwaveWriter output)
-        {
-            throw new NotImplementedException();
-        }
+        return OperationStatus.Done;
     }
 }
