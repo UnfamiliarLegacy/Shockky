@@ -39,7 +39,7 @@ public interface IResource
             OsType.VWFI => new FileInfo(ref chunkInput, context),
 
             OsType.Lnam => new LingoNames(ref chunkInput, context),
-            OsType.Lscr => new LingoScript(ref chunkInput, context),
+            OsType.Lscr => new LingoScript(ref chunkInput),
             OsType.Lctx or OsType.LctX => new LingoContext(ref chunkInput, context),
 
             OsType.CASPtr => new CastMap(ref chunkInput, context),
@@ -50,12 +50,12 @@ public interface IResource
             OsType.CLUT => new Palette(ref chunkInput, context),
             OsType.STXT => new StyledText(ref chunkInput, context),
 
-            OsType.snd => new SoundData(ref chunkInput, context),
+            OsType.snd => new SoundData(ref chunkInput),
 
             OsType.Fmap => new FontMap(ref chunkInput, context),
 
             OsType.GRID => new Grid(ref chunkInput, context),
-            OsType.FCOL => new FavoriteColors(ref chunkInput, context),
+            OsType.FCOL => FavoriteColors.Read(ref chunkInput, context),
 
             OsType.BITD => new BitmapData(ref chunkInput, context),
 

@@ -117,7 +117,7 @@ public sealed class LingoContext : IShockwaveItem, IResource
 
         foreach (LingoContextItem section in Items)
         {
-            section.WriteTo(output);
+            section.WriteTo(output, options);
         }
     }
 

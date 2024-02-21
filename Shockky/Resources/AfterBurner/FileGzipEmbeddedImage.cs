@@ -6,24 +6,24 @@ namespace Shockky.Resources;
 public static class FileGzipEmbeddedImage
 {
     // TODO: Tidy up more.
-    public static IDictionary<int, IResource> ReadResources(ref ShockwaveReader input, AfterburnerMap afterburnerMap)
+    public static IDictionary<int, IResource> ReadResources(ref ShockwaveReader input, ReaderContext context, AfterburnerMap afterburnerMap)
     {
         int chunkStart = input.Position;
         var chunks = new Dictionary<int, IResource>(afterburnerMap.Entries.Count);
 
-        ReadInitialLoadSegment(ref input, afterburnerMap, chunks);
+        ReadInitialLoadSegment(ref input, context, afterburnerMap, chunks);
 
         foreach ((int index, AfterburnerMapEntry entry) in afterburnerMap.Entries)
         {
             if (entry.Offset < 1) continue; //TODO: ILS always at offset 0?
 
             input.Position = chunkStart + entry.Offset;
-            chunks.Add(index, IResource.Read(ref input, entry));
+            chunks.Add(index, IResource.Read(ref input, context, entry));
         }
         return chunks;
     }
 
-    private static OperationStatus ReadInitialLoadSegment(ref ShockwaveReader input, AfterburnerMap afterburnerMap, Dictionary<int, IResource> chunks)
+    private static OperationStatus ReadInitialLoadSegment(ref ShockwaveReader input, ReaderContext context, AfterburnerMap afterburnerMap, Dictionary<int, IResource> chunks)
     {
         // First entry in the AfterburnerMap must be ILS.
         AfterburnerMapEntry ilsEntry = afterburnerMap.Entries.First().Value;
@@ -47,7 +47,7 @@ public static class FileGzipEmbeddedImage
                 return OperationStatus.InvalidData;
 
             AfterburnerMapEntry entry = afterburnerMap.Entries[index];
-            chunks.Add(index, IResource.Read(ref ilsReader, entry.Kind, entry.DecompressedLength));
+            chunks.Add(index, IResource.Read(ref ilsReader, context, entry.Kind, entry.DecompressedLength));
         }
         return OperationStatus.Done;
     }

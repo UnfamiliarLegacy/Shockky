@@ -39,9 +39,4 @@ public class LingoContextItem : IShockwaveItem
         output.Write((short)Flags);
         output.Write(Link);
     }
-
-    public static LingoContext Read(ref ShockwaveReader input, ReaderContext context)
-    {
-        throw new NotImplementedException();
-    }
 }

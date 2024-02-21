@@ -42,6 +42,8 @@ public sealed class LingoLiteral : IShockwaveItem, IEquatable<LingoLiteral>
     public bool Equals(LingoLiteral literal)
         => literal.Kind == Kind && literal.Value == Value;
 
+    public override bool Equals(object obj) => Equals(obj as LingoLiteral);
+
     public static LingoLiteral Read(ref ShockwaveReader input, VariantKind entryKind, int entryOffset)
     {
         if (entryKind != VariantKind.Integer)

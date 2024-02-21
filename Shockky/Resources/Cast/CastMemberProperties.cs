@@ -20,24 +20,24 @@ public sealed class CastMemberProperties : IResource, IShockwaveItem
         int ciLength = input.ReadInt32();
         int dataLength = input.ReadInt32();
 
-        Metadata = CastMemberMetadata.Read(ref input, context);
-        Properties = ReadTypeProperties(ref input, dataLength);
+        Metadata = new CastMemberMetadata(ref input, context);
+        Properties = ReadTypeProperties(ref input, context, dataLength);
     }
 
-    private IMemberProperties ReadTypeProperties(ref ShockwaveReader input, int dataLength)
+    private IMemberProperties ReadTypeProperties(ref ShockwaveReader input, ReaderContext context, int dataLength)
     {
         return Type switch
         {
-            MemberKind.Bitmap or MemberKind.OLE => new BitmapCastProperties(ref input),
+            MemberKind.Bitmap or MemberKind.OLE => new BitmapCastProperties(ref input, context),
             MemberKind.FilmLoop or MemberKind.Movie => new FilmLoopCastProperties(ref input),
-            MemberKind.Text => new TextCastProperties(ref input),
-            MemberKind.Button => new ButtonCastProperties(ref input),
-            MemberKind.Shape => new ShapeCastProperties(ref input),
-            MemberKind.DigitalVideo => new VideoCastProperties(ref input),
-            MemberKind.Script => new ScriptCastProperties(ref input),
+            MemberKind.Text => new TextCastProperties(ref input, context),
+            MemberKind.Button => new ButtonCastProperties(ref input, context),
+            MemberKind.Shape => new ShapeCastProperties(ref input, context),
+            MemberKind.DigitalVideo => new VideoCastProperties(ref input, context),
+            MemberKind.Script => new ScriptCastProperties(ref input, context),
             MemberKind.RichText => new RichTextCastProperties(ref input),
-            MemberKind.Transition => new TransitionCastProperties(ref input),
-            MemberKind.Xtra => new XtraCastProperties(ref input),
+            MemberKind.Transition => new TransitionCastProperties(ref input, context),
+            MemberKind.Xtra => new XtraCastProperties(ref input, context),
 
             _ => new UnknownCastProperties(ref input, dataLength)
         };
@@ -56,18 +56,18 @@ public sealed class CastMemberProperties : IResource, IShockwaveItem
         size += sizeof(int);
         size += sizeof(int);
 
-        size += Metadata.GetBodySize();
-        size += Properties.GetBodySize();
+        size += Metadata.GetBodySize(options);
+        size += Properties.GetBodySize(options);
         return size;
     }
 
     public void WriteTo(ShockwaveWriter output, WriterOptions options)
     {
         output.Write((int)Type);
-        output.Write(Metadata.GetBodySize());
+        output.Write(Metadata.GetBodySize(options));
         output.Write(Properties.GetBodySize(options));
 
-        Metadata.WriteTo(output);
-        Properties.WriteTo(output);
+        Metadata.WriteTo(output, options);
+        Properties.WriteTo(output, options);
     }
 }

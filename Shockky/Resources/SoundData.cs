@@ -2,7 +2,7 @@
 
 namespace Shockky.Resources;
 
-public class SoundData : IBinaryData
+public class SoundData : IResource, IBinaryData
 {
     public OsType Kind => OsType.snd;
 

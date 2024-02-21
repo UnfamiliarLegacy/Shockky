@@ -33,7 +33,7 @@ public class ShockwaveFile
                     IResource.Read(ref input, readerContext) is AfterburnerMap afterburnerMap)
                 {
                     var fgeiHeader = new ResourceHeader(ref input);
-                    Resources = FileGzipEmbeddedImage.ReadResources(ref input, afterburnerMap);
+                    Resources = FileGzipEmbeddedImage.ReadResources(ref input, readerContext, afterburnerMap);
                 }
             }
         }
@@ -46,7 +46,7 @@ public class ShockwaveFile
 
             input.Position = initialMap.MemoryMapOffset;
 
-            if (IResource.Read(ref input, context) is not MemoryMap memoryMap)
+            if (IResource.Read(ref input, readerContext) is not MemoryMap memoryMap)
                 throw new InvalidDataException($"Failed to read {nameof(MemoryMap)}.");
 
             for (int i = 1; i < memoryMap.Entries.Length; i++)

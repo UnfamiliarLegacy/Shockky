@@ -9,9 +9,9 @@ namespace Shockky.Lingo.ControlFlow;
 /// Represents a Lingo VM instruction sequence in the <see cref="ControlFlowGraph"/>
 /// </summary>
 [DebuggerDisplay("Kind: {Kind}")]
-public class BasicBlock : IEnumerable<Instruction>
+public class BasicBlock : IEnumerable<IInstruction>
 {
-    public IList<Instruction> Body { get; set; }
+    public IList<IInstruction> Body { get; set; }
     public IList<BasicBlock> Predecessors { get; set; }
     
     public BasicBlock Conditional { get; set; }
@@ -27,6 +27,6 @@ public class BasicBlock : IEnumerable<Instruction>
         Predecessors = new List<BasicBlock>();
     }
 
-    public IEnumerator<Instruction> GetEnumerator() => Body.GetEnumerator();
+    public IEnumerator<IInstruction> GetEnumerator() => Body.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

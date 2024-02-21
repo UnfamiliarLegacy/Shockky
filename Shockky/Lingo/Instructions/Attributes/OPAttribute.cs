@@ -1,7 +1,8 @@
 ﻿namespace Shockky.Lingo.Instructions;
 
 // WIP: For generator
-internal class OPAttribute : Attribute
+[AttributeUsage(AttributeTargets.Field)]
+public sealed class OPAttribute : Attribute
 {
     public OPAttribute()
     { }

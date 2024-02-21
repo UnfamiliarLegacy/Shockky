@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shockky.Sandbox", "Shockky.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shockky.Tests", "Shockky.Tests\Shockky.Tests.csproj", "{54449B04-39E9-4EA9-92D1-00EB7287E49A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shockky.Generators", "Shockky.Generators\Shockky.Generators.csproj", "{2FE1AA17-698A-465A-AC2A-B9424D250BC3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shockky.SourceGeneration", "Shockky.SourceGeneration\Shockky.SourceGeneration.csproj", "{2FE1AA17-698A-465A-AC2A-B9424D250BC3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shockky.SourceGeneration.Tests", "Shockky.SourceGeneration.Tests\Shockky.SourceGeneration.Tests.csproj", "{3386D1E0-E0F6-4BC7-AB7C-F931BBB289FC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{2FE1AA17-698A-465A-AC2A-B9424D250BC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2FE1AA17-698A-465A-AC2A-B9424D250BC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2FE1AA17-698A-465A-AC2A-B9424D250BC3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3386D1E0-E0F6-4BC7-AB7C-F931BBB289FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3386D1E0-E0F6-4BC7-AB7C-F931BBB289FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3386D1E0-E0F6-4BC7-AB7C-F931BBB289FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3386D1E0-E0F6-4BC7-AB7C-F931BBB289FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

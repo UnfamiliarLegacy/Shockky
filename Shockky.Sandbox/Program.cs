@@ -26,7 +26,7 @@ var rootCommand = new RootCommand()
         description: "Directory for the extracted resources")
     .LegalFilePathsOnly()
 };
-rootCommand.SetHandler<IEnumerable<System.IO.FileInfo>, bool, DirectoryInfo>(HandleExtractCommand);
+//rootCommand.SetHandler<IEnumerable<System.IO.FileInfo>, bool, DirectoryInfo>(HandleExtractCommand);
 
 return rootCommand.Invoke(args);
 

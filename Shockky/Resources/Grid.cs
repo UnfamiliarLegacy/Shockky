@@ -68,7 +68,7 @@ public sealed class Grid : IShockwaveItem, IResource
         output.Write(GuideColor);
         foreach (Guide guide in Guides)
         {
-            guide.WriteTo(output);
+            guide.WriteTo(output, options);
         }
     }
 }
