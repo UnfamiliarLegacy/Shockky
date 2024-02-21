@@ -18,7 +18,7 @@ public static class RLE
             if ((marker & 0x80) != 0)
             {
                 if (position < source.Length) break;
-                
+
                 int length = 257 - marker;
                 destination.Slice(bytesWritten, length).Fill(source[position++]);
                 bytesWritten += length;
@@ -27,7 +27,7 @@ public static class RLE
             {
                 int length = marker + 1;
                 source.Slice(position, length).CopyTo(destination.Slice(bytesWritten));
-                
+
                 bytesWritten += length;
                 position += length;
             }

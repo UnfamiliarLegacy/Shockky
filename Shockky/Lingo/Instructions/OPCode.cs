@@ -61,7 +61,7 @@ public enum OPCode : byte
     [OP(ImmediateKind.NameIndex)] SetProperty = 0x50,
     [OP(ImmediateKind.ArgumentIndex)] SetParameter = 0x51,
     [OP(ImmediateKind.LocalIndex)] SetLocal = 0x52,
-    
+
     [OP(ImmediateKind.Offset)] Jump = 0x53,
     [OP(ImmediateKind.NegativeOffset)] EndRepeat = 0x54, // conditional jump backwards
     [OP(ImmediateKind.Offset)] IfFalse = 0x55, // "skip if" -csnover

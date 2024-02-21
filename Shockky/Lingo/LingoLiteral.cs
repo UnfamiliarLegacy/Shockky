@@ -64,4 +64,9 @@ public sealed class LingoLiteral : IShockwaveItem, IEquatable<LingoLiteral>
         }
         else return new LingoLiteral(VariantKind.Integer, entryOffset);
     }
+
+    public override int GetHashCode()
+    {
+        throw new NotImplementedException();
+    }
 }

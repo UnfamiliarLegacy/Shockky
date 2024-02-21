@@ -12,6 +12,6 @@ public enum LingoScriptFlags : int
     NumericExpression = 1 << 6,
     Deleted = 1 << 7,
     HasFactory = 1 << 8,
-    Flag200_SCORE_RELATED = 1 << 9, 
+    Flag200_SCORE_RELATED = 1 << 9,
     EventScript2 = 1 << 10, //RESERVED_FIRST_SCRIPT_FN_MAYBE 
 }

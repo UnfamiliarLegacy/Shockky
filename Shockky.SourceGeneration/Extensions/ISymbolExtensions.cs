@@ -158,7 +158,7 @@ internal static class ISymbolExtensions
     {
         Accessibility accessibility = symbol.GetEffectiveAccessibility();
 
-        return accessibility == Accessibility.Public || 
+        return accessibility == Accessibility.Public ||
             accessibility == Accessibility.Internal && symbol.ContainingAssembly.GivesAccessTo(assembly);
     }
 }

@@ -21,7 +21,7 @@ public sealed class LingoNames : IShockwaveItem, IResource
 
         short nameOffset = input.ReadInt16();
         Names = new List<string>(input.ReadInt16());
-        
+
         input.Position = nameOffset;
         for (int i = 0; i < Names.Capacity; i++)
         {

@@ -13,8 +13,8 @@ public sealed class FavoriteColors : IShockwaveItem, IResource
         Colors = new (int R, int G, int B)[16]
         {
             (0, 0, 0),
-            (17, 17, 17), 
-            (34, 34, 34), 
+            (17, 17, 17),
+            (34, 34, 34),
             (51, 51, 51),
             (68, 68, 68),
             (85, 85, 85),

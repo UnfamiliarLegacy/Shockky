@@ -27,7 +27,7 @@ public sealed class CastMemberMetadata : IResource, IShockwaveItem
 
     public string ModifiedBy { get; set; }
     public string Comments { get; set; }
-    
+
     public int ImageCompression { get; set; }
     public int ImageQuality { get; set; }
 

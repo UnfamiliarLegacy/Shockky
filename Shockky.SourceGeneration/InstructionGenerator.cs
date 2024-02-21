@@ -58,8 +58,8 @@ public sealed class InstructionGenerator : IIncrementalGenerator
     }
 
     internal static bool TryGetInfo(
-        EnumMemberDeclarationSyntax enumMemberSyntax, 
-        IFieldSymbol fieldSymbol, 
+        EnumMemberDeclarationSyntax enumMemberSyntax,
+        IFieldSymbol fieldSymbol,
         SemanticModel semanticModel,
         CancellationToken cancellationToken,
         [NotNullWhen(true)] out InstructionInfo? instructionInfo,
@@ -84,7 +84,7 @@ public sealed class InstructionGenerator : IIncrementalGenerator
                 DiagnosticDescriptors.MissingExplicitValueOnOPAttributeAnnotatedEnumMember,
                 fieldSymbol,
                 fieldSymbol.ContainingType, fieldSymbol.Name);
-            
+
             instructionInfo = null;
             diagnostics = diagnosticBuilder.ToImmutable();
 
@@ -96,7 +96,7 @@ public sealed class InstructionGenerator : IIncrementalGenerator
         {
             throw new ArgumentException("Failed to retrieve an operation for the equals expression");
         }
-        
+
         var enumValueConstant = TypedConstantInfo.From(
             equalsValueOperation, semanticModel, equalsValueExpression, cancellationToken);
 
@@ -106,7 +106,7 @@ public sealed class InstructionGenerator : IIncrementalGenerator
         return true;
     }
 
-    internal static void WriteInstructionSyntax(IndentedTextWriter writer, 
+    internal static void WriteInstructionSyntax(IndentedTextWriter writer,
         HierarchyInfo hierarchy,
         InstructionInfo instruction)
     {
@@ -123,7 +123,6 @@ public sealed class InstructionGenerator : IIncrementalGenerator
             // Offer cached instance for instruction with no immediates
             writer.WriteLineIf(!hasImmediate, $"public static readonly {instruction.Name} Default = new();");
             writer.WriteLineIf(!hasImmediate);
-
 
             writer.WriteLine($"public OPCode OP => OPCode.{instruction.Name};");
             writer.WriteLine();

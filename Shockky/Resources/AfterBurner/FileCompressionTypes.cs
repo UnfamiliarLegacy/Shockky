@@ -26,7 +26,7 @@ public sealed class FileCompressionTypes : IShockwaveItem, IResource
         DirTypes = decompressedInput.ReadInt16();
         CompressionLevel = decompressedInput.ReadInt32();
         Speed = decompressedInput.ReadInt32();
-        
+
         if (CompressionTypeId == 256)
             Name = decompressedInput.ReadCString();
     }

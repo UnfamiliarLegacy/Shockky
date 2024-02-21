@@ -4,8 +4,8 @@
 /// A model representing all necessary info for full generation of instruction definition.
 /// </summary>
 internal sealed partial record InstructionInfo(
-    string Name, 
-    TypedConstantInfo OpValue, 
+    string Name,
+    TypedConstantInfo OpValue,
     ImmediateKind ImmediateKind);
 
 internal enum ImmediateKind : int

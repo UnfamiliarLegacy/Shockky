@@ -10,7 +10,7 @@ public class ScriptCastProperties : IMemberProperties
     { }
     public ScriptCastProperties(ref ShockwaveReader input, ReaderContext context)
     {
-        Kind = (ScriptKind)input.ReadInt16(); 
+        Kind = (ScriptKind)input.ReadInt16();
     }
 
     public int GetBodySize(WriterOptions options)

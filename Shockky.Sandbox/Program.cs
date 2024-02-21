@@ -158,9 +158,9 @@ static void HandleExtractCommand(IEnumerable<System.IO.FileInfo> input, bool ima
     }
 }
 
-static bool TryExtractBitmapResource(string outputFilePath, 
-    BitmapCastProperties properties, 
-    BitmapData bitmapData, 
+static bool TryExtractBitmapResource(string outputFilePath,
+    BitmapCastProperties properties,
+    BitmapData bitmapData,
     System.Drawing.Color[] palette)
 {
     static int CalcStride(int width, int bitdepth)

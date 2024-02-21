@@ -8,7 +8,7 @@ public class ShockwaveFile
 {
     public FileMetadata? Metadata { get; set; }
     public DirectorVersion Version { get; set; }
-    
+
     public IDictionary<int, IResource> Resources { get; set; }
 
     public ShockwaveFile()
@@ -29,7 +29,7 @@ public class ShockwaveFile
             {
                 ReaderContext readerContext = new(fileVersion.Version);
 
-                if (IResource.Read(ref input, readerContext) is FileCompressionTypes compressionTypes && 
+                if (IResource.Read(ref input, readerContext) is FileCompressionTypes compressionTypes &&
                     IResource.Read(ref input, readerContext) is AfterburnerMap afterburnerMap)
                 {
                     var fgeiHeader = new ResourceHeader(ref input);

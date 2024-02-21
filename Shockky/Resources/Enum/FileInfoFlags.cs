@@ -11,11 +11,11 @@ public enum FileInfoFlags
     /// <summary>
     /// Disable anti-aliasing of text and graphics.
     /// </summary>
-    NoAntiAliasing     = 1 << 5,
+    NoAntiAliasing = 1 << 5,
     /// <summary>
     /// Remap the palettes of cast members to the closest colours in the active palette.
     /// </summary>
-    RemapPalettes      = 1 << 6,
+    RemapPalettes = 1 << 6,
     /// <summary>
     /// The movie was upgraded from D3 to D4
     /// </summary>
@@ -25,8 +25,8 @@ public enum FileInfoFlags
     /// </summary>
     AllowOutdatedLingo = 1 << 8,
     UpdateMovieEnabled = 1 << 9,
-    PreloadEventAbort  = 1 << 10,
-    UnkD4              = 1 << 11,
+    PreloadEventAbort = 1 << 10,
+    UnkD4 = 1 << 11,
     OutdatedSharedCast = 1 << 12,
-    MovieField4D       = 1 << 13,
+    MovieField4D = 1 << 13,
 }

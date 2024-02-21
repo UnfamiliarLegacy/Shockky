@@ -11,7 +11,7 @@ public enum MemberKind
     /// Represents a looped section of the Score.
     /// </summary>
     FilmLoop = 2,
-    
+
     /// <summary>
     /// Represents Mac Styled text.
     /// </summary>
@@ -41,7 +41,7 @@ public enum MemberKind
     /// Represents a shape.
     /// </summary>
     Shape = 8,
-    
+
     /// <summary>
     /// Represents a externally linked Director movie.
     /// </summary>

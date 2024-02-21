@@ -3,21 +3,21 @@
 public enum TransitionType
 {
     None = 0,
-    
+
     WipeRight,
     WipeLeft,
     WipeDown,
     WipeUp,
-    
+
     CenterOutHorizontal,
     EdgesInHorizontal,
-    
+
     CenterOutVertical,
     EdgesInVertical,
-    
+
     CenterOutSquare,
     EdgesInSquare,
-    
+
     PushLeft,
     PushRight,
     PushDown,

@@ -23,7 +23,7 @@ public sealed class ScoreOrder : IShockwaveItem, IResource
 
         Entries = new CastMemberId[input.ReadInt32()];
         input.ReadInt32();
-        
+
         input.ReadInt16();
         input.ReadInt16(); //TODO: dir <= 0x500 ? sizeof(short) : sizeof(short) * 2.
 

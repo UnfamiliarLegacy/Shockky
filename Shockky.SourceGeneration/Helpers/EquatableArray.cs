@@ -84,11 +84,11 @@ internal readonly struct EquatableArray<T> : IEquatable<EquatableArray<T>>, IEnu
     }
 
     /// <sinheritdoc/>
-    public bool Equals(EquatableArray<T> array) 
+    public bool Equals(EquatableArray<T> array)
         => AsSpan().SequenceEqual(array.AsSpan());
 
     /// <sinheritdoc/>
-    public override bool Equals([NotNullWhen(true)] object? obj) 
+    public override bool Equals([NotNullWhen(true)] object? obj)
         => obj is EquatableArray<T> array && Equals(this, array);
 
     /// <sinheritdoc/>

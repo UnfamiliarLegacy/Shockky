@@ -27,7 +27,7 @@ public readonly ref struct ResourceHeader
     public ResourceHeader(ref ShockwaveReader input)
         : this((OsType)input.ReadBEInt32())
     {
-        Length = IsVariableLength ? 
+        Length = IsVariableLength ?
             input.ReadVarInt() : input.ReadBEInt32();
     }
 

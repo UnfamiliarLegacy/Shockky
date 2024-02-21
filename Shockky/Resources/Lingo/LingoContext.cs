@@ -34,7 +34,7 @@ public sealed class LingoContext : IShockwaveItem, IResource
 
         Items = new List<LingoContextItem>(input.ReadInt32());
         input.ReadInt32();
-        
+
         input.ReadInt16();
         input.ReadInt16();
 
@@ -44,7 +44,7 @@ public sealed class LingoContext : IShockwaveItem, IResource
         ValuesChunkIndex = input.ReadInt32();
         NameChunkIndex = input.ReadInt32();
 
-        ValidCount = input.ReadInt16(); 
+        ValidCount = input.ReadInt16();
         Flags = (LingoContextFlags)input.ReadInt16();
         FreeChunkIndex = input.ReadInt16();
 

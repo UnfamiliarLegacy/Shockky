@@ -28,7 +28,7 @@ public enum OsType : int
     Fcdr = 0x46636472,
     ABMP = 0x41424D50,
     FGEI = 0x46474549,
-    ILS  = 0x494C5320,
+    ILS = 0x494C5320,
 
     imap = 0x696d6170,
     mmap = 0x6D6D6170,
@@ -55,12 +55,12 @@ public enum OsType : int
     Thum = 0x5468756D,
 
     BITD = 0x42495444,
-    DIB  = 0x44494220,
+    DIB = 0x44494220,
     CLUT = 0x434C5554,
     ALFA = 0x414C4641,
 
     cupt = 0x63757074,
-    snd  = 0x736E6420,
+    snd = 0x736E6420,
     sndH = 0x736E6448,
     sndS = 0x736E6453,
 
@@ -68,7 +68,7 @@ public enum OsType : int
     Lctx = 0x4C637478,
     Lnam = 0x4C6E616D,
     Lscr = 0x4C736372,
-    
+
     Lval = 0x4C76616C,
 
     STXT = 0x53545854,
@@ -89,9 +89,9 @@ public enum OsType : int
     VWtk = 0x5657746B,
     VWTL = 0x5657544C,
 
-    ccl  = 0x63636C20,
+    ccl = 0x63636C20,
     Sord = 0x536F7264,
-    
+
     Chan = 0x4368616E,
     MDFL = 0x4D44464C,
 

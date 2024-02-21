@@ -61,7 +61,7 @@ public sealed class BitmapCastProperties : IMemberProperties
         if (BitDepth != 1)
             Stride |= 0x8000;
 
-        output.Write(Stride); 
+        output.Write(Stride);
 
         output.Write(Rectangle);
         output.Write(AlphaThreshold);

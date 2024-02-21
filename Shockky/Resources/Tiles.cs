@@ -35,7 +35,7 @@ public sealed class Tiles : IShockwaveItem, IResource
 
     public Tile[] Items { get; } = new Tile[8];
 
-    public Tiles(ref ShockwaveReader input, ReaderContext context) 
+    public Tiles(ref ShockwaveReader input, ReaderContext context)
     {
         for (int i = 0; i < Items.Length; i++)
         {

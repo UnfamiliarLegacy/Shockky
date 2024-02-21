@@ -10,11 +10,11 @@ public class RichTextCastProperties : IMemberProperties
     public Rectangle Rect2 { get; set; }
     public bool AntiAlias { get; set; }
     public RichTextBoxType BoxType { get; set; }
-    
+
     public short Unk12 { get; set; }
     public SizeType AntiAliasMinFontSize { get; set; }
     public SizeType Height { get; set; }
-    
+
     public Color ForegroundColor { get; set; }
     public Color BackgroundColor { get; set; }
 
@@ -22,7 +22,7 @@ public class RichTextCastProperties : IMemberProperties
     {
         Rectangle = input.ReadRect();
         Rect2 = input.ReadRect();
-        AntiAlias = input.ReadBoolean(); 
+        AntiAlias = input.ReadBoolean();
         BoxType = (RichTextBoxType)input.ReadByte();
 
         Unk12 = input.ReadInt16();

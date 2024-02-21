@@ -24,7 +24,7 @@ public sealed partial class BitmapData : IShockwaveItem, IResource
         bytesWritten = 0;
         if (outputLength == 0)
             return false;
-        
+
         if (Data.Length == outputLength)
         {
             Data.CopyTo(output);

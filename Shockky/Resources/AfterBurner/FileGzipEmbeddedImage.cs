@@ -43,7 +43,7 @@ public static class FileGzipEmbeddedImage
         {
             int index = ilsReader.ReadVarInt();
 
-            if (index < 1 || index > afterburnerMap.LastIndex) 
+            if (index < 1 || index > afterburnerMap.LastIndex)
                 return OperationStatus.InvalidData;
 
             AfterburnerMapEntry entry = afterburnerMap.Entries[index];

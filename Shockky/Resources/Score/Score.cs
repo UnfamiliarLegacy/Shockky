@@ -27,7 +27,7 @@ public class Score : IShockwaveItem, IResource
 
         size += sizeof(int);
         size += sizeof(int);
-        
+
         size += sizeof(int);
         size += sizeof(int);
         return size;

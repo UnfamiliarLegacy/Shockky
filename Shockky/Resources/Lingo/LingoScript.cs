@@ -23,7 +23,7 @@ public sealed class LingoScript : IShockwaveItem, IResource
     public short ParentContextIndex { get; set; }
 
     public short CastMemberId { get; set; }
-    
+
     public LingoScriptFlags Flags { get; set; }
     public short FactoryNameIndex { get; set; }
 
@@ -40,7 +40,7 @@ public sealed class LingoScript : IShockwaveItem, IResource
 
         input.ReadInt32();
         input.ReadInt32();
-        
+
         input.ReadInt32();
         input.ReadInt32();
 
@@ -48,7 +48,7 @@ public sealed class LingoScript : IShockwaveItem, IResource
 
         ContextIndex = input.ReadInt16();
         EnvironmentIndex = input.ReadInt16();
-        ParentContextIndex = input.ReadInt16(); 
+        ParentContextIndex = input.ReadInt16();
         short environmentFactoryIndexGarbageDebug = input.ReadInt16();
 
         input.ReadInt32();

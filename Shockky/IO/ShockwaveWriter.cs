@@ -40,7 +40,7 @@ public ref struct ShockwaveWriter
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Write(bool value) 
+    public void Write(bool value)
     {
         _data[_position++] = Unsafe.As<bool, byte>(ref value);
     }
@@ -51,7 +51,7 @@ public ref struct ShockwaveWriter
         {
             value = BinaryPrimitives.ReverseEndianness(value);
         }
-    
+
         MemoryMarshal.Write(_data.Slice(_position), ref value);
         _position += sizeof(short);
     }
@@ -150,7 +150,7 @@ public ref struct ShockwaveWriter
         _position += sizeof(ulong);
     }
 
-    public void WriteVarInt(int value) => WriteVarUInt((uint)value); 
+    public void WriteVarInt(int value) => WriteVarUInt((uint)value);
     public void WriteVarUInt(uint value)
     {
         int size = GetVarUIntSize(value);
@@ -237,7 +237,7 @@ public ref struct ShockwaveWriter
 
         buffer[2] = g;
         buffer[3] = g;
-        
+
         buffer[4] = b;
         buffer[5] = b;
     }

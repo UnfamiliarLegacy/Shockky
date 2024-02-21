@@ -27,7 +27,7 @@ public class ControlFlowGraphBuilder
         _exit = new BasicBlock(BasicBlockKind.Exit);
 
         Blocks = new List<BasicBlock>();
-        
+
         AppendBlock(_entry);
     }
 

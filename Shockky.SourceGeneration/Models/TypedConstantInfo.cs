@@ -34,7 +34,7 @@ internal abstract partial record TypedConstantInfo
         public override void WriteSyntax(IndentedTextWriter writer)
         {
             writer.Write($"new {ElementTypeName}[] {{ ");
-            writer.WriteInitializationExpressions(Items.AsSpan(), 
+            writer.WriteInitializationExpressions(Items.AsSpan(),
                 static (item, writer) => item.WriteSyntax(writer));
             writer.Write(" }");
         }

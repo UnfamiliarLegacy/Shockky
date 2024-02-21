@@ -23,15 +23,22 @@ public sealed class InstructionGeneratorTests
         string expected = """
             namespace Shockky.Lingo.Instructions;
             
-            public sealed class ReturnIns : IInstruction
+            [global::System.CodeDom.Compiler.GeneratedCode("InstructionGenerator", <ASSEMBLY_VERSION>)]
+            [global::System.Diagnostics.DebuggerNonUserCode]
+            [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+            public sealed class Return : IInstruction
             {
-                public static readonly Instruction Default = new ReturnIns();
+                public static readonly Return Default = new();
+            
+                public OPCode OP => OPCode.Return;
+
+                public int Immediate { get; set; }
             }
             """;
 
-        VerifyGenerateSources(source, 
-            [new InstructionGenerator()], 
-            ("Return.g.cs", expected));
+        VerifyGenerateSources(source,
+            [new InstructionGenerator()],
+            ("Shockky.Lingo.Instructions.Return.g.cs", expected));
     }
 
     [Fact]
@@ -48,15 +55,20 @@ public sealed class InstructionGeneratorTests
         string expected = """
             namespace Shockky.Lingo.Instructions;
             
+            [global::System.CodeDom.Compiler.GeneratedCode("InstructionGenerator", <ASSEMBLY_VERSION>)]
+            [global::System.Diagnostics.DebuggerNonUserCode]
+            [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
             public sealed class PushInt : IInstruction
             {
-                public static readonly Instruction Default = new PushInt();
+                public OPCode OP => OPCode.PushInt;
+
+                public int Immediate { get; set; }
             }
             """;
 
         VerifyGenerateSources(source,
             [new InstructionGenerator()],
-            ("PushInt.g.cs", expected));
+            ("Shockky.Lingo.Instructions.PushInt.g.cs", expected));
     }
 
     /// <summary>
@@ -81,7 +93,7 @@ public sealed class InstructionGeneratorTests
     {
         // Ensure Shockky is loaded
         Type observableObjectType = typeof(OPAttribute);
-        
+
         // Get all assembly references for the loaded assemblies (easy way to pull in all necessary dependencies)
         IEnumerable<MetadataReference> references =
             from assembly in AppDomain.CurrentDomain.GetAssemblies()
@@ -107,27 +119,27 @@ public sealed class InstructionGeneratorTests
         // Ensure that no diagnostics were generated
         Assert.Empty(diagnostics);
 
-        //foreach ((string filename, string? text) in results)
-        //{
-        //    if (text is not null)
-        //    {
-        //        string filePath = filename;
-        //
-        //        // Update the assembly version using the version from the assembly of the input generators.
-        //        // This allows the tests to not need updates whenever the version of the MVVM Toolkit changes.
-        //        string expectedText = text.Replace("<ASSEMBLY_VERSION>", $"\"{generators[0].GetType().Assembly.GetName().Version}\"");
-        //
-        //        SyntaxTree generatedTree = outputCompilation.SyntaxTrees.Single(tree => Path.GetFileName(tree.FilePath) == filePath);
-        //
-        //        Assert.Equal(expectedText, generatedTree.ToString());
-        //    }
-        //    else
-        //    {
-        //        // If the text is null, verify that the file was not generated at all
-        //        Assert.DoesNotContain(outputCompilation.SyntaxTrees, tree => Path.GetFileName(tree.FilePath) == filename);
-        //    }
-        //}
-        //
-        //GC.KeepAlive(observableObjectType);
+        foreach ((string filename, string? text) in results)
+        {
+            if (text is not null)
+            {
+                string filePath = filename;
+
+                // Update the assembly version using the version from the assembly of the input generators.
+                // This allows the tests to not need updates whenever the version of the MVVM Toolkit changes.
+                string expectedText = text.Replace("<ASSEMBLY_VERSION>", $"\"{generators[0].GetType().Assembly.GetName().Version}\"");
+
+                SyntaxTree generatedTree = outputCompilation.SyntaxTrees.Single(tree => Path.GetFileName(tree.FilePath) == filePath);
+
+                Assert.Equal(expectedText, generatedTree.ToString());
+            }
+            else
+            {
+                // If the text is null, verify that the file was not generated at all
+                Assert.DoesNotContain(outputCompilation.SyntaxTrees, tree => Path.GetFileName(tree.FilePath) == filename);
+            }
+        }
+
+        GC.KeepAlive(observableObjectType);
     }
 }

@@ -13,7 +13,7 @@ public class BasicBlock : IEnumerable<IInstruction>
 {
     public IList<IInstruction> Body { get; set; }
     public IList<BasicBlock> Predecessors { get; set; }
-    
+
     public BasicBlock Conditional { get; set; }
     public BasicBlock FallThrough { get; set; }
 

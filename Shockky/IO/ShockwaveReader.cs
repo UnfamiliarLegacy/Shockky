@@ -60,8 +60,8 @@ public ref struct ShockwaveReader
     {
         short value = MemoryMarshal.Read<short>(CurrentSpan);
         Advance(sizeof(short));
-    
-        return IsBigEndian ? 
+
+        return IsBigEndian ?
             BinaryPrimitives.ReverseEndianness(value) : value;
     }
     public short ReadBEInt16()

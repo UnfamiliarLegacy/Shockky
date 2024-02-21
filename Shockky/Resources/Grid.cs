@@ -46,7 +46,7 @@ public sealed class Grid : IShockwaveItem, IResource
 
         size += sizeof(short);
         size += sizeof(short);
-        size += sizeof(short); 
+        size += sizeof(short);
         size += sizeof(short);
 
         size += sizeof(short);
