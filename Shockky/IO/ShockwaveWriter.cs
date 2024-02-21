@@ -42,7 +42,7 @@ public ref struct ShockwaveWriter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write(bool value)
     {
-        _data[_position++] = Unsafe.As<bool, byte>(ref value);
+        _data[_position++] = (byte)(value ? 1 : 0);
     }
 
     public void Write(short value)

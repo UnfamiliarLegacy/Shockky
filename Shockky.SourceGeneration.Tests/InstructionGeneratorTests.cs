@@ -29,10 +29,21 @@ public sealed class InstructionGeneratorTests
             public sealed class Return : IInstruction
             {
                 public static readonly Return Default = new();
-            
+
+                /// <inheritdoc />
                 public OPCode OP => OPCode.Return;
 
                 public int Immediate { get; set; }
+
+                public int GetSize()
+                {
+                    return sizeof(OPCode);
+                }
+
+                public void WriteTo(global::Shockky.IO.ShockwaveWriter output)
+                {
+                    output.Write((byte)OP);
+                }
             }
             """;
 
@@ -60,9 +71,39 @@ public sealed class InstructionGeneratorTests
             [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
             public sealed class PushInt : IInstruction
             {
+                /// <inheritdoc />
                 public OPCode OP => OPCode.PushInt;
 
                 public int Immediate { get; set; }
+
+                public int GetSize()
+                {
+                    uint imm = (uint)Immediate;
+                    if (imm <= byte.MaxValue) return sizeof(OPCode) + 1;
+                    else if (imm <= ushort.MaxValue) return sizeof(OPCode) + 2;
+                    else return sizeof(OPCode) + 4;
+                }
+
+                public void WriteTo(global::Shockky.IO.ShockwaveWriter output)
+                {
+                    byte op = (byte)OP;
+
+                    if (Immediate <= byte.MaxValue)
+                    {
+                        output.Write(op);
+                        output.Write((byte)Immediate);
+                    }
+                    else if (Immediate <= ushort.MaxValue)
+                    {
+                        output.Write(op + 0x40);
+                        output.Write((ushort)Immediate);
+                    }
+                    else 
+                    {
+                        output.Write(op + 0x80);
+                        output.Write(Immediate);
+                    }
+                }
             }
             """;
 

@@ -116,17 +116,65 @@ public sealed class InstructionGenerator : IIncrementalGenerator
         writer.WriteGeneratedAttributes(nameof(InstructionGenerator));
         writer.WriteLine($"public sealed class {instruction.Name} : IInstruction");
 
-        using var block = writer.WriteBlock();
+        using var classBlock = writer.WriteBlock();
         {
             bool hasImmediate = instruction.ImmediateKind is not ImmediateKind.None;
 
-            // Offer cached instance for instruction with no immediates
+            // Offer cached instance for instruction with no immediate
             writer.WriteLineIf(!hasImmediate, $"public static readonly {instruction.Name} Default = new();");
             writer.WriteLineIf(!hasImmediate);
 
-            writer.WriteLine($"public OPCode OP => OPCode.{instruction.Name};");
+            writer.WriteLine($$"""
+                /// <inheritdoc />
+                public OPCode OP => OPCode.{{instruction.Name}};
+
+                public int Immediate { get; set; }
+                """, true);
+
             writer.WriteLine();
-            writer.WriteLine("public int Immediate { get; set; }");
+            writer.WriteLine("public int GetSize()");
+            using (var getSizeBlock = writer.WriteBlock())
+            {
+                if (hasImmediate)
+                {
+                    writer.WriteLine("""
+                        uint imm = (uint)Immediate;
+                        if (imm <= byte.MaxValue) return sizeof(OPCode) + 1;
+                        else if (imm <= ushort.MaxValue) return sizeof(OPCode) + 2;
+                        else return sizeof(OPCode) + 4;
+                        """, true);
+                }
+                else writer.WriteLine("return sizeof(OPCode);");
+            }
+
+            writer.WriteLine();
+            writer.WriteLine("public void WriteTo(global::Shockky.IO.ShockwaveWriter output)");
+            using (var writeToBlock = writer.WriteBlock())
+            {
+                if (hasImmediate)
+                {
+                    writer.WriteLine("""
+                        byte op = (byte)OP;
+
+                        if (Immediate <= byte.MaxValue)
+                        {
+                            output.Write(op);
+                            output.Write((byte)Immediate);
+                        }
+                        else if (Immediate <= ushort.MaxValue)
+                        {
+                            output.Write(op + 0x40);
+                            output.Write((ushort)Immediate);
+                        }
+                        else 
+                        {
+                            output.Write(op + 0x80);
+                            output.Write(Immediate);
+                        }
+                        """, true);
+                }
+                else writer.WriteLine("output.Write((byte)OP);");
+            }
         }
     }
 }

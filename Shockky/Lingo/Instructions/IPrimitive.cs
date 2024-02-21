@@ -1,1 +1,0 @@
-﻿namespace Shockky.Lingo.Instructions;
