@@ -20,7 +20,7 @@ public sealed class InstructionGeneratorTests
                 [OP] Return = 0x01,
             }
             """;
-        string expected = """
+        string expectedSyntaxForReturn = """
             namespace Shockky.Lingo.Instructions;
             
             [global::System.CodeDom.Compiler.GeneratedCode("InstructionGenerator", <ASSEMBLY_VERSION>)]
@@ -33,12 +33,11 @@ public sealed class InstructionGeneratorTests
                 /// <inheritdoc />
                 public OPCode OP => OPCode.Return;
 
+                [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+                [global::System.Diagnostics.DebuggerBrowsable(global::System.Diagnostics.DebuggerBrowsableState.Never)]
                 public int Immediate { get; set; }
 
-                public int GetSize()
-                {
-                    return sizeof(OPCode);
-                }
+                public int GetSize() => sizeof(OPCode);
 
                 public void WriteTo(global::Shockky.IO.ShockwaveWriter output)
                 {
@@ -49,7 +48,7 @@ public sealed class InstructionGeneratorTests
 
         VerifyGenerateSources(source,
             [new InstructionGenerator()],
-            ("Shockky.Lingo.Instructions.Return.g.cs", expected));
+            ("Shockky.Lingo.Instructions.Return.g.cs", expectedSyntaxForReturn));
     }
 
     [Fact]
@@ -98,7 +97,7 @@ public sealed class InstructionGeneratorTests
                         output.Write(op + 0x40);
                         output.Write((ushort)Immediate);
                     }
-                    else 
+                    else
                     {
                         output.Write(op + 0x80);
                         output.Write(Immediate);

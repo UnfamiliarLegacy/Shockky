@@ -127,25 +127,32 @@ public sealed class InstructionGenerator : IIncrementalGenerator
             writer.WriteLine($$"""
                 /// <inheritdoc />
                 public OPCode OP => OPCode.{{instruction.Name}};
-
-                public int Immediate { get; set; }
                 """, true);
+            writer.WriteLine();
+            
+            // If the OP has no immediate, hide it from debugger and editor on the concrete implementation.
+            if (!hasImmediate)
+            {
+                writer.WriteLine("[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]");
+                writer.WriteLine("[global::System.Diagnostics.DebuggerBrowsable(global::System.Diagnostics.DebuggerBrowsableState.Never)]");
+            }
+            writer.WriteLine("public int Immediate { get; set; }");
 
             writer.WriteLine();
-            writer.WriteLine("public int GetSize()");
-            using (var getSizeBlock = writer.WriteBlock())
+
+            if (hasImmediate)
             {
-                if (hasImmediate)
-                {
-                    writer.WriteLine("""
+                writer.WriteLine("""
+                    public int GetSize()
+                    {
                         uint imm = (uint)Immediate;
                         if (imm <= byte.MaxValue) return sizeof(OPCode) + 1;
                         else if (imm <= ushort.MaxValue) return sizeof(OPCode) + 2;
                         else return sizeof(OPCode) + 4;
-                        """, true);
-                }
-                else writer.WriteLine("return sizeof(OPCode);");
+                    }
+                    """, true);
             }
+            else writer.WriteLine("public int GetSize() => sizeof(OPCode);");
 
             writer.WriteLine();
             writer.WriteLine("public void WriteTo(global::Shockky.IO.ShockwaveWriter output)");
