@@ -31,37 +31,37 @@ internal sealed class IndentedTextWriter : IDisposable
     /// <summary>
     /// The <see cref="ImmutableArrayBuilder{T}"/> instance that text will be written to.
     /// </summary>
-    private ImmutableArrayBuilder<char> builder;
+    private ImmutableArrayBuilder<char> _builder;
 
     /// <summary>
     /// The current indentation level.
     /// </summary>
-    private int currentIndentationLevel;
+    private int _currentIndentationLevel;
 
     /// <summary>
     /// The current indentation, as text.
     /// </summary>
-    private string currentIndentation = "";
+    private string _currentIndentation = "";
 
     /// <summary>
     /// The cached array of available indentations, as text.
     /// </summary>
-    private string[] availableIndentations;
+    private string[] _availableIndentations;
 
     /// <summary>
     /// Creates a new <see cref="IndentedTextWriter"/> object.
     /// </summary>
     public IndentedTextWriter()
     {
-        this.builder = ImmutableArrayBuilder<char>.Rent();
-        this.currentIndentationLevel = 0;
-        this.currentIndentation = "";
-        this.availableIndentations = new string[4];
-        this.availableIndentations[0] = "";
+        _builder = ImmutableArrayBuilder<char>.Rent();
+        _currentIndentationLevel = 0;
+        _currentIndentation = "";
+        _availableIndentations = new string[4];
+        _availableIndentations[0] = "";
 
-        for (int i = 1, n = this.availableIndentations.Length; i < n; i++)
+        for (int i = 1, n = _availableIndentations.Length; i < n; i++)
         {
-            this.availableIndentations[i] = this.availableIndentations[i - 1] + DefaultIndentation;
+            _availableIndentations[i] = _availableIndentations[i - 1] + DefaultIndentation;
         }
     }
 
@@ -77,12 +77,12 @@ internal sealed class IndentedTextWriter : IDisposable
     public Span<char> Advance(int requestedSize)
     {
         // Add the leading whitespace if needed (same as WriteRawText below)
-        if (this.builder.Count == 0 || this.builder.WrittenSpan[^1] == DefaultNewLine)
+        if (_builder.Count == 0 || _builder.WrittenSpan[^1] == DefaultNewLine)
         {
-            this.builder.AddRange(this.currentIndentation.AsSpan());
+            _builder.AddRange(_currentIndentation.AsSpan());
         }
 
-        return this.builder.Advance(requestedSize);
+        return _builder.Advance(requestedSize);
     }
 
     /// <summary>
@@ -90,17 +90,17 @@ internal sealed class IndentedTextWriter : IDisposable
     /// </summary>
     public void IncreaseIndent()
     {
-        this.currentIndentationLevel++;
+        _currentIndentationLevel++;
 
-        if (this.currentIndentationLevel == this.availableIndentations.Length)
+        if (_currentIndentationLevel == _availableIndentations.Length)
         {
-            Array.Resize(ref this.availableIndentations, this.availableIndentations.Length * 2);
+            Array.Resize(ref _availableIndentations, _availableIndentations.Length * 2);
         }
 
         // Set both the current indentation and the current position in the indentations
         // array to the expected indentation for the incremented level (ie. one level more).
-        this.currentIndentation = this.availableIndentations[this.currentIndentationLevel]
-            ??= this.availableIndentations[this.currentIndentationLevel - 1] + DefaultIndentation;
+        _currentIndentation = _availableIndentations[_currentIndentationLevel]
+            ??= _availableIndentations[_currentIndentationLevel - 1] + DefaultIndentation;
     }
 
     /// <summary>
@@ -108,8 +108,8 @@ internal sealed class IndentedTextWriter : IDisposable
     /// </summary>
     public void DecreaseIndent()
     {
-        this.currentIndentationLevel--;
-        this.currentIndentation = this.availableIndentations[this.currentIndentationLevel];
+        _currentIndentationLevel--;
+        _currentIndentation = _availableIndentations[_currentIndentationLevel];
     }
 
     /// <summary>
@@ -228,12 +228,12 @@ internal sealed class IndentedTextWriter : IDisposable
     /// <param name="skipIfPresent">Indicates whether to skip adding the line if there already is one.</param>
     public void WriteLine(bool skipIfPresent = false)
     {
-        if (skipIfPresent && this.builder.WrittenSpan is [.., '\n', '\n'])
+        if (skipIfPresent && _builder.WrittenSpan is [.., '\n', '\n'])
         {
             return;
         }
 
-        this.builder.Add(DefaultNewLine);
+        _builder.Add(DefaultNewLine);
     }
 
     /// <summary>
@@ -322,16 +322,10 @@ internal sealed class IndentedTextWriter : IDisposable
     }
 
     /// <inheritdoc/>
-    public override string ToString()
-    {
-        return this.builder.WrittenSpan.Trim().ToString();
-    }
+    public override string ToString() => _builder.WrittenSpan.Trim().ToString();
 
     /// <inheritdoc/>
-    public void Dispose()
-    {
-        this.builder.Dispose();
-    }
+    public void Dispose() => _builder.Dispose();
 
     /// <summary>
     /// Writes raw text to the underlying buffer, adding leading indentation if needed.
@@ -339,12 +333,12 @@ internal sealed class IndentedTextWriter : IDisposable
     /// <param name="content">The raw text to write.</param>
     private void WriteRawText(ReadOnlySpan<char> content)
     {
-        if (this.builder.Count == 0 || this.builder.WrittenSpan[^1] == DefaultNewLine)
+        if (_builder.Count == 0 || _builder.WrittenSpan[^1] == DefaultNewLine)
         {
-            this.builder.AddRange(this.currentIndentation.AsSpan());
+            _builder.AddRange(_currentIndentation.AsSpan());
         }
 
-        this.builder.AddRange(content);
+        _builder.AddRange(content);
     }
 
     /// <summary>
@@ -384,43 +378,29 @@ internal sealed class IndentedTextWriter : IDisposable
     /// <summary>
     /// Provides a handler used by the language compiler to append interpolated strings into <see cref="IndentedTextWriter"/> instances.
     /// </summary>
+    /// <remarks>Creates a handler used to append an interpolated string into a <see cref="StringBuilder"/>.</remarks>
+    /// <param name="literalLength">The number of constant characters outside of interpolation expressions in the interpolated string.</param>
+    /// <param name="formattedCount">The number of interpolation expressions in the interpolated string.</param>
+    /// <param name="writer">The associated <see cref="IndentedTextWriter"/> to which to append.</param>
+    /// <remarks>This is intended to be called only by compiler-generated code. Arguments are not validated as they'd otherwise be for members intended to be used directly.</remarks>
     [EditorBrowsable(EditorBrowsableState.Never)]
     [InterpolatedStringHandler]
-    public readonly ref struct WriteInterpolatedStringHandler
+    public readonly ref struct WriteInterpolatedStringHandler(int literalLength, int formattedCount, IndentedTextWriter writer)
     {
         /// <summary>The associated <see cref="IndentedTextWriter"/> to which to append.</summary>
-        private readonly IndentedTextWriter writer;
-
-        /// <summary>Creates a handler used to append an interpolated string into a <see cref="StringBuilder"/>.</summary>
-        /// <param name="literalLength">The number of constant characters outside of interpolation expressions in the interpolated string.</param>
-        /// <param name="formattedCount">The number of interpolation expressions in the interpolated string.</param>
-        /// <param name="writer">The associated <see cref="IndentedTextWriter"/> to which to append.</param>
-        /// <remarks>This is intended to be called only by compiler-generated code. Arguments are not validated as they'd otherwise be for members intended to be used directly.</remarks>
-        public WriteInterpolatedStringHandler(int literalLength, int formattedCount, IndentedTextWriter writer)
-        {
-            this.writer = writer;
-        }
+        private readonly IndentedTextWriter _writer = writer;
 
         /// <summary>Writes the specified string to the handler.</summary>
         /// <param name="value">The string to write.</param>
-        public void AppendLiteral(string value)
-        {
-            this.writer.Write(value);
-        }
+        public void AppendLiteral(string value) => _writer.Write(value);
 
         /// <summary>Writes the specified value to the handler.</summary>
         /// <param name="value">The value to write.</param>
-        public void AppendFormatted(string? value)
-        {
-            AppendFormatted<string?>(value);
-        }
+        public void AppendFormatted(string? value) => AppendFormatted<string?>(value);
 
         /// <summary>Writes the specified character span to the handler.</summary>
         /// <param name="value">The span to write.</param>
-        public void AppendFormatted(ReadOnlySpan<char> value)
-        {
-            this.writer.Write(value);
-        }
+        public void AppendFormatted(ReadOnlySpan<char> value) => _writer.Write(value);
 
         /// <summary>Writes the specified value to the handler.</summary>
         /// <param name="value">The value to write.</param>
@@ -429,7 +409,7 @@ internal sealed class IndentedTextWriter : IDisposable
         {
             if (value is not null)
             {
-                this.writer.Write(value.ToString());
+                _writer.Write(value.ToString());
             }
         }
 
@@ -441,11 +421,11 @@ internal sealed class IndentedTextWriter : IDisposable
         {
             if (value is IFormattable)
             {
-                this.writer.Write(((IFormattable)value).ToString(format, CultureInfo.InvariantCulture));
+                _writer.Write(((IFormattable)value).ToString(format, CultureInfo.InvariantCulture));
             }
             else if (value is not null)
             {
-                this.writer.Write(value.ToString());
+                _writer.Write(value.ToString());
             }
         }
     }
@@ -458,7 +438,7 @@ internal sealed class IndentedTextWriter : IDisposable
     public readonly ref struct WriteIfInterpolatedStringHandler
     {
         /// <summary>The associated <see cref="WriteInterpolatedStringHandler"/> to use.</summary>
-        private readonly WriteInterpolatedStringHandler handler;
+        private readonly WriteInterpolatedStringHandler _handler;
 
         /// <summary>Creates a handler used to append an interpolated string into a <see cref="StringBuilder"/>.</summary>
         /// <param name="literalLength">The number of constant characters outside of interpolation expressions in the interpolated string.</param>
@@ -471,46 +451,31 @@ internal sealed class IndentedTextWriter : IDisposable
         {
             if (condition)
             {
-                this.handler = new WriteInterpolatedStringHandler(literalLength, formattedCount, writer);
+                _handler = new WriteInterpolatedStringHandler(literalLength, formattedCount, writer);
 
                 shouldAppend = true;
             }
             else
             {
-                this.handler = default;
+                _handler = default;
 
                 shouldAppend = false;
             }
         }
 
         /// <inheritdoc cref="WriteInterpolatedStringHandler.AppendLiteral(string)"/>
-        public void AppendLiteral(string value)
-        {
-            this.handler.AppendLiteral(value);
-        }
+        public void AppendLiteral(string value) => _handler.AppendLiteral(value);
 
         /// <inheritdoc cref="WriteInterpolatedStringHandler.AppendFormatted(string?)"/>
-        public void AppendFormatted(string? value)
-        {
-            this.handler.AppendFormatted(value);
-        }
+        public void AppendFormatted(string? value) => _handler.AppendFormatted(value);
 
         /// <inheritdoc cref="WriteInterpolatedStringHandler.AppendFormatted(ReadOnlySpan{char})"/>
-        public void AppendFormatted(ReadOnlySpan<char> value)
-        {
-            this.handler.AppendFormatted(value);
-        }
+        public void AppendFormatted(ReadOnlySpan<char> value) => _handler.AppendFormatted(value);
 
         /// <inheritdoc cref="WriteInterpolatedStringHandler.AppendFormatted{T}(T)"/>
-        public void AppendFormatted<T>(T value)
-        {
-            this.handler.AppendFormatted(value);
-        }
+        public void AppendFormatted<T>(T value) => _handler.AppendFormatted(value);
 
         /// <inheritdoc cref="WriteInterpolatedStringHandler.AppendFormatted{T}(T, string?)"/>
-        public void AppendFormatted<T>(T value, string? format)
-        {
-            this.handler.AppendFormatted(value, format);
-        }
+        public void AppendFormatted<T>(T value, string? format) => _handler.AppendFormatted(value, format);
     }
 }

@@ -24,31 +24,25 @@ internal struct ImmutableArrayBuilder<T> : IDisposable
     /// <summary>
     /// The rented <see cref="Writer"/> instance to use.
     /// </summary>
-    private Writer? writer;
+    private Writer? _writer;
 
     /// <summary>
     /// Creates a <see cref="ImmutableArrayBuilder{T}"/> value with a pooled underlying data writer.
     /// </summary>
     /// <returns>A <see cref="ImmutableArrayBuilder{T}"/> instance to write data to.</returns>
-    public static ImmutableArrayBuilder<T> Rent()
-    {
-        return new(new Writer());
-    }
+    public static ImmutableArrayBuilder<T> Rent() => new(new Writer());
 
     /// <summary>
     /// Creates a new <see cref="ImmutableArrayBuilder{T}"/> object with the specified parameters.
     /// </summary>
     /// <param name="writer">The target data writer to use.</param>
-    private ImmutableArrayBuilder(Writer writer)
-    {
-        this.writer = writer;
-    }
+    private ImmutableArrayBuilder(Writer writer) => _writer = writer;
 
     /// <inheritdoc cref="ImmutableArray{T}.Builder.Count"/>
     public readonly int Count
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => this.writer!.Count;
+        get => _writer!.Count;
     }
 
     /// <summary>
@@ -58,7 +52,7 @@ internal struct ImmutableArrayBuilder<T> : IDisposable
     public readonly ReadOnlySpan<T> WrittenSpan
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => this.writer!.WrittenSpan;
+        get => _writer!.WrittenSpan;
     }
 
     /// <summary>
@@ -70,39 +64,27 @@ internal struct ImmutableArrayBuilder<T> : IDisposable
     /// No other data should be written to the builder while the returned <see cref="Span{T}"/>
     /// is in use, as it could invalidate the memory area wrapped by it, if resizing occurs.
     /// </remarks>
-    public readonly Span<T> Advance(int requestedSize)
-    {
-        return this.writer!.Advance(requestedSize);
-    }
+    public readonly Span<T> Advance(int requestedSize) => _writer!.Advance(requestedSize);
 
     /// <inheritdoc cref="ImmutableArray{T}.Builder.Add(T)"/>
-    public readonly void Add(T item)
-    {
-        this.writer!.Add(item);
-    }
+    public readonly void Add(T item) => _writer!.Add(item);
 
     /// <summary>
     /// Adds the specified items to the end of the array.
     /// </summary>
     /// <param name="items">The items to add at the end of the array.</param>
-    public readonly void AddRange(scoped ReadOnlySpan<T> items)
-    {
-        this.writer!.AddRange(items);
-    }
+    public readonly void AddRange(scoped ReadOnlySpan<T> items) => _writer!.AddRange(items);
 
     /// <inheritdoc cref="ImmutableArray{T}.Builder.ToImmutable"/>
     public readonly ImmutableArray<T> ToImmutable()
     {
-        T[] array = this.writer!.WrittenSpan.ToArray();
+        T[] array = _writer!.WrittenSpan.ToArray();
 
         return Unsafe.As<T[], ImmutableArray<T>>(ref array);
     }
 
     /// <inheritdoc cref="ImmutableArray{T}.Builder.ToArray"/>
-    public readonly T[] ToArray()
-    {
-        return this.writer!.WrittenSpan.ToArray();
-    }
+    public readonly T[] ToArray() => _writer!.WrittenSpan.ToArray();
 
     /// <summary>
     /// Gets an <see cref="IEnumerable{T}"/> instance for the current builder.
@@ -111,23 +93,17 @@ internal struct ImmutableArrayBuilder<T> : IDisposable
     /// <remarks>
     /// The builder should not be mutated while an enumerator is in use.
     /// </remarks>
-    public readonly IEnumerable<T> AsEnumerable()
-    {
-        return this.writer!;
-    }
+    public readonly IEnumerable<T> AsEnumerable() => _writer!;
 
     /// <inheritdoc/>
-    public override readonly string ToString()
-    {
-        return this.writer!.WrittenSpan.ToString();
-    }
+    public override readonly string ToString() => _writer!.WrittenSpan.ToString();
 
     /// <inheritdoc cref="IDisposable.Dispose"/>
     public void Dispose()
     {
-        Writer? writer = this.writer;
+        Writer? writer = _writer;
 
-        this.writer = null;
+        _writer = null;
 
         writer?.Dispose();
     }
@@ -140,34 +116,34 @@ internal struct ImmutableArrayBuilder<T> : IDisposable
         /// <summary>
         /// The underlying <typeparamref name="T"/> array.
         /// </summary>
-        private T?[]? array;
+        private T?[]? _array;
 
         /// <summary>
-        /// The starting offset within <see cref="array"/>.
+        /// The starting offset within <see cref="_array"/>.
         /// </summary>
-        private int index;
+        private int _index;
 
         /// <summary>
         /// Creates a new <see cref="Writer"/> instance with the specified parameters.
         /// </summary>
         public Writer()
         {
-            this.array = ArrayPool<T?>.Shared.Rent(typeof(T) == typeof(char) ? 1024 : 8);
-            this.index = 0;
+            _array = ArrayPool<T?>.Shared.Rent(typeof(T) == typeof(char) ? 1024 : 8);
+            _index = 0;
         }
 
         /// <inheritdoc cref="ImmutableArrayBuilder{T}.Count"/>
         public int Count
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => this.index;
+            get => _index;
         }
 
         /// <inheritdoc cref="ImmutableArrayBuilder{T}.WrittenSpan"/>
         public ReadOnlySpan<T> WrittenSpan
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => new(this.array!, 0, this.index);
+            get => new(_array!, 0, _index);
         }
 
         /// <inheritdoc/>
@@ -178,9 +154,9 @@ internal struct ImmutableArrayBuilder<T> : IDisposable
         {
             EnsureCapacity(requestedSize);
 
-            Span<T?> span = this.array.AsSpan(this.index, requestedSize);
+            Span<T?> span = _array.AsSpan(_index, requestedSize);
 
-            this.index += requestedSize;
+            _index += requestedSize;
 
             return span;
         }
@@ -190,7 +166,7 @@ internal struct ImmutableArrayBuilder<T> : IDisposable
         {
             EnsureCapacity(1);
 
-            this.array![this.index++] = value;
+            _array![_index++] = value;
         }
 
         /// <inheritdoc cref="ImmutableArrayBuilder{T}.AddRange"/>
@@ -198,17 +174,17 @@ internal struct ImmutableArrayBuilder<T> : IDisposable
         {
             EnsureCapacity(items.Length);
 
-            items.CopyTo(this.array.AsSpan(this.index)!);
+            items.CopyTo(_array.AsSpan(_index)!);
 
-            this.index += items.Length;
+            _index += items.Length;
         }
 
         /// <inheritdoc/>
         public void Dispose()
         {
-            T?[]? array = this.array;
+            T?[]? array = _array;
 
-            this.array = null;
+            _array = null;
 
             if (array is not null)
             {
@@ -217,28 +193,22 @@ internal struct ImmutableArrayBuilder<T> : IDisposable
         }
 
         /// <inheritdoc/>
-        void ICollection<T>.Clear()
-        {
-            throw new NotSupportedException();
-        }
+        void ICollection<T>.Clear() => throw new NotSupportedException();
 
         /// <inheritdoc/>
-        bool ICollection<T>.Contains(T item)
-        {
-            throw new NotSupportedException();
-        }
+        bool ICollection<T>.Contains(T item) => throw new NotSupportedException();
 
         /// <inheritdoc/>
         void ICollection<T>.CopyTo(T[] array, int arrayIndex)
         {
-            Array.Copy(this.array!, 0, array, arrayIndex, this.index);
+            Array.Copy(_array!, 0, array, arrayIndex, _index);
         }
 
         /// <inheritdoc/>
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
-            T?[] array = this.array!;
-            int length = this.index;
+            T?[] array = _array!;
+            int length = _index;
 
             for (int i = 0; i < length; i++)
             {
@@ -247,45 +217,39 @@ internal struct ImmutableArrayBuilder<T> : IDisposable
         }
 
         /// <inheritdoc/>
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable<T>)this).GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<T>)this).GetEnumerator();
 
         /// <inheritdoc/>
-        bool ICollection<T>.Remove(T item)
-        {
-            throw new NotSupportedException();
-        }
+        bool ICollection<T>.Remove(T item) => throw new NotSupportedException();
 
         /// <summary>
-        /// Ensures that <see cref="array"/> has enough free space to contain a given number of new items.
+        /// Ensures that <see cref="_array"/> has enough free space to contain a given number of new items.
         /// </summary>
-        /// <param name="requestedSize">The minimum number of items to ensure space for in <see cref="array"/>.</param>
+        /// <param name="requestedSize">The minimum number of items to ensure space for in <see cref="_array"/>.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void EnsureCapacity(int requestedSize)
         {
-            if (requestedSize > this.array!.Length - this.index)
+            if (requestedSize > _array!.Length - _index)
             {
                 ResizeBuffer(requestedSize);
             }
         }
 
         /// <summary>
-        /// Resizes <see cref="array"/> to ensure it can fit the specified number of new items.
+        /// Resizes <see cref="_array"/> to ensure it can fit the specified number of new items.
         /// </summary>
-        /// <param name="sizeHint">The minimum number of items to ensure space for in <see cref="array"/>.</param>
+        /// <param name="sizeHint">The minimum number of items to ensure space for in <see cref="_array"/>.</param>
         [MethodImpl(MethodImplOptions.NoInlining)]
         private void ResizeBuffer(int sizeHint)
         {
-            int minimumSize = this.index + sizeHint;
+            int minimumSize = _index + sizeHint;
 
-            T?[] oldArray = this.array!;
+            T?[] oldArray = _array!;
             T?[] newArray = ArrayPool<T?>.Shared.Rent(minimumSize);
 
-            Array.Copy(oldArray, newArray, this.index);
+            Array.Copy(oldArray, newArray, _index);
 
-            this.array = newArray;
+            _array = newArray;
 
             ArrayPool<T?>.Shared.Return(oldArray, clearArray: typeof(T) != typeof(char));
         }
