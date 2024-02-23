@@ -217,12 +217,12 @@ public sealed class InstructionGenerator : IIncrementalGenerator
                         }
                         else if (Immediate <= ushort.MaxValue)
                         {
-                            output.Write(op + 0x40);
+                            output.Write((byte)(op + 0x40));
                             output.Write((ushort)Immediate);
                         }
                         else
                         {
-                            output.Write(op + 0x80);
+                            output.Write((byte)(op + 0x80));
                             output.Write(Immediate);
                         }
                         """, true);
