@@ -116,12 +116,16 @@ internal sealed class IndentedTextWriter : IDisposable
     /// Writes a block to the underlying buffer.
     /// </summary>
     /// <returns>A <see cref="Block"/> value to close the open block with.</returns>
-    public Block WriteBlock()
+    public Block WriteBlock(string? clause = default, bool isExpression = false)
     {
+        if (clause is not null)
+        {
+            WriteLine(clause);
+        }
         WriteLine("{");
         IncreaseIndent();
 
-        return new(this);
+        return new(this, isExpression);
     }
 
     /// <summary>
@@ -352,25 +356,26 @@ internal sealed class IndentedTextWriter : IDisposable
     /// <summary>
     /// Represents an indented block that needs to be closed.
     /// </summary>
-    /// <param name="writer">The input <see cref="IndentedTextWriter"/> instance to wrap.</param>
-    public struct Block(IndentedTextWriter writer) : IDisposable
+    /// <param name="_writer">The input <see cref="IndentedTextWriter"/> instance to wrap.</param>
+    public readonly struct Block(IndentedTextWriter _writer, bool isExpression = false) : IDisposable
     {
         /// <summary>
         /// The <see cref="IndentedTextWriter"/> instance to write to.
         /// </summary>
-        private IndentedTextWriter? writer = writer;
+        private readonly IndentedTextWriter? _writer = _writer;
+
+        /// <summary>
+        /// Indicates whether the indented block is an expression and requires a semicolon to close the block.
+        /// </summary>
+        private readonly bool _isExpression = isExpression;
 
         /// <inheritdoc/>
         public void Dispose()
         {
-            IndentedTextWriter? writer = this.writer;
-
-            this.writer = null;
-
-            if (writer is not null)
+            if (_writer is not null)
             {
-                writer.DecreaseIndent();
-                writer.WriteLine("}");
+                _writer.DecreaseIndent();
+                _writer.WriteLine(_isExpression ? "};" : "}");
             }
         }
     }

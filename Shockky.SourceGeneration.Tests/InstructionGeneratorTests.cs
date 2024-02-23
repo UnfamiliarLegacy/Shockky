@@ -9,8 +9,105 @@ namespace Shockky.SourceGeneration.Tests;
 
 public sealed class InstructionGeneratorTests
 {
+    public const string ExpectedReturnOutput = """
+        namespace Shockky.Lingo.Instructions;
+        
+        [global::System.CodeDom.Compiler.GeneratedCode("InstructionGenerator", <ASSEMBLY_VERSION>)]
+        [global::System.Diagnostics.DebuggerNonUserCode]
+        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+        public sealed class Return : IInstruction
+        {
+            public static readonly Return Default = new();
+        
+            /// <inheritdoc />
+            public OPCode OP => OPCode.Return;
+        
+            [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+            [global::System.Diagnostics.DebuggerBrowsable(global::System.Diagnostics.DebuggerBrowsableState.Never)]
+            public int Immediate { get; set; }
+        
+            public int GetSize() => sizeof(OPCode);
+        
+            public void WriteTo(global::Shockky.IO.ShockwaveWriter output)
+            {
+                output.Write((byte)OP);
+            }
+        }
+        """;
+    public const string ExpectedPushIntOutput = """
+        namespace Shockky.Lingo.Instructions;
+        
+        [global::System.CodeDom.Compiler.GeneratedCode("InstructionGenerator", <ASSEMBLY_VERSION>)]
+        [global::System.Diagnostics.DebuggerNonUserCode]
+        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+        public sealed class PushInt : IInstruction
+        {
+            /// <inheritdoc />
+            public OPCode OP => OPCode.PushInt;
+        
+            public int Immediate { get; set; }
+        
+            public int GetSize()
+            {
+                uint imm = (uint)Immediate;
+                if (imm <= byte.MaxValue) return sizeof(OPCode) + 1;
+                else if (imm <= ushort.MaxValue) return sizeof(OPCode) + 2;
+                else return sizeof(OPCode) + 4;
+            }
+        
+            public void WriteTo(global::Shockky.IO.ShockwaveWriter output)
+            {
+                byte op = (byte)OP;
+        
+                if (Immediate <= byte.MaxValue)
+                {
+                    output.Write(op);
+                    output.Write((byte)Immediate);
+                }
+                else if (Immediate <= ushort.MaxValue)
+                {
+                    output.Write(op + 0x40);
+                    output.Write((ushort)Immediate);
+                }
+                else
+                {
+                    output.Write(op + 0x80);
+                    output.Write(Immediate);
+                }
+            }
+        }
+        """;
+    public const string ExpectedSharedReadMethod = """
+        namespace Shockky.Lingo.Instructions;
+
+        public partial interface IInstruction
+        {
+            [global::System.CodeDom.Compiler.GeneratedCode("InstructionGenerator", <ASSEMBLY_VERSION>)]
+            [global::System.Diagnostics.DebuggerNonUserCode]
+            [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+            public static IInstruction Read(ref global::Shockky.IO.ShockwaveReader input)
+            {
+                byte op = input.ReadByte();
+                int immediate = op >> 6 switch 
+                {
+                    1 => input.ReadByte(),
+                    2 => input.ReadInt16(),
+                    3 => input.ReadInt32(),
+                    _ => 0
+                };
+
+                return (OPCode)op switch
+                {
+                    OPCode.Return => new Return(),
+                    OPCode.PushInt => new PushInt(),
+                    _ => throw null
+                };
+            }
+        }
+        """;
+
     [Fact]
-    public void OpWithoutImmediate()
+    public void InstructionGenerator_Generates_OpWithoutImmediate()
     {
         string source = """
             namespace Shockky.Lingo.Instructions;
@@ -20,39 +117,14 @@ public sealed class InstructionGeneratorTests
                 [OP] Return = 0x01,
             }
             """;
-        string expectedSyntaxForReturn = """
-            namespace Shockky.Lingo.Instructions;
-            
-            [global::System.CodeDom.Compiler.GeneratedCode("InstructionGenerator", <ASSEMBLY_VERSION>)]
-            [global::System.Diagnostics.DebuggerNonUserCode]
-            [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-            public sealed class Return : IInstruction
-            {
-                public static readonly Return Default = new();
-
-                /// <inheritdoc />
-                public OPCode OP => OPCode.Return;
-
-                [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-                [global::System.Diagnostics.DebuggerBrowsable(global::System.Diagnostics.DebuggerBrowsableState.Never)]
-                public int Immediate { get; set; }
-
-                public int GetSize() => sizeof(OPCode);
-
-                public void WriteTo(global::Shockky.IO.ShockwaveWriter output)
-                {
-                    output.Write((byte)OP);
-                }
-            }
-            """;
 
         VerifyGenerateSources(source,
             [new InstructionGenerator()],
-            ("Shockky.Lingo.Instructions.Return.g.cs", expectedSyntaxForReturn));
+            ("Shockky.Lingo.Instructions.Return.g.cs", ExpectedReturnOutput));
     }
 
     [Fact]
-    public void OpWithImmediate()
+    public void InstructionGenerator_Generates_OpWithImmediate()
     {
         string source = """
             namespace Shockky.Lingo.Instructions;
@@ -62,53 +134,32 @@ public sealed class InstructionGeneratorTests
                 [OP(ImmediateKind.Integer)] PushInt = 0x41,
             }
             """;
-        string expected = """
+
+        VerifyGenerateSources(source,
+            [new InstructionGenerator()],
+            ("Shockky.Lingo.Instructions.PushInt.g.cs", ExpectedPushIntOutput));
+    }
+
+    [Fact]
+    public void InstructionGenerator_Generates_SharedReadLogic()
+    {
+        string source = """
             namespace Shockky.Lingo.Instructions;
-            
-            [global::System.CodeDom.Compiler.GeneratedCode("InstructionGenerator", <ASSEMBLY_VERSION>)]
-            [global::System.Diagnostics.DebuggerNonUserCode]
-            [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-            public sealed class PushInt : IInstruction
+
+            public enum OPCode : byte
             {
-                /// <inheritdoc />
-                public OPCode OP => OPCode.PushInt;
-
-                public int Immediate { get; set; }
-
-                public int GetSize()
-                {
-                    uint imm = (uint)Immediate;
-                    if (imm <= byte.MaxValue) return sizeof(OPCode) + 1;
-                    else if (imm <= ushort.MaxValue) return sizeof(OPCode) + 2;
-                    else return sizeof(OPCode) + 4;
-                }
-
-                public void WriteTo(global::Shockky.IO.ShockwaveWriter output)
-                {
-                    byte op = (byte)OP;
-
-                    if (Immediate <= byte.MaxValue)
-                    {
-                        output.Write(op);
-                        output.Write((byte)Immediate);
-                    }
-                    else if (Immediate <= ushort.MaxValue)
-                    {
-                        output.Write(op + 0x40);
-                        output.Write((ushort)Immediate);
-                    }
-                    else
-                    {
-                        output.Write(op + 0x80);
-                        output.Write(Immediate);
-                    }
-                }
+                [OP] Return = 0x01,
+                [OP(ImmediateKind.Integer)] PushInt = 0x41,
             }
             """;
 
         VerifyGenerateSources(source,
             [new InstructionGenerator()],
-            ("Shockky.Lingo.Instructions.PushInt.g.cs", expected));
+            [
+                ("Shockky.Lingo.Instructions.Return.g.cs", ExpectedReturnOutput),
+                ("Shockky.Lingo.Instructions.PushInt.g.cs", ExpectedPushIntOutput),
+                ("Shockky.Lingo.Instructions.IInstruction.Read.g.cs", ExpectedSharedReadMethod)
+            ]);
     }
 
     /// <summary>
