@@ -37,11 +37,11 @@ public sealed class InstructionGeneratorTests
         [global::System.CodeDom.Compiler.GeneratedCode("InstructionGenerator", <ASSEMBLY_VERSION>)]
         [global::System.Diagnostics.DebuggerNonUserCode]
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        public sealed class PushInt : IInstruction
+        public sealed class PushInt(int immediate) : IInstruction
         {
             public OPCode OP => OPCode.PushInt;
         
-            public int Immediate { get; set; }
+            public int Immediate { get; set; } = immediate;
         
             public int GetSize()
             {
@@ -92,10 +92,11 @@ public sealed class InstructionGeneratorTests
                     _ => 0
                 };
 
+                if (op >= 0x80) op = (byte)(op & 0x3F | 0x40);
                 return (OPCode)op switch
                 {
                     OPCode.Return => new Return(),
-                    OPCode.PushInt => new PushInt(),
+                    OPCode.PushInt => new PushInt(immediate),
                     _ => throw null
                 };
             }

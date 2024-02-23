@@ -89,11 +89,16 @@ public sealed class InstructionGenerator : IIncrementalGenerator
                         """, true);
 
                     writer.WriteLine();
+                    writer.WriteLine("if (op >= 0x80) op = (byte)(op & 0x3F | 0x40);");
                     using (writer.WriteBlock("return (OPCode)op switch", isExpression: true))
                     {
                         foreach (var instruction in item.AsSpan())
                         {
-                            writer.WriteLine($"OPCode.{instruction.Name} => new {instruction.Name}(),");
+                            bool hasImmediate = instruction.ImmediateKind is not ImmediateKind.None;
+
+                            writer.Write($"OPCode.{instruction.Name} => new {instruction.Name}(");
+                            writer.WriteIf(hasImmediate, "immediate");
+                            writer.WriteLine("),");
                         }
                         writer.WriteLine("_ => throw null");
                     }
@@ -156,12 +161,18 @@ public sealed class InstructionGenerator : IIncrementalGenerator
     internal static void WriteInstructionSyntax(IndentedTextWriter writer,
         InstructionInfo instruction)
     {
+        bool hasImmediate = instruction.ImmediateKind is not ImmediateKind.None;
+        
         writer.WriteGeneratedAttributes(nameof(InstructionGenerator));
 
-        using (writer.WriteBlock($"public sealed class {instruction.Name} : IInstruction"))
+        if (hasImmediate)
         {
-            bool hasImmediate = instruction.ImmediateKind is not ImmediateKind.None;
+            writer.WriteLine($"public sealed class {instruction.Name}(int immediate) : IInstruction");
+        }
+        else writer.WriteLine($"public sealed class {instruction.Name} : IInstruction");
 
+        using (writer.WriteBlock())
+        {
             // Offer cached instance for instruction with no immediate
             writer.WriteLineIf(!hasImmediate, $"public static readonly {instruction.Name} Default = new();");
             writer.WriteLineIf(!hasImmediate);
@@ -174,7 +185,7 @@ public sealed class InstructionGenerator : IIncrementalGenerator
             {
                 writer.WriteLine("int IInstruction.Immediate { get; set; }");
             }
-            else writer.WriteLine("public int Immediate { get; set; }");
+            else writer.WriteLine("public int Immediate { get; set; } = immediate;");
             writer.WriteLine();
 
             if (hasImmediate)
