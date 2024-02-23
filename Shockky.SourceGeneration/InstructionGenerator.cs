@@ -166,20 +166,15 @@ public sealed class InstructionGenerator : IIncrementalGenerator
             writer.WriteLineIf(!hasImmediate, $"public static readonly {instruction.Name} Default = new();");
             writer.WriteLineIf(!hasImmediate);
 
-            writer.WriteLine($$"""
-                /// <inheritdoc />
-                public OPCode OP => OPCode.{{instruction.Name}};
-                """, true);
+            writer.WriteLine($"public OPCode OP => OPCode.{instruction.Name};");
             writer.WriteLine();
-            
-            // If the OP has no immediate, hide it from debugger and editor on the concrete implementation.
+
+            // If the OP has no immediate, hide the property representing it with explicit implementation.
             if (!hasImmediate)
             {
-                writer.WriteLine("[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]");
-                writer.WriteLine("[global::System.Diagnostics.DebuggerBrowsable(global::System.Diagnostics.DebuggerBrowsableState.Never)]");
+                writer.WriteLine("int IInstruction.Immediate { get; set; }");
             }
-            writer.WriteLine("public int Immediate { get; set; }");
-
+            else writer.WriteLine("public int Immediate { get; set; }");
             writer.WriteLine();
 
             if (hasImmediate)

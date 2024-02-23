@@ -18,13 +18,10 @@ public sealed class InstructionGeneratorTests
         public sealed class Return : IInstruction
         {
             public static readonly Return Default = new();
-        
-            /// <inheritdoc />
+
             public OPCode OP => OPCode.Return;
         
-            [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-            [global::System.Diagnostics.DebuggerBrowsable(global::System.Diagnostics.DebuggerBrowsableState.Never)]
-            public int Immediate { get; set; }
+            int IInstruction.Immediate { get; set; }
         
             public int GetSize() => sizeof(OPCode);
         
@@ -42,7 +39,6 @@ public sealed class InstructionGeneratorTests
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public sealed class PushInt : IInstruction
         {
-            /// <inheritdoc />
             public OPCode OP => OPCode.PushInt;
         
             public int Immediate { get; set; }
