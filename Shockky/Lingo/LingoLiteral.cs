@@ -1,7 +1,5 @@
 ﻿using Shockky.IO;
 
-using System.Diagnostics;
-
 namespace Shockky.Lingo;
 
 // TODO: Attempt to rewrite this again, not happy.
@@ -25,7 +23,7 @@ public sealed class LingoLiteral : IShockwaveItem, IEquatable<LingoLiteral>
             size += Kind switch
             {
                 VariantKind.String => Value.ToString().Length + 1,
-                VariantKind.Float => 8, //TODO: old applefloat = 10
+                VariantKind.Float => 8,
                 VariantKind.CompiledJavascript => ((byte[])Value).Length,
 
                 _ => throw new ArgumentException(nameof(Kind))
@@ -50,11 +48,12 @@ public sealed class LingoLiteral : IShockwaveItem, IEquatable<LingoLiteral>
         {
             input.Position = entryOffset;
 
-            int length = input.ReadInt32();
+            int length = input.ReadInt32LittleEndian();
             object value = entryKind switch
             {
                 VariantKind.String => input.ReadString(length),
-                VariantKind.Float => input.ReadDouble(),//TODO: input.ReadAppleFloat80()
+                VariantKind.Float when length == 8 => input.ReadDoubleLittleEndian(),
+                VariantKind.Float when length == 10 => throw new NotSupportedException("The 80-bit double-extended precision is not supported, yet."),
                 VariantKind.CompiledJavascript => input.ReadBytes(length).ToArray(),
 
                 _ => throw new ArgumentException(nameof(Kind))

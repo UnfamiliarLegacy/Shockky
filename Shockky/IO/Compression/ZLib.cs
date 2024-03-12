@@ -2,8 +2,10 @@
 
 namespace Shockky.IO;
 
-internal static class ZLib
+public static class ZLib
 {
+    public static readonly Guid MoaId = new(0xAC99E904, 0x0070, 0x0B36, 0x00, 0x00, 0x08, 0x00, 0x07, 0x37, 0x7A, 0x34);
+
     //           🙏 Summoning circle 🙏 
     //
     //             🕯       🕯       🕯
@@ -13,21 +15,25 @@ internal static class ZLib
     //            
     //     🕯                               🕯
     //             🕯       🕯       🕯
-    internal static unsafe int Decompress(ReadOnlySpan<byte> input, Span<byte> output)
+    internal static unsafe void DecompressUnsafe(ReadOnlySpan<byte> input, Span<byte> output)
     {
-        fixed (byte* inputPtr = &input[0])
+        fixed (byte* inputPtr = input)
         {
             using var stream = new UnmanagedMemoryStream(inputPtr, input.Length);
             using var zlibStream = new ZLibStream(stream, CompressionMode.Decompress);
 
-            int totalRead = 0;
-            while (totalRead < output.Length)
-            {
-                int bytesRead = zlibStream.Read(output.Slice(totalRead));
-                if (bytesRead == 0) break;
-                totalRead += bytesRead;
-            }
-            return totalRead;
+            zlibStream.ReadExactly(output);
+        }
+    }
+
+    // TODO: Isn't this GC hole lmao
+    internal static unsafe ZLibShockwaveReader CreateDeflateReaderUnsafe(ref ShockwaveReader input)
+    {
+        int dataRemaining = input.Length - input.Position;
+        fixed (byte* bufferPtr = input.ReadBytes(dataRemaining))
+        {
+            var stream = new UnmanagedMemoryStream(bufferPtr, input.Length);
+            return new ZLibShockwaveReader(stream, input.ReverseEndianness, leaveOpen: false);
         }
     }
 }

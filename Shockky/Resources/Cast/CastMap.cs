@@ -12,12 +12,12 @@ public sealed class CastMap : IResource, IShockwaveItem
     { }
     public CastMap(ref ShockwaveReader input, ReaderContext context)
     {
-        input.IsBigEndian = true;
+        input.ReverseEndianness = true;
 
         Members = new int[input.Length / sizeof(int)];
         for (int i = 0; i < Members.Length; i++)
         {
-            Members[i] = input.ReadInt32();
+            Members[i] = input.ReadInt32LittleEndian();
         }
     }
 
@@ -27,7 +27,7 @@ public sealed class CastMap : IResource, IShockwaveItem
     {
         for (int i = 0; i < Members.Length; i++)
         {
-            output.Write(Members[i]);
+            output.WriteInt32LittleEndian(Members[i]);
         }
     }
 }

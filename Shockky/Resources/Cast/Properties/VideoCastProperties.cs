@@ -18,7 +18,7 @@ public class VideoCastProperties : IMemberProperties
 
     public VideoCastProperties(ref ShockwaveReader input, ReaderContext context)
     {
-        Type = input.ReadString((int)input.ReadUInt32());
+        Type = input.ReadString((int)input.ReadUInt32LittleEndian());
         input.Advance(10);
 
         //TODO:

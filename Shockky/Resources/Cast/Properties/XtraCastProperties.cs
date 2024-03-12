@@ -9,8 +9,8 @@ public class XtraCastProperties : IMemberProperties
 
     public XtraCastProperties(ref ShockwaveReader input, ReaderContext context)
     {
-        SymbolName = input.ReadString(input.ReadInt32());
-        Data = new byte[input.ReadInt32()];
+        SymbolName = input.ReadString(input.ReadInt32LittleEndian());
+        Data = new byte[input.ReadInt32LittleEndian()];
         input.ReadBytes(Data);
     }
 
@@ -27,8 +27,8 @@ public class XtraCastProperties : IMemberProperties
     public void WriteTo(ShockwaveWriter output, WriterOptions options)
     {
         throw new NotImplementedException(nameof(XtraCastProperties));
-        output.Write(SymbolName.Length);
-        output.Write(Data.Length);
-        output.Write(Data);
+        output.WriteInt32LittleEndian(SymbolName.Length);
+        output.WriteInt32LittleEndian(Data.Length);
+        output.WriteBytes(Data);
     }
 }

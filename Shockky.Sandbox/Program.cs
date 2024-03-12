@@ -13,20 +13,25 @@ using SixLabors.ImageSharp.PixelFormats;
 Console.Title = "Shockky.Sandbox";
 
 //TODO: Verbose and Quiet levels, and rest of the resources of course
+var inputArgument = new Argument<IEnumerable<System.IO.FileInfo>>("input")
+{
+    Arity = ArgumentArity.OneOrMore,
+    Description = "Director movie (.d[ixc]r) or external cast (.c[sxc]t) file(s)."
+}.ExistingOnly();
+
+var outputOption = new Option<DirectoryInfo>("--output",
+    getDefaultValue: () => new DirectoryInfo("Output/"),
+    description: "Directory for the extracted resources")
+    .LegalFilePathsOnly();
+
 var rootCommand = new RootCommand()
 {
-    new Argument<IEnumerable<System.IO.FileInfo>>("input")
-    {
-        Arity = ArgumentArity.OneOrMore,
-        Description = "Director movie (.dir, .dxt, .dcr) or external cast (.cst, .cxt, .cct) file(s)."
-    }.ExistingOnly(),
-
-    new Option<DirectoryInfo>("--output",
-        getDefaultValue: () => new DirectoryInfo("Output/"),
-        description: "Directory for the extracted resources")
-    .LegalFilePathsOnly()
+    inputArgument,
+    outputOption
 };
-//rootCommand.SetHandler<IEnumerable<System.IO.FileInfo>, bool, DirectoryInfo>(HandleExtractCommand);
+
+rootCommand.SetHandler(HandleExtractCommand, 
+    inputArgument, outputOption);
 
 return rootCommand.Invoke(args);
 
@@ -76,7 +81,7 @@ static IReadOnlyDictionary<int, System.Drawing.Color[]> ReadPalettes()
     };
 }
 
-static void HandleExtractCommand(IEnumerable<System.IO.FileInfo> input, bool images, DirectoryInfo output)
+static void HandleExtractCommand(IEnumerable<System.IO.FileInfo> input, DirectoryInfo output)
 {
     output.Create();
 
@@ -124,7 +129,7 @@ static void HandleExtractCommand(IEnumerable<System.IO.FileInfo> input, bool ima
             if (bitmapProperties.Rectangle.IsEmpty)
                 continue;
 
-            string outputFilePath = Path.Combine(fileOutputDirectory.FullName, member.Metadata?.Name ?? resourceId.Id.ToString());
+            string outputFilePath = Path.Combine(fileOutputDirectory.FullName, member.Metadata?.Entries.Name ?? resourceId.Id.ToString());
 
             if (bitmapProperties.PaletteRef.MemberNum > 0 && bitmapProperties.PaletteRef.MemberNum < castAssociationTable.Members.Length)
             {
@@ -150,7 +155,7 @@ static void HandleExtractCommand(IEnumerable<System.IO.FileInfo> input, bool ima
                 if (!TryExtractBitmapResource(outputFilePath, bitmapProperties, bitmapData, palette))
                     continue;
             }
-            Console.WriteLine($"({bitmapProperties.PaletteRef.CastLib}, {bitmapProperties.PaletteRef.MemberNum}) {member.Metadata?.Name}:");
+            Console.WriteLine($"({bitmapProperties.PaletteRef.CastLib}, {bitmapProperties.PaletteRef.MemberNum}) {member.Metadata?.Entries.Name}:");
             Console.WriteLine($"    BitDepth: {bitmapProperties.BitDepth}");
         }
         Console.WriteLine();

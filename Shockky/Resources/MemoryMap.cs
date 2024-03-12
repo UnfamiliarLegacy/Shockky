@@ -19,15 +19,15 @@ public sealed class MemoryMap : IShockwaveItem, IResource
 
     public MemoryMap(ref ShockwaveReader input, ReaderContext context)
     {
-        input.ReadBEInt16();
-        input.ReadBEInt16();
+        input.ReadInt16BigEndian();
+        input.ReadInt16BigEndian();
 
-        input.ReadBEInt32();
-        var entries = new ResourceEntry[input.ReadBEInt32()];
+        input.ReadInt32BigEndian();
+        Entries = new ResourceEntry[input.ReadInt32BigEndian()];
 
-        int lastJunkIndex = input.ReadBEInt32();
-        int someLinkedIndex = input.ReadBEInt32();
-        int lastFreeIndex = input.ReadBEInt32();
+        LastJunkIndex = input.ReadInt32BigEndian();
+        SomeLinkedIndex = input.ReadInt32BigEndian();
+        LastFreeIndex = input.ReadInt32BigEndian();
 
         for (int i = 0; i < Entries.Length; i++)
         {
@@ -51,15 +51,15 @@ public sealed class MemoryMap : IShockwaveItem, IResource
 
     public void WriteTo(ShockwaveWriter output, WriterOptions options)
     {
-        output.WriteBE(ENTRIES_OFFSET);
-        output.WriteBE(ENTRY_SIZE);
+        output.WriteInt16BigEndian(ENTRIES_OFFSET);
+        output.WriteInt16BigEndian(ENTRY_SIZE);
 
-        output.WriteBE(Entries.Length);
-        output.WriteBE(Entries.Length);
+        output.WriteInt32BigEndian(Entries.Length);
+        output.WriteInt32BigEndian(Entries.Length);
 
-        output.WriteBE(LastJunkIndex);
-        output.WriteBE(SomeLinkedIndex);
-        output.WriteBE(LastFreeIndex);
+        output.WriteInt32BigEndian(LastJunkIndex);
+        output.WriteInt32BigEndian(SomeLinkedIndex);
+        output.WriteInt32BigEndian(LastFreeIndex);
         foreach (var entry in Entries)
         {
             entry.WriteTo(output, options);

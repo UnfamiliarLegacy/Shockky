@@ -10,7 +10,7 @@ public class ScriptCastProperties : IMemberProperties
     { }
     public ScriptCastProperties(ref ShockwaveReader input, ReaderContext context)
     {
-        Kind = (ScriptKind)input.ReadInt16();
+        Kind = (ScriptKind)input.ReadInt16LittleEndian();
     }
 
     public int GetBodySize(WriterOptions options)
@@ -22,6 +22,6 @@ public class ScriptCastProperties : IMemberProperties
 
     public void WriteTo(ShockwaveWriter output, WriterOptions options)
     {
-        output.Write((short)Kind);
+        output.WriteInt16LittleEndian((short)Kind);
     }
 }

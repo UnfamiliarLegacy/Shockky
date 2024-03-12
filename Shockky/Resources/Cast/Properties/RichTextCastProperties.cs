@@ -25,13 +25,13 @@ public class RichTextCastProperties : IMemberProperties
         AntiAlias = input.ReadBoolean();
         BoxType = (RichTextBoxType)input.ReadByte();
 
-        Unk12 = input.ReadInt16();
+        Unk12 = input.ReadInt16LittleEndian();
         AntiAliasMinFontSize = (SizeType)input.ReadByte();
         Height = (SizeType)input.ReadByte();
 
         //TODO: Rgb24
-        ForegroundColor = Color.FromArgb(input.ReadInt32());
-        BackgroundColor = Color.FromArgb(input.ReadInt16(), input.ReadInt16(), input.ReadInt16());
+        ForegroundColor = Color.FromArgb(input.ReadInt32LittleEndian());
+        BackgroundColor = Color.FromArgb(input.ReadInt16LittleEndian(), input.ReadInt16LittleEndian(), input.ReadInt16LittleEndian());
     }
     public int GetBodySize(WriterOptions options)
     {
@@ -50,7 +50,7 @@ public class RichTextCastProperties : IMemberProperties
 
     public void WriteTo(ShockwaveWriter output, WriterOptions options)
     {
-        output.Write(Rectangle);
-        output.Write(Rect2);
+        output.WriteRect(Rectangle);
+        output.WriteRect(Rect2);
     }
 }

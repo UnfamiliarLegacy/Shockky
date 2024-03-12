@@ -14,17 +14,18 @@ public sealed class AfterburnerMap : IShockwaveItem, IResource
     public AfterburnerMap(ref ShockwaveReader input, ReaderContext context)
     {
         input.ReadByte();
-        Unknown = input.ReadVarInt();
+        Unknown = input.Read7BitEncodedInt();
 
-        using ZLibShockwaveReader deflaterInput = IResource.CreateDeflateReader(ref input);
-        Unknown2 = deflaterInput.ReadVarInt();
-        LastIndex = deflaterInput.ReadVarInt();
+        using ZLibShockwaveReader deflaterInput = ZLib.CreateDeflateReaderUnsafe(ref input);
+        Unknown2 = deflaterInput.Read7BitEncodedInt();
+        LastIndex = deflaterInput.Read7BitEncodedInt();
 
-        int count = deflaterInput.ReadVarInt();
-        var entries = new Dictionary<int, AfterburnerMapEntry>(count);
+        int count = deflaterInput.Read7BitEncodedInt();
+        Entries = new Dictionary<int, AfterburnerMapEntry>(count);
         for (int i = 0; i < count; i++)
         {
-            entries[i] = new AfterburnerMapEntry(deflaterInput);
+            var entry = new AfterburnerMapEntry(deflaterInput);
+            Entries[entry.Index] = entry;
         }
     }
 

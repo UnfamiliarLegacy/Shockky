@@ -22,29 +22,29 @@ public class LingoFunction : IShockwaveItem
     }
     public LingoFunction(ref ShockwaveReader input, ReaderContext context)
     {
-        EnvironmentIndex = input.ReadInt16();
-        EventKind = (LingoEventFlags)input.ReadInt16();
+        EnvironmentIndex = input.ReadInt16LittleEndian();
+        EventKind = (LingoEventFlags)input.ReadInt16LittleEndian();
 
-        Bytecode = new byte[input.ReadInt32()];
-        int bytecodeOffset = input.ReadInt32();
+        Bytecode = new byte[input.ReadInt32LittleEndian()];
+        int bytecodeOffset = input.ReadInt32LittleEndian();
 
-        Arguments.Capacity = input.ReadInt16();
-        int argumentsOffset = input.ReadInt32();
+        Arguments.Capacity = input.ReadInt16LittleEndian();
+        int argumentsOffset = input.ReadInt32LittleEndian();
 
-        Locals.Capacity = input.ReadInt16();
-        int localsOffset = input.ReadInt32();
+        Locals.Capacity = input.ReadInt16LittleEndian();
+        int localsOffset = input.ReadInt32LittleEndian();
 
-        short globalsCount = input.ReadInt16(); //v5
-        int globalsOffset = input.ReadInt32(); //v5
+        short globalsCount = input.ReadInt16LittleEndian(); //v5
+        int globalsOffset = input.ReadInt32LittleEndian(); //v5
 
-        int parserBytesRead = input.ReadInt32();
-        short bodyLineNumber = input.ReadInt16();
+        int parserBytesRead = input.ReadInt32LittleEndian();
+        short bodyLineNumber = input.ReadInt16LittleEndian();
 
-        BytesPerLine = new byte[input.ReadInt16()];
-        int lineOffset = input.ReadInt32();
+        BytesPerLine = new byte[input.ReadInt16LittleEndian()];
+        int lineOffset = input.ReadInt32LittleEndian();
 
         //if version > 0x800
-        StackHeight = input.ReadInt32();
+        StackHeight = input.ReadInt32LittleEndian();
 
         int handlerEndOffset = input.Position;
 
@@ -54,13 +54,13 @@ public class LingoFunction : IShockwaveItem
         input.Position = argumentsOffset;
         for (int i = 0; i < Arguments.Capacity; i++)
         {
-            Arguments.Add(input.ReadInt16());
+            Arguments.Add(input.ReadInt16LittleEndian());
         }
 
         input.Position = localsOffset;
         for (int i = 0; i < Locals.Capacity; i++)
         {
-            Locals.Add(input.ReadInt16());
+            Locals.Add(input.ReadInt16LittleEndian());
         }
 
         throw new NotImplementedException(nameof(LingoFunction));
@@ -91,7 +91,7 @@ public class LingoFunction : IShockwaveItem
     public void WriteTo(ShockwaveWriter output, WriterOptions options)
     {
         throw new NotImplementedException();
-        output.Write(EnvironmentIndex);
-        output.Write((short)EventKind);
+        output.WriteInt16LittleEndian(EnvironmentIndex);
+        output.WriteInt16LittleEndian((short)EventKind);
     }
 }

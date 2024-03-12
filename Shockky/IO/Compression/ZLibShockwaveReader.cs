@@ -4,24 +4,19 @@ using System.IO.Compression;
 
 namespace Shockky.IO;
 
-public sealed class ZLibShockwaveReader : BinaryReader
+public sealed class ZLibShockwaveReader(Stream innerStream, bool isBigEndian, bool leaveOpen) 
+    : BinaryReader(new ZLibStream(innerStream, CompressionMode.Decompress, leaveOpen))
 {
-    private readonly bool _isBigEndian;
+    private readonly bool _isBigEndian = isBigEndian;
 
-    public ZLibShockwaveReader(Stream innerStream, bool isBigEndian, bool leaveOpen)
-        : base(new ZLibStream(innerStream, CompressionMode.Decompress, leaveOpen))
-    {
-        _isBigEndian = isBigEndian;
-    }
-
-    public int ReadVarInt()
+    public new int Read7BitEncodedInt()
     {
         int value = 0;
         byte b;
         do
         {
             b = ReadByte();
-            value = (value << 7) + (b & 0x7F);
+            value = (value << 7) | (b & 0x7F);
         }
         while (b >> 7 != 0);
         return value;
@@ -38,21 +33,21 @@ public sealed class ZLibShockwaveReader : BinaryReader
         return builder.ToString();
     }
 
-    public new short ReadInt16()
+    public short ReadInt16LittleEndian()
     {
-        return _isBigEndian ? BinaryPrimitives.ReverseEndianness(base.ReadInt16()) : base.ReadInt16();
+        return _isBigEndian ? BinaryPrimitives.ReverseEndianness(ReadInt16()) : ReadInt16();
     }
-    public short ReadBEInt16()
+    public short ReadInt16BigEndian()
     {
-        return _isBigEndian ? base.ReadInt16() : BinaryPrimitives.ReverseEndianness(base.ReadInt16());
+        return _isBigEndian ? ReadInt16() : BinaryPrimitives.ReverseEndianness(ReadInt16());
     }
 
-    public new int ReadInt32()
+    public int ReadInt32LittleEndian()
     {
-        return _isBigEndian ? BinaryPrimitives.ReverseEndianness(base.ReadInt32()) : base.ReadInt32();
+        return _isBigEndian ? BinaryPrimitives.ReverseEndianness(ReadInt32()) : ReadInt32();
     }
-    public int ReadBEInt32()
+    public int ReadInt32BigEndian()
     {
-        return _isBigEndian ? base.ReadInt32() : BinaryPrimitives.ReverseEndianness(base.ReadInt32());
+        return _isBigEndian ? ReadInt32() : BinaryPrimitives.ReverseEndianness(ReadInt32());
     }
 }

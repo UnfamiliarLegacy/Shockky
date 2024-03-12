@@ -65,22 +65,22 @@ public sealed partial class InstructionGenerator
 
                         if (Immediate <= byte.MaxValue)
                         {
-                            output.Write(op);
-                            output.Write((byte)Immediate);
+                            output.WriteByte(op);
+                            output.WriteByte((byte)Immediate);
                         }
                         else if (Immediate <= ushort.MaxValue)
                         {
-                            output.Write((byte)(op + 0x40));
-                            output.Write((ushort)Immediate);
+                            output.WriteByte((byte)(op + 0x40));
+                            output.WriteUInt16LittleEndian((ushort)Immediate);
                         }
                         else
                         {
-                            output.Write((byte)(op + 0x80));
-                            output.Write(Immediate);
+                            output.WriteByte((byte)(op + 0x80));
+                            output.WriteInt32LittleEndian(Immediate);
                         }
                         """, true);
                 }
-                else writer.WriteLine("output.Write((byte)OP);");
+                else writer.WriteLine("output.WriteByte((byte)OP);");
             }
         }
     }
@@ -100,8 +100,8 @@ public sealed partial class InstructionGenerator
                         int immediate = op >> 6 switch 
                         {
                             1 => input.ReadByte(),
-                            2 => input.ReadInt16(),
-                            3 => input.ReadInt32(),
+                            2 => input.ReadInt16LittleEndian(),
+                            3 => input.ReadInt32LittleEndian(),
                             _ => 0
                         };
                         """, true);

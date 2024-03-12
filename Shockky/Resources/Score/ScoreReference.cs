@@ -13,21 +13,21 @@ public sealed class ScoreReference : IShockwaveItem, IResource
     { }
     public ScoreReference(ref ShockwaveReader input, ReaderContext context)
     {
-        input.ReadInt32();
-        input.ReadInt32();
+        input.ReadInt32LittleEndian();
+        input.ReadInt32LittleEndian();
 
-        int entryCount = input.ReadInt32();
-        input.ReadInt32();
+        int entryCount = input.ReadInt32LittleEndian();
+        input.ReadInt32LittleEndian();
 
-        input.ReadInt16();
-        input.ReadInt16();
+        input.ReadInt16LittleEndian();
+        input.ReadInt16LittleEndian();
 
-        Unknown = input.ReadInt32();
+        Unknown = input.ReadInt32LittleEndian();
 
         Entries = new Dictionary<short, int>(entryCount);
         for (int i = 0; i < entryCount; i++)
         {
-            Entries.Add(input.ReadInt16(), input.ReadInt32());
+            Entries.Add(input.ReadInt16LittleEndian(), input.ReadInt32LittleEndian());
         }
     }
 
@@ -50,20 +50,20 @@ public sealed class ScoreReference : IShockwaveItem, IResource
         const short ENTRY_OFFSET = 24;
         const short UNKNOWN = 8;
 
-        output.Write(0);
-        output.Write(0);
+        output.WriteInt32LittleEndian(0);
+        output.WriteInt32LittleEndian(0);
 
-        output.Write(Entries.Count);
-        output.Write(Entries.Count);
+        output.WriteInt32LittleEndian(Entries.Count);
+        output.WriteInt32LittleEndian(Entries.Count);
 
-        output.Write(ENTRY_OFFSET);
-        output.Write(UNKNOWN);
+        output.WriteInt16LittleEndian(ENTRY_OFFSET);
+        output.WriteInt16LittleEndian(UNKNOWN);
 
-        output.Write(Unknown);
+        output.WriteInt32LittleEndian(Unknown);
         foreach ((short number, int castMapPtrId) in Entries)
         {
-            output.Write(number);
-            output.Write(castMapPtrId);
+            output.WriteInt16LittleEndian(number);
+            output.WriteInt32LittleEndian(castMapPtrId);
         }
     }
 }

@@ -15,17 +15,17 @@ public sealed class KeyMap : IShockwaveItem, IResource
     { }
     public KeyMap(ref ShockwaveReader input, ReaderContext context)
     {
-        input.ReadInt16();
-        input.ReadInt16();
-        input.ReadInt32();
-        int count = input.ReadBEInt32();
+        input.ReadInt16LittleEndian();
+        input.ReadInt16LittleEndian();
+        input.ReadInt32LittleEndian();
+        int count = input.ReadInt32BigEndian();
         ResourceMap = new Dictionary<ResourceId, int>(count);
 
         for (int i = 0; i < count; i++)
         {
-            int index = input.ReadBEInt32();
-            int memberId = input.ReadBEInt32();
-            OsType kind = (OsType)input.ReadBEInt32();
+            int index = input.ReadInt32BigEndian();
+            int memberId = input.ReadInt32BigEndian();
+            OsType kind = (OsType)input.ReadInt32BigEndian();
 
             if (!ResourceMap.TryAdd(new ResourceId(kind, memberId), index))
                 throw new InvalidOperationException();
@@ -45,15 +45,15 @@ public sealed class KeyMap : IShockwaveItem, IResource
 
     public void WriteTo(ShockwaveWriter output, WriterOptions options)
     {
-        output.WriteBE(ENTRY_SIZE);
-        output.WriteBE(ENTRY_SIZE);
-        output.WriteBE(ResourceMap?.Count ?? 0);
-        output.WriteBE(ResourceMap?.Count ?? 0);
+        output.WriteInt16BigEndian(ENTRY_SIZE);
+        output.WriteInt16BigEndian(ENTRY_SIZE);
+        output.WriteInt32BigEndian(ResourceMap?.Count ?? 0);
+        output.WriteInt32BigEndian(ResourceMap?.Count ?? 0);
         foreach ((ResourceId resourceId, int index) in ResourceMap)
         {
-            output.WriteBE(index);
-            output.WriteBE(resourceId.Id);
-            output.WriteBE((int)resourceId.Kind);
+            output.WriteInt32BigEndian(index);
+            output.WriteInt32BigEndian(resourceId.Id);
+            output.WriteInt32BigEndian((int)resourceId.Kind);
         }
     }
 }

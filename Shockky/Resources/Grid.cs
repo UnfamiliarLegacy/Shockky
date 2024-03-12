@@ -20,17 +20,17 @@ public sealed class Grid : IShockwaveItem, IResource
 
     public Grid(ref ShockwaveReader input, ReaderContext context)
     {
-        input.IsBigEndian = true;
+        input.ReverseEndianness = true;
 
-        Unknown = input.ReadInt32();
+        Unknown = input.ReadInt32LittleEndian();
 
-        Width = input.ReadInt16();
-        Height = input.ReadInt16();
-        Display = (GridDisplay)input.ReadInt16();
-        GridColor = input.ReadInt16();
+        Width = input.ReadInt16LittleEndian();
+        Height = input.ReadInt16LittleEndian();
+        Display = (GridDisplay)input.ReadInt16LittleEndian();
+        GridColor = input.ReadInt16LittleEndian();
 
-        Guides = new Guide[input.ReadInt16()];
-        GuideColor = input.ReadInt16();
+        Guides = new Guide[input.ReadInt16LittleEndian()];
+        GuideColor = input.ReadInt16LittleEndian();
         for (int i = 0; i < Guides.Length; i++)
         {
             Guides[i] = Guide.Read(ref input, context);
@@ -57,15 +57,15 @@ public sealed class Grid : IShockwaveItem, IResource
 
     public void WriteTo(ShockwaveWriter output, WriterOptions options)
     {
-        output.Write(Unknown);
+        output.WriteInt32LittleEndian(Unknown);
 
-        output.Write(Height);
-        output.Write(Width);
-        output.Write((short)Display);
-        output.Write(GridColor);
+        output.WriteInt16LittleEndian(Height);
+        output.WriteInt16LittleEndian(Width);
+        output.WriteInt16LittleEndian((short)Display);
+        output.WriteInt16LittleEndian(GridColor);
 
-        output.Write((short)Guides.Length);
-        output.Write(GuideColor);
+        output.WriteInt16LittleEndian((short)Guides.Length);
+        output.WriteInt16LittleEndian(GuideColor);
         foreach (Guide guide in Guides)
         {
             guide.WriteTo(output, options);

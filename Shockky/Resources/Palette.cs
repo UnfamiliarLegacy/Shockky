@@ -27,7 +27,7 @@ public sealed class Palette : IShockwaveItem, IResource
     {
         foreach (Color color in Colors)
         {
-            output.Write(color);
+            output.WriteColor(color);
         }
     }
 }

@@ -11,18 +11,10 @@ public interface IResource
         var header = new ResourceHeader(ref input);
         return Read(ref input, context, header.Kind, header.Length);
     }
-    public static IResource Read(ref ShockwaveReader input, ReaderContext context, AfterburnerMapEntry entry)
-    {
-        if (entry.IsCompressed)
-        {
-            return input.ReadCompressedResource(entry, context);
-        }
-        else return Read(ref input, context, entry.Kind, entry.Length);
-    }
     public static IResource Read(ref ShockwaveReader input, ReaderContext context, OsType kind, int length)
     {
         ReadOnlySpan<byte> chunkSpan = input.ReadBytes(length);
-        var chunkInput = new ShockwaveReader(chunkSpan, input.IsBigEndian);
+        var chunkInput = new ShockwaveReader(chunkSpan, input.ReverseEndianness);
 
         return kind switch
         {
@@ -35,7 +27,8 @@ public interface IResource
             OsType.KEYPtr => new KeyMap(ref chunkInput, context),
             OsType.VWCF or OsType.DRCF => new Config(ref chunkInput, context),
 
-            OsType.VWLB => new ScoreLabels(ref chunkInput, context),
+            // TODO: handle V1850
+            //OsType.VWLB => new ScoreLabels(ref chunkInput, context),
             OsType.VWFI => new FileInfo(ref chunkInput, context),
 
             OsType.Lnam => new LingoNames(ref chunkInput, context),
@@ -61,15 +54,5 @@ public interface IResource
 
             _ => new UnknownResource(ref chunkInput, context, kind)
         };
-    }
-
-    internal unsafe static ZLibShockwaveReader CreateDeflateReader(ref ShockwaveReader input)
-    {
-        int dataRemaining = input.Length - input.Position;
-        fixed (byte* bufferPtr = input.ReadBytes(dataRemaining))
-        {
-            var stream = new UnmanagedMemoryStream(bufferPtr, input.Length);
-            return new ZLibShockwaveReader(stream, input.IsBigEndian, leaveOpen: false);
-        }
     }
 }

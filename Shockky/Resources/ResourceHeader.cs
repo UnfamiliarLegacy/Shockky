@@ -25,10 +25,10 @@ public readonly ref struct ResourceHeader
         Kind = kind;
     }
     public ResourceHeader(ref ShockwaveReader input)
-        : this((OsType)input.ReadBEInt32())
+        : this((OsType)input.ReadInt32BigEndian())
     {
         Length = IsVariableLength ?
-            input.ReadVarInt() : input.ReadBEInt32();
+            input.Read7BitEncodedInt() : input.ReadInt32BigEndian();
     }
 
     public int GetBodySize(WriterOptions options)
@@ -41,11 +41,11 @@ public readonly ref struct ResourceHeader
 
     public void WriteTo(ShockwaveWriter output, WriterOptions options)
     {
-        output.WriteBE((int)Kind);
+        output.WriteInt32BigEndian((int)Kind);
         if (IsVariableLength)
         {
-            output.WriteVarInt(Length);
+            output.Write7BitEncodedInt(Length);
         }
-        else output.WriteBE(Length);
+        else output.WriteInt32BigEndian(Length);
     }
 }

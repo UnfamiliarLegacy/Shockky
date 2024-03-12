@@ -30,11 +30,11 @@ public class TextCastProperties : IMemberProperties
         BoxShadowSize = (SizeType)input.ReadByte();
         BoxType = (TextBoxType)input.ReadByte();
 
-        Alignment = (TextAlignment)input.ReadInt16();
+        Alignment = (TextAlignment)input.ReadInt16LittleEndian();
         BackgroundColor = input.ReadColor();
-        Font = input.ReadInt16();
+        Font = input.ReadInt16LittleEndian();
         Rectangle = input.ReadRect();
-        LineHeight = input.ReadInt16();
+        LineHeight = input.ReadInt16LittleEndian();
 
         TextShadowSize = (SizeType)input.ReadByte();
         Flags = (TextFlags)input.ReadByte();
@@ -61,19 +61,19 @@ public class TextCastProperties : IMemberProperties
 
     public void WriteTo(ShockwaveWriter output, WriterOptions options)
     {
-        output.Write((byte)BorderSize);
-        output.Write((byte)GutterSize);
-        output.Write((byte)BoxShadowSize);
-        output.Write((byte)BoxType);
+        output.WriteByte((byte)BorderSize);
+        output.WriteByte((byte)GutterSize);
+        output.WriteByte((byte)BoxShadowSize);
+        output.WriteByte((byte)BoxType);
 
-        output.Write((short)Alignment);
-        output.Write(BackgroundColor);
+        output.WriteInt16LittleEndian((short)Alignment);
+        output.WriteColor(BackgroundColor);
 
-        output.Write(Font);
-        output.Write(Rectangle);
-        output.Write(LineHeight);
+        output.WriteInt16LittleEndian(Font);
+        output.WriteRect(Rectangle);
+        output.WriteInt16LittleEndian(LineHeight);
 
-        output.Write((byte)TextShadowSize);
-        output.Write((byte)Flags);
+        output.WriteByte((byte)TextShadowSize);
+        output.WriteByte((byte)Flags);
     }
 }

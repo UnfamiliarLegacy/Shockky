@@ -11,13 +11,13 @@ public sealed class FileVersion : IResource, IShockwaveItem
 
     public FileVersion(ref ShockwaveReader input, ReaderContext context)
     {
-        int version = input.ReadVarInt();
-        if (version < 0x401) return;
-        int unk1 = input.ReadVarInt();
-        var versions = (DirectorVersion)input.ReadVarInt();
+        int versionMaybeTooForgot = input.Read7BitEncodedInt();
+        if (versionMaybeTooForgot < 0x401) return;
+        int unk1 = input.Read7BitEncodedInt();
+        Version = (DirectorVersion)input.Read7BitEncodedInt();
 
-        if (version < 0x501) return;
-        string versionString = input.ReadString();
+        if (versionMaybeTooForgot < 0x501) return;
+        VersionString = input.ReadString();
     }
 
     public int GetBodySize(WriterOptions options)

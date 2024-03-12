@@ -43,14 +43,14 @@ public sealed class FavoriteColors : IShockwaveItem, IResource
 
     public void WriteTo(ShockwaveWriter output, WriterOptions options)
     {
-        output.Write(1);
-        output.Write(1);
+        output.WriteInt32LittleEndian(1);
+        output.WriteInt32LittleEndian(1);
 
         foreach ((int r, int g, int b) in Colors)
         {
-            output.Write((byte)r);
-            output.Write((byte)g);
-            output.Write((byte)b);
+            output.WriteByte((byte)r);
+            output.WriteByte((byte)g);
+            output.WriteByte((byte)b);
         }
     }
 
@@ -58,8 +58,8 @@ public sealed class FavoriteColors : IShockwaveItem, IResource
     {
         FavoriteColors favoriteColors = new();
 
-        input.ReadInt32();
-        input.ReadInt32();
+        input.ReadInt32LittleEndian();
+        input.ReadInt32LittleEndian();
 
         for (int i = 0; i < favoriteColors.Colors.Length; i++)
         {

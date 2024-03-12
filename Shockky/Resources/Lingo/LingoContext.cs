@@ -27,33 +27,33 @@ public sealed class LingoContext : IShockwaveItem, IResource
     }
     public LingoContext(ref ShockwaveReader input, ReaderContext context)
     {
-        input.IsBigEndian = true;
+        input.ReverseEndianness = true;
 
-        input.ReadInt32();
-        input.ReadInt32();
+        input.ReadInt32LittleEndian();
+        input.ReadInt32LittleEndian();
 
-        Items = new List<LingoContextItem>(input.ReadInt32());
-        input.ReadInt32();
+        Items = new List<LingoContextItem>(input.ReadInt32LittleEndian());
+        input.ReadInt32LittleEndian();
 
-        input.ReadInt16();
-        input.ReadInt16();
+        input.ReadInt16LittleEndian();
+        input.ReadInt16LittleEndian();
 
-        input.ReadInt32();
-        Type = input.ReadInt32(); //TODO: ??
+        input.ReadInt32LittleEndian();
+        Type = input.ReadInt32LittleEndian(); //TODO: ??
 
-        ValuesChunkIndex = input.ReadInt32();
-        NameChunkIndex = input.ReadInt32();
+        ValuesChunkIndex = input.ReadInt32LittleEndian();
+        NameChunkIndex = input.ReadInt32LittleEndian();
 
-        ValidCount = input.ReadInt16();
-        Flags = (LingoContextFlags)input.ReadInt16();
-        FreeChunkIndex = input.ReadInt16();
+        ValidCount = input.ReadInt16LittleEndian();
+        Flags = (LingoContextFlags)input.ReadInt16LittleEndian();
+        FreeChunkIndex = input.ReadInt16LittleEndian();
 
-        input.ReadInt16();
-        input.ReadInt16(); //EnvIndex some_parent_maybe_index
+        input.ReadInt16LittleEndian();
+        input.ReadInt16LittleEndian(); //EnvIndex some_parent_maybe_index
 
         for (int i = 0; i < EVENT_COUNT; i++)
         {
-            EventHandlerNames[i] = input.ReadInt16();
+            EventHandlerNames[i] = input.ReadInt16LittleEndian();
         }
 
         for (int i = 0; i < Items.Capacity; i++)
@@ -89,30 +89,30 @@ public sealed class LingoContext : IShockwaveItem, IResource
     {
         const short ENTRY_OFFSET = 96;
 
-        output.Write(0);
-        output.Write(0);
-        output.Write(Items.Count);
-        output.Write(Items.Count);
+        output.WriteInt32LittleEndian(0);
+        output.WriteInt32LittleEndian(0);
+        output.WriteInt32LittleEndian(Items.Count);
+        output.WriteInt32LittleEndian(Items.Count);
 
-        output.Write(ENTRY_OFFSET);
-        output.Write(SECTION_SIZE);
+        output.WriteInt16LittleEndian(ENTRY_OFFSET);
+        output.WriteInt16LittleEndian(SECTION_SIZE);
 
-        output.Write(0);
-        output.Write(Type);
+        output.WriteInt32LittleEndian(0);
+        output.WriteInt32LittleEndian(Type);
 
-        output.Write(ValuesChunkIndex);
-        output.Write(NameChunkIndex);
+        output.WriteInt32LittleEndian(ValuesChunkIndex);
+        output.WriteInt32LittleEndian(NameChunkIndex);
 
-        output.Write(ValidCount);
-        output.Write((short)Flags);
-        output.Write(FreeChunkIndex);
+        output.WriteInt16LittleEndian(ValidCount);
+        output.WriteInt16LittleEndian((short)Flags);
+        output.WriteInt16LittleEndian(FreeChunkIndex);
 
-        output.Write((short)-1);
-        output.Write((short)-1);
+        output.WriteInt16LittleEndian((short)-1);
+        output.WriteInt16LittleEndian((short)-1);
 
         for (int i = 0; i < EVENT_COUNT; i++)
         {
-            output.Write(EventHandlerNames[i]);
+            output.WriteInt16LittleEndian(EventHandlerNames[i]);
         }
 
         foreach (LingoContextItem section in Items)

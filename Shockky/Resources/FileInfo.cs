@@ -12,14 +12,14 @@ public sealed class FileInfo : IShockwaveItem, IResource
 
     public FileInfo(ref ShockwaveReader input, ReaderContext context)
     {
-        input.IsBigEndian = true;
+        input.ReverseEndianness = true;
 
-        input.ReadBytes(input.ReadInt32());
-        int offsets = input.ReadInt16();
+        input.ReadBytes(input.ReadInt32LittleEndian());
+        int offsets = input.ReadInt16LittleEndian();
         input.ReadByte();
         for (short i = 0; i < offsets; i++)
         {
-            input.ReadInt32();
+            input.ReadInt32LittleEndian();
         }
 
         input.ReadByte();

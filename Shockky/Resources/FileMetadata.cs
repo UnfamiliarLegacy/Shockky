@@ -12,8 +12,8 @@ public class FileMetadata
 
     public FileMetadata(ref ShockwaveReader input)
     {
-        Kind = (OsType)input.ReadBEInt32();
-        FileLength = IsBigEndian ? input.ReadInt32() : input.ReadBEInt32();
-        Codec = (CodecKind)(IsBigEndian ? input.ReadInt32() : input.ReadBEInt32());
+        Kind = (OsType)input.ReadInt32BigEndian();
+        FileLength = IsBigEndian ? input.ReadInt32LittleEndian() : input.ReadInt32BigEndian();
+        Codec = (CodecKind)(IsBigEndian ? input.ReadInt32LittleEndian() : input.ReadInt32BigEndian());
     }
 }

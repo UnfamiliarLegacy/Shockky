@@ -2,20 +2,26 @@
 using System.Drawing;
 using System.Diagnostics;
 using System.Buffers.Binary;
-using System.IO.Compression;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 
 using Shockky.Resources;
+using System.Buffers;
 
 namespace Shockky.IO;
 
-// TODO: Eventually get rid of this wrapper and use extensions on ROS<byte>
+#nullable enable
+
+// TODO: Use extensions on ROS<byte> with ReaderContext
 public ref struct ShockwaveReader
 {
     private readonly ReadOnlySpan<byte> _data;
 
-    public bool IsBigEndian { get; set; }
+    /// <summary>
+    /// If the underlying data was authored in big-endian byte-order, reverse the endianness of each value read.
+    /// </summary>
+    public bool ReverseEndianness { get; set; }
+
     public int Position { get; set; }
 
     public readonly int Length => _data.Length;
@@ -23,12 +29,12 @@ public ref struct ShockwaveReader
 
     private readonly ReadOnlySpan<byte> CurrentSpan => _data.Slice(Position);
 
-    public ShockwaveReader(ReadOnlySpan<byte> data, bool isBigEndian = false)
+    public ShockwaveReader(ReadOnlySpan<byte> data, bool reverseEndianness = false)
     {
         _data = data;
 
         Position = 0;
-        IsBigEndian = isBigEndian;
+        ReverseEndianness = reverseEndianness;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -55,111 +61,110 @@ public ref struct ShockwaveReader
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ReadBoolean() => _data[Position++] == 1;
 
-    //TODO: BigEndian => "ReverseEndian"
-    public short ReadInt16()
+    public short ReadInt16LittleEndian()
     {
-        short value = MemoryMarshal.Read<short>(CurrentSpan);
+        short value = BinaryPrimitives.ReadInt16LittleEndian(CurrentSpan);
         Advance(sizeof(short));
 
-        return IsBigEndian ?
+        return ReverseEndianness ?
             BinaryPrimitives.ReverseEndianness(value) : value;
     }
-    public short ReadBEInt16()
+    public short ReadInt16BigEndian()
     {
-        short value = MemoryMarshal.Read<short>(CurrentSpan);
+        short value = BinaryPrimitives.ReadInt16BigEndian(CurrentSpan);
         Advance(sizeof(short));
 
-        return IsBigEndian ?
+        return ReverseEndianness ?
             value : BinaryPrimitives.ReverseEndianness(value);
     }
 
-    public ushort ReadUInt16()
+    public ushort ReadUInt16LittleEndian()
     {
-        ushort value = MemoryMarshal.Read<ushort>(CurrentSpan);
+        ushort value = BinaryPrimitives.ReadUInt16LittleEndian(CurrentSpan);
         Advance(sizeof(ushort));
 
-        return IsBigEndian ?
+        return ReverseEndianness ?
             BinaryPrimitives.ReverseEndianness(value) : value;
     }
-    public ushort ReadBEUInt16()
+    public ushort ReadUInt16BigEndian()
     {
-        ushort value = MemoryMarshal.Read<ushort>(CurrentSpan);
+        ushort value = BinaryPrimitives.ReadUInt16BigEndian(CurrentSpan);
         Advance(sizeof(ushort));
 
-        return IsBigEndian ?
+        return ReverseEndianness ?
             value : BinaryPrimitives.ReverseEndianness(value);
     }
 
-    public int ReadInt32()
+    public int ReadInt32LittleEndian()
     {
-        int value = MemoryMarshal.Read<int>(CurrentSpan);
+        int value = BinaryPrimitives.ReadInt32LittleEndian(CurrentSpan);
         Advance(sizeof(int));
 
-        return IsBigEndian ?
+        return ReverseEndianness ?
             BinaryPrimitives.ReverseEndianness(value) : value;
     }
-    public int ReadBEInt32()
+    public int ReadInt32BigEndian()
     {
-        int value = MemoryMarshal.Read<int>(CurrentSpan);
+        int value = BinaryPrimitives.ReadInt32BigEndian(CurrentSpan);
         Advance(sizeof(int));
 
-        return IsBigEndian ?
+        return ReverseEndianness ?
             value : BinaryPrimitives.ReverseEndianness(value);
     }
 
-    public uint ReadUInt32()
+    public uint ReadUInt32LittleEndian()
     {
-        uint value = MemoryMarshal.Read<uint>(CurrentSpan);
+        uint value = BinaryPrimitives.ReadUInt32LittleEndian(CurrentSpan);
         Advance(sizeof(uint));
 
-        return IsBigEndian ?
+        return ReverseEndianness ?
             BinaryPrimitives.ReverseEndianness(value) : value;
     }
-    public uint ReadBEUInt32()
+    public uint ReadUInt32BigEndian()
     {
-        uint value = MemoryMarshal.Read<uint>(CurrentSpan);
+        uint value = BinaryPrimitives.ReadUInt32BigEndian(CurrentSpan);
         Advance(sizeof(uint));
 
-        return IsBigEndian ?
+        return ReverseEndianness ?
             value : BinaryPrimitives.ReverseEndianness(value);
     }
 
     public ulong ReadUInt64()
     {
-        ulong value = MemoryMarshal.Read<ulong>(CurrentSpan);
+        ulong value = BinaryPrimitives.ReadUInt64LittleEndian(CurrentSpan);
         Advance(sizeof(ulong));
 
-        return IsBigEndian ?
+        return ReverseEndianness ?
             BinaryPrimitives.ReverseEndianness(value) : value;
     }
     public ulong ReadBEUInt64()
     {
-        ulong value = MemoryMarshal.Read<ulong>(CurrentSpan);
+        ulong value = BinaryPrimitives.ReadUInt64BigEndian(CurrentSpan);
         Advance(sizeof(ulong));
 
-        return IsBigEndian ?
+        return ReverseEndianness ?
             value : BinaryPrimitives.ReverseEndianness(value);
     }
-    public double ReadDouble()
+    public double ReadDoubleLittleEndian()
     {
-        double value = IsBigEndian ?
-            BitConverter.Int64BitsToDouble(BinaryPrimitives.ReverseEndianness(MemoryMarshal.Read<long>(CurrentSpan))) :
-            MemoryMarshal.Read<double>(CurrentSpan);
+        double value = ReverseEndianness ?
+            BinaryPrimitives.ReadDoubleBigEndian(CurrentSpan) :
+            BinaryPrimitives.ReadDoubleLittleEndian(CurrentSpan);
 
         Advance(sizeof(double));
         return value;
     }
     public double ReadBEDouble()
     {
-        double value = IsBigEndian ?
-            MemoryMarshal.Read<double>(CurrentSpan) :
-            BitConverter.Int64BitsToDouble(BinaryPrimitives.ReverseEndianness(MemoryMarshal.Read<long>(CurrentSpan)));
+        double value = ReverseEndianness ?
+            BinaryPrimitives.ReadDoubleLittleEndian(CurrentSpan) :
+            BinaryPrimitives.ReadDoubleBigEndian(CurrentSpan);
 
         Advance(sizeof(double));
         return value;
     }
 
-    public int ReadVarInt()
+    public int Read7BitEncodedInt()
     {
         int value = 0;
         byte b;
@@ -174,7 +179,7 @@ public ref struct ShockwaveReader
 
     public string ReadString()
     {
-        int length = ReadVarInt();
+        int length = Read7BitEncodedInt();
         return Encoding.UTF8.GetString(ReadBytes(length));
     }
     public string ReadString(int length)
@@ -211,33 +216,41 @@ public ref struct ShockwaveReader
     }
     public Point ReadPoint()
     {
-        return new(ReadInt16(), ReadInt16());
+        return new(ReadInt16LittleEndian(), ReadInt16LittleEndian());
     }
     public Rectangle ReadRect()
     {
-        short top = ReadInt16();
-        short left = ReadInt16();
-        short bottom = ReadInt16();
-        short right = ReadInt16();
+        short top = ReadInt16LittleEndian();
+        short left = ReadInt16LittleEndian();
+        short bottom = ReadInt16LittleEndian();
+        short right = ReadInt16LittleEndian();
 
         return Rectangle.FromLTRB(left, top, right, bottom);
     }
 
     public unsafe IResource ReadCompressedResource(AfterburnerMapEntry entry, ReaderContext context)
     {
-        Span<byte> decompressedData = entry.DecompressedLength <= 512 ?
-                stackalloc byte[512] : new byte[entry.DecompressedLength];
+        const int StackallocThreshold = 512;
 
-        fixed (byte* dataPtr = _data)
+        byte[]? rentedBuffer = null;
+        try
         {
-            using var stream = new UnmanagedMemoryStream(dataPtr, entry.Length);
-            using var deflateStream = new ZLibStream(stream, CompressionMode.Decompress);
+            Span<byte> decompressedData = entry.DecompressedLength <= StackallocThreshold ?
+                stackalloc byte[StackallocThreshold] : 
+                (rentedBuffer = ArrayPool<byte>.Shared.Rent(entry.DecompressedLength));
 
-            deflateStream.ReadExactly(decompressedData);
+            decompressedData = decompressedData.Slice(0, entry.DecompressedLength);
+
+            ZLib.DecompressUnsafe(_data.Slice(Position, entry.Length), decompressedData);
+            Advance(entry.Length);
+
+            var input = new ShockwaveReader(decompressedData, ReverseEndianness);
+            return IResource.Read(ref input, context, entry.Kind, entry.DecompressedLength);
         }
-        Advance(entry.Length);
-
-        var input = new ShockwaveReader(decompressedData.Slice(entry.DecompressedLength), IsBigEndian);
-        return IResource.Read(ref input, context);
+        finally
+        {
+            if (rentedBuffer is not null)
+                ArrayPool<byte>.Shared.Return(rentedBuffer);
+        }
     }
 }

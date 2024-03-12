@@ -21,10 +21,10 @@ public sealed class CastListEntry : IShockwaveItem
     {
         Name = input.ReadString();
         FilePath = input.ReadString();
-        PreloadSettings = input.ReadInt16();
-        MemberMin = input.ReadInt16();
-        MemberCount = input.ReadInt16();
-        Id = input.ReadInt32();
+        PreloadSettings = input.ReadInt16LittleEndian();
+        MemberMin = input.ReadInt16LittleEndian();
+        MemberCount = input.ReadInt16LittleEndian();
+        Id = input.ReadInt32LittleEndian();
     }
 
     public int GetBodySize(WriterOptions options)
@@ -41,11 +41,11 @@ public sealed class CastListEntry : IShockwaveItem
 
     public void WriteTo(ShockwaveWriter output, WriterOptions options)
     {
-        output.Write(Name);
-        output.Write(FilePath);
-        output.Write(PreloadSettings);
-        output.Write(MemberMin);
-        output.Write(MemberCount);
-        output.Write(Id);
+        output.WriteString(Name);
+        output.WriteString(FilePath);
+        output.WriteInt16LittleEndian(PreloadSettings);
+        output.WriteInt16LittleEndian(MemberMin);
+        output.WriteInt16LittleEndian(MemberCount);
+        output.WriteInt32LittleEndian(Id);
     }
 }

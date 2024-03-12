@@ -17,13 +17,13 @@ public sealed class TextFormat : IShockwaveItem
 
     public TextFormat(ref ShockwaveReader input, ReaderContext context)
     {
-        Offset = input.ReadInt32();
-        Height = input.ReadInt16();
-        Ascent = input.ReadInt16();
-        FontId = input.ReadInt16();
+        Offset = input.ReadInt32LittleEndian();
+        Height = input.ReadInt16LittleEndian();
+        Ascent = input.ReadInt16LittleEndian();
+        FontId = input.ReadInt16LittleEndian();
         Slant = input.ReadBoolean();
         Padding = input.ReadByte();
-        FontSize = input.ReadInt16();
+        FontSize = input.ReadInt16LittleEndian();
         Color = input.ReadColor();
     }
 
@@ -45,13 +45,13 @@ public sealed class TextFormat : IShockwaveItem
 
     public void WriteTo(ShockwaveWriter output, WriterOptions options)
     {
-        output.Write(Offset);
-        output.Write(Height);
-        output.Write(Ascent);
-        output.Write(FontId);
-        output.Write(Slant);
-        output.Write(Padding);
-        output.Write(FontSize);
-        output.Write(Color);
+        output.WriteInt32LittleEndian(Offset);
+        output.WriteInt16LittleEndian(Height);
+        output.WriteInt16LittleEndian(Ascent);
+        output.WriteInt16LittleEndian(FontId);
+        output.WriteBoolean(Slant);
+        output.WriteByte(Padding);
+        output.WriteInt16LittleEndian(FontSize);
+        output.WriteColor(Color);
     }
 }

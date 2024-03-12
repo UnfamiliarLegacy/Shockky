@@ -16,12 +16,12 @@ public sealed class ResourceEntry : IShockwaveItem
 
     public ResourceEntry(ref ShockwaveReader input, ReaderContext context)
     {
-        Kind = (OsType)input.ReadBEInt32();
-        Length = input.ReadBEInt32();
-        Offset = input.ReadBEInt32();
-        Flags = (ChunkEntryFlags)input.ReadBEInt16();
-        Unknown = input.ReadBEInt16();
-        Link = input.ReadBEInt32();
+        Kind = (OsType)input.ReadInt32BigEndian();
+        Length = input.ReadInt32BigEndian();
+        Offset = input.ReadInt32BigEndian();
+        Flags = (ChunkEntryFlags)input.ReadInt16BigEndian();
+        Unknown = input.ReadInt16BigEndian();
+        Link = input.ReadInt32BigEndian();
     }
 
     public int GetBodySize(WriterOptions options)
@@ -38,11 +38,11 @@ public sealed class ResourceEntry : IShockwaveItem
 
     public void WriteTo(ShockwaveWriter output, WriterOptions options)
     {
-        output.WriteBE((int)Kind);
-        output.WriteBE(Length);
-        output.WriteBE(Offset);
-        output.WriteBE((short)Flags);
-        output.WriteBE(Unknown);
-        output.WriteBE(Link);
+        output.WriteInt32BigEndian((int)Kind);
+        output.WriteInt32BigEndian(Length);
+        output.WriteInt32BigEndian(Offset);
+        output.WriteInt16BigEndian((short)Flags);
+        output.WriteInt16BigEndian(Unknown);
+        output.WriteInt32BigEndian(Link);
     }
 }

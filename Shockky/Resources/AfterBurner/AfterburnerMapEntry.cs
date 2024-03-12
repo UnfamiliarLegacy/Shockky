@@ -12,18 +12,20 @@ public sealed class AfterburnerMapEntry : IShockwaveItem
     public int Offset { get; set; }
     public int Length { get; set; }
     public int DecompressedLength { get; set; }
-    public int CompressionType { get; set; }
 
-    public bool IsCompressed => CompressionType == 0;
+    /// <summary>
+    /// Represents an index in <see cref="FileCompressionTypes.CompressionTypes"/> array.
+    /// </summary>
+    public int CompressionTypeIndex { get; set; }
 
     public AfterburnerMapEntry(ZLibShockwaveReader input)
     {
-        Index = input.ReadVarInt();
-        Offset = input.ReadVarInt();
-        Length = input.ReadVarInt();
-        DecompressedLength = input.ReadVarInt();
-        CompressionType = input.ReadVarInt();
-        Kind = (OsType)input.ReadBEInt32();
+        Index = input.Read7BitEncodedInt();
+        Offset = input.Read7BitEncodedInt();
+        Length = input.Read7BitEncodedInt();
+        DecompressedLength = input.Read7BitEncodedInt();
+        CompressionTypeIndex = input.Read7BitEncodedInt();
+        Kind = (OsType)input.ReadInt32LittleEndian();
     }
 
     public int GetBodySize(WriterOptions options)
@@ -33,23 +35,18 @@ public sealed class AfterburnerMapEntry : IShockwaveItem
         size += ShockwaveWriter.GetVarIntSize(Offset);
         size += ShockwaveWriter.GetVarIntSize(Length);
         size += ShockwaveWriter.GetVarIntSize(DecompressedLength);
-        size += ShockwaveWriter.GetVarIntSize(CompressionType);
+        size += ShockwaveWriter.GetVarIntSize(CompressionTypeIndex);
         size += sizeof(int);
         return size;
     }
 
     public void WriteTo(ShockwaveWriter output, WriterOptions options)
     {
-        output.WriteVarInt(Index);
-        output.WriteVarInt(Offset);
-        output.WriteVarInt(Length);
-        output.WriteVarInt(DecompressedLength);
-        output.WriteVarInt(CompressionType);
-        output.WriteBE((int)Kind);
-    }
-
-    public static AfterburnerMapEntry Read(ref ShockwaveReader input, ReaderContext context)
-    {
-        throw new NotImplementedException();
+        output.Write7BitEncodedInt(Index);
+        output.Write7BitEncodedInt(Offset);
+        output.Write7BitEncodedInt(Length);
+        output.Write7BitEncodedInt(DecompressedLength);
+        output.Write7BitEncodedInt(CompressionTypeIndex);
+        output.WriteInt32BigEndian((int)Kind);
     }
 }

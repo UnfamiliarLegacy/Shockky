@@ -11,15 +11,15 @@ public class StyledText : IShockwaveItem, IResource
 
     public StyledText(ref ShockwaveReader input, ReaderContext context)
     {
-        input.IsBigEndian = true;
+        input.ReverseEndianness = true;
 
-        input.ReadInt32();
-        int textLength = input.ReadInt32();
-        input.ReadInt32();
+        input.ReadInt32LittleEndian();
+        int textLength = input.ReadInt32LittleEndian();
+        input.ReadInt32LittleEndian();
 
         Text = input.ReadString(textLength);
 
-        Formats = new TextFormat[input.ReadInt16()];
+        Formats = new TextFormat[input.ReadInt16LittleEndian()];
         for (int i = 0; i < Formats.Length; i++)
         {
             Formats[i] = new TextFormat(ref input, context);
@@ -31,13 +31,13 @@ public class StyledText : IShockwaveItem, IResource
         const int TEXT_OFFSET = 12;
         const int TEXT_FORMAT_SIZE = 20;
 
-        output.Write(TEXT_OFFSET);
-        output.Write(Text.Length);
-        output.Write(sizeof(short) + (Formats.Length * TEXT_FORMAT_SIZE));
+        output.WriteInt32LittleEndian(TEXT_OFFSET);
+        output.WriteInt32LittleEndian(Text.Length);
+        output.WriteInt32LittleEndian(sizeof(short) + (Formats.Length * TEXT_FORMAT_SIZE));
 
-        output.Write(Text); //TODO: 
+        output.WriteString(Text); //TODO: 
 
-        output.Write((short)Formats.Length);
+        output.WriteInt16LittleEndian((short)Formats.Length);
         for (int i = 0; i < Formats.Length; i++)
         {
             Formats[i].WriteTo(output, options);

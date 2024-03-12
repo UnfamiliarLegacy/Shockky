@@ -12,5 +12,5 @@ public class UnknownCastProperties : IMemberProperties
     }
 
     public int GetBodySize(WriterOptions options) => Data.Length;
-    public void WriteTo(ShockwaveWriter output, WriterOptions options) => output.Write(Data);
+    public void WriteTo(ShockwaveWriter output, WriterOptions options) => output.WriteBytes(Data);
 }

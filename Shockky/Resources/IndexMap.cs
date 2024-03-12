@@ -17,13 +17,13 @@ public sealed class IndexMap : IShockwaveItem, IResource
 
     public IndexMap(ref ShockwaveReader input, ReaderContext context)
     {
-        int memoryMapCount = input.ReadBEInt32();
+        int memoryMapCount = input.ReadInt32BigEndian();
         Debug.Assert(memoryMapCount == 1);
-        MemoryMapOffset = input.ReadBEInt32();
-        Version = (DirectorVersion)input.ReadBEInt32();
-        Field0C = input.ReadBEInt32();
-        Field10 = input.ReadBEInt32();
-        Field14 = input.ReadBEInt32();
+        MemoryMapOffset = input.ReadInt32BigEndian();
+        Version = (DirectorVersion)input.ReadInt32BigEndian();
+        Field0C = input.ReadInt32BigEndian();
+        Field10 = input.ReadInt32BigEndian();
+        Field14 = input.ReadInt32BigEndian();
     }
 
     public int GetBodySize(WriterOptions options)
@@ -40,11 +40,11 @@ public sealed class IndexMap : IShockwaveItem, IResource
 
     public void WriteTo(ShockwaveWriter output, WriterOptions options)
     {
-        output.WriteBE(1);
-        output.WriteBE(MemoryMapOffset);
-        output.WriteBE((int)Version);
-        output.WriteBE(Field0C);
-        output.WriteBE(Field10);
-        output.WriteBE(Field14);
+        output.WriteInt32BigEndian(1);
+        output.WriteInt32BigEndian(MemoryMapOffset);
+        output.WriteInt32BigEndian((int)Version);
+        output.WriteInt32BigEndian(Field0C);
+        output.WriteInt32BigEndian(Field10);
+        output.WriteInt32BigEndian(Field14);
     }
 }

@@ -12,17 +12,17 @@ public sealed class ScoreLabels : IShockwaveItem, IResource
 
     public ScoreLabels(ref ShockwaveReader input, ReaderContext context)
     {
-        input.IsBigEndian = true;
+        input.ReverseEndianness = true;
 
-        var offsetMap = new (short frame, int offset)[input.ReadInt16()];
+        var offsetMap = new (short frame, int offset)[input.ReadInt16LittleEndian()];
         Labels = new Dictionary<short, string>(offsetMap.Length);
 
         for (int i = 0; i < offsetMap.Length; i++)
         {
-            offsetMap[i] = (input.ReadInt16(), input.ReadInt16());
+            offsetMap[i] = (input.ReadInt16LittleEndian(), input.ReadInt16LittleEndian());
         }
 
-        int length = input.ReadInt32();
+        int length = input.ReadInt32LittleEndian();
 
         string labels = input.ReadString();
 
@@ -52,17 +52,17 @@ public sealed class ScoreLabels : IShockwaveItem, IResource
         int offset = 0;
         var builder = new StringBuilder();
 
-        output.Write(Labels.Count);
+        output.WriteInt32LittleEndian(Labels.Count);
         foreach ((short frame, string label) in Labels)
         {
-            output.Write(frame);
-            output.Write((short)offset);
+            output.WriteInt16LittleEndian(frame);
+            output.WriteInt16LittleEndian((short)offset);
 
             offset += label.Length;
             builder.Append(label);
         }
 
-        output.Write(builder.Length);
-        output.Write(Encoding.UTF8.GetBytes(builder.ToString()));
+        output.WriteInt32LittleEndian(builder.Length);
+        output.WriteBytes(Encoding.UTF8.GetBytes(builder.ToString()));
     }
 }

@@ -1,29 +1,39 @@
 ﻿using Shockky.IO;
-using System.Buffers;
 
 namespace Shockky.Resources;
 
+// Contains logic to read embedded Zlib compressed resources from the FGEI resource
 public static class FileGzipEmbeddedImage
 {
     // TODO: Tidy up more.
-    public static IDictionary<int, IResource> ReadResources(ref ShockwaveReader input, ReaderContext context, AfterburnerMap afterburnerMap)
+    public static IDictionary<int, IResource> ReadResources(
+        ref ShockwaveReader input, ReaderContext context, 
+        AfterburnerMap afterburnerMap, FileCompressionTypes compressionTypes)
     {
         int chunkStart = input.Position;
-        var chunks = new Dictionary<int, IResource>(afterburnerMap.Entries.Count);
+        var resources = new Dictionary<int, IResource>(afterburnerMap.Entries.Count);
 
-        ReadInitialLoadSegment(ref input, context, afterburnerMap, chunks);
+        TryReadInitialLoadSegment(ref input, context, afterburnerMap, resources);
 
         foreach ((int index, AfterburnerMapEntry entry) in afterburnerMap.Entries)
         {
-            if (entry.Offset < 1) continue; //TODO: ILS always at offset 0?
+            if (entry.Offset < 1) continue;
 
             input.Position = chunkStart + entry.Offset;
-            chunks.Add(index, IResource.Read(ref input, context, entry));
+
+            // TODO: Support more compression types: font maps, sounds.
+            IResource resource = compressionTypes.CompressionTypes[entry.CompressionTypeIndex].Id.Equals(ZLib.MoaId) ? 
+                input.ReadCompressedResource(entry, context) 
+                : IResource.Read(ref input, context, entry.Kind, entry.Length);
+
+            resources.Add(index, resource);
         }
-        return chunks;
+        return resources;
     }
 
-    private static OperationStatus ReadInitialLoadSegment(ref ShockwaveReader input, ReaderContext context, AfterburnerMap afterburnerMap, Dictionary<int, IResource> chunks)
+    private static bool TryReadInitialLoadSegment(
+        ref ShockwaveReader input, ReaderContext context, 
+        AfterburnerMap afterburnerMap, Dictionary<int, IResource> resources)
     {
         // First entry in the AfterburnerMap must be ILS.
         AfterburnerMapEntry ilsEntry = afterburnerMap.Entries.First().Value;
@@ -35,20 +45,20 @@ public static class FileGzipEmbeddedImage
         Span<byte> decompressedData = ilsEntry.DecompressedLength <= 1024 ?
                 stackalloc byte[1024].Slice(0, ilsEntry.DecompressedLength) : new byte[ilsEntry.DecompressedLength];
 
-        ZLib.Decompress(compressedData, decompressedData);
+        ZLib.DecompressUnsafe(compressedData, decompressedData);
 
-        var ilsReader = new ShockwaveReader(decompressedData, input.IsBigEndian);
+        var ilsReader = new ShockwaveReader(decompressedData, input.ReverseEndianness);
 
         while (ilsReader.IsDataAvailable)
         {
-            int index = ilsReader.ReadVarInt();
+            int index = ilsReader.Read7BitEncodedInt();
 
             if (index < 1 || index > afterburnerMap.LastIndex)
-                return OperationStatus.InvalidData;
+                return false;
 
             AfterburnerMapEntry entry = afterburnerMap.Entries[index];
-            chunks.Add(index, IResource.Read(ref ilsReader, context, entry.Kind, entry.DecompressedLength));
+            resources.Add(index, IResource.Read(ref ilsReader, context, entry.Kind, entry.DecompressedLength));
         }
-        return OperationStatus.Done;
+        return true;
     }
 }

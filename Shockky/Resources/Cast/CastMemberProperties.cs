@@ -14,14 +14,14 @@ public sealed class CastMemberProperties : IResource, IShockwaveItem
 
     public CastMemberProperties(ref ShockwaveReader input, ReaderContext context)
     {
-        input.IsBigEndian = true;
+        input.ReverseEndianness = true;
 
-        Type = (MemberKind)input.ReadInt32();
-        int ciLength = input.ReadInt32();
-        int dataLength = input.ReadInt32();
+        Type = (MemberKind)input.ReadInt32LittleEndian();
+        int metadataLength = input.ReadInt32LittleEndian();
+        int propetiesLength = input.ReadInt32LittleEndian();
 
         Metadata = new CastMemberMetadata(ref input, context);
-        Properties = ReadTypeProperties(ref input, context, dataLength);
+        Properties = ReadTypeProperties(ref input, context, propetiesLength);
     }
 
     private IMemberProperties ReadTypeProperties(ref ShockwaveReader input, ReaderContext context, int dataLength)
@@ -63,9 +63,9 @@ public sealed class CastMemberProperties : IResource, IShockwaveItem
 
     public void WriteTo(ShockwaveWriter output, WriterOptions options)
     {
-        output.Write((int)Type);
-        output.Write(Metadata.GetBodySize(options));
-        output.Write(Properties.GetBodySize(options));
+        output.WriteInt32LittleEndian((int)Type);
+        output.WriteInt32LittleEndian(Metadata.GetBodySize(options));
+        output.WriteInt32LittleEndian(Properties.GetBodySize(options));
 
         Metadata.WriteTo(output, options);
         Properties.WriteTo(output, options);

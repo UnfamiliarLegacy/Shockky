@@ -20,7 +20,7 @@ public class TransitionCastProperties : IMemberProperties
         ChunkSize = input.ReadByte();
         Type = (TransitionType)input.ReadByte();
         Flags = (TransitionFlags)input.ReadByte();
-        DurationInMilliseconds = input.ReadInt16(); //TODO: Not in < D5
+        DurationInMilliseconds = input.ReadInt16LittleEndian(); //TODO: Not in < D5
 
         if (!Flags.HasFlag(TransitionFlags.Standard))
             Xtra = new XtraCastProperties(ref input, context);

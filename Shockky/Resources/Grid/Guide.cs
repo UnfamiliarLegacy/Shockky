@@ -5,7 +5,7 @@ namespace Shockky.Resources;
 public readonly record struct Guide(Axis Axis, short Position) : IShockwaveItem
 {
     public static Guide Read(ref ShockwaveReader reader, ReaderContext context)
-        => new((Axis)reader.ReadInt16(), reader.ReadInt16());
+        => new((Axis)reader.ReadInt16LittleEndian(), reader.ReadInt16LittleEndian());
 
     public int GetBodySize(WriterOptions options)
     {
@@ -16,7 +16,7 @@ public readonly record struct Guide(Axis Axis, short Position) : IShockwaveItem
     }
     public void WriteTo(ShockwaveWriter output, WriterOptions options)
     {
-        output.Write((short)Axis);
-        output.Write(Position);
+        output.WriteInt16LittleEndian((short)Axis);
+        output.WriteInt16LittleEndian(Position);
     }
 }

@@ -36,51 +36,51 @@ public sealed class LingoScript : IShockwaveItem, IResource
     { }
     public LingoScript(ref ShockwaveReader input)
     {
-        input.IsBigEndian = true;
+        input.ReverseEndianness = true;
 
-        input.ReadInt32();
-        input.ReadInt32();
+        input.ReadInt32LittleEndian();
+        input.ReadInt32LittleEndian();
 
-        input.ReadInt32();
-        input.ReadInt32();
+        input.ReadInt32LittleEndian();
+        input.ReadInt32LittleEndian();
 
-        input.ReadInt16();
+        input.ReadInt16LittleEndian();
 
-        ContextIndex = input.ReadInt16();
-        EnvironmentIndex = input.ReadInt16();
-        ParentContextIndex = input.ReadInt16();
-        short environmentFactoryIndexGarbageDebug = input.ReadInt16();
+        ContextIndex = input.ReadInt16LittleEndian();
+        EnvironmentIndex = input.ReadInt16LittleEndian();
+        ParentContextIndex = input.ReadInt16LittleEndian();
+        short environmentFactoryIndexGarbageDebug = input.ReadInt16LittleEndian();
 
-        input.ReadInt32();
-        input.ReadInt32();
-        input.ReadInt32();
+        input.ReadInt32LittleEndian();
+        input.ReadInt32LittleEndian();
+        input.ReadInt32LittleEndian();
 
-        Flags = (LingoScriptFlags)input.ReadInt32();
+        Flags = (LingoScriptFlags)input.ReadInt32LittleEndian();
 
-        input.ReadInt32();
-        CastMemberId = input.ReadInt16();
+        input.ReadInt32LittleEndian();
+        CastMemberId = input.ReadInt16LittleEndian();
 
-        FactoryNameIndex = input.ReadInt16();
+        FactoryNameIndex = input.ReadInt16LittleEndian();
 
-        int eventHandlerCount = input.ReadInt16();
-        int eventHandlerIndexOffset = input.ReadInt32();
+        int eventHandlerCount = input.ReadInt16LittleEndian();
+        int eventHandlerIndexOffset = input.ReadInt32LittleEndian();
 
-        EventFlags = (LingoEventFlags)input.ReadInt32();
+        EventFlags = (LingoEventFlags)input.ReadInt32LittleEndian();
 
-        short propertiesCount = input.ReadInt16();
-        int propertiesOffset = input.ReadInt32();
+        short propertiesCount = input.ReadInt16LittleEndian();
+        int propertiesOffset = input.ReadInt32LittleEndian();
 
-        short globalsCount = input.ReadInt16();
-        int globalsOffset = input.ReadInt32();
+        short globalsCount = input.ReadInt16LittleEndian();
+        int globalsOffset = input.ReadInt32LittleEndian();
 
-        short functionsCount = input.ReadInt16();
-        int functionsOffset = input.ReadInt32();
+        short functionsCount = input.ReadInt16LittleEndian();
+        int functionsOffset = input.ReadInt32LittleEndian();
 
-        short literalsCount = input.ReadInt16();
-        int literalsOffset = input.ReadInt32();
+        short literalsCount = input.ReadInt16LittleEndian();
+        int literalsOffset = input.ReadInt32LittleEndian();
 
-        int literalDataLength = input.ReadInt32();
-        int literalDataOffset = input.ReadInt32();
+        int literalDataLength = input.ReadInt32LittleEndian();
+        int literalDataOffset = input.ReadInt32LittleEndian();
     }
 
     public static int GetHeaderSize()
@@ -137,29 +137,29 @@ public sealed class LingoScript : IShockwaveItem, IResource
 
     public void WriteTo(ShockwaveWriter output, WriterOptions options)
     {
-        output.Write(0);
-        output.Write(0);
+        output.WriteInt32LittleEndian(0);
+        output.WriteInt32LittleEndian(0);
 
         int bodySize = GetBodySize(options);
-        output.Write(bodySize);
-        output.Write(bodySize);
+        output.WriteInt32LittleEndian(bodySize);
+        output.WriteInt32LittleEndian(bodySize);
 
-        output.Write(92); //TODO:
+        output.WriteInt32LittleEndian(92); //TODO:
 
-        output.Write(ContextIndex);
-        output.Write(EnvironmentIndex);
-        output.Write(ParentContextIndex);
-        output.Write((short)-1);
+        output.WriteInt16LittleEndian(ContextIndex);
+        output.WriteInt16LittleEndian(EnvironmentIndex);
+        output.WriteInt16LittleEndian(ParentContextIndex);
+        output.WriteInt16LittleEndian((short)-1);
 
-        output.Write(0);
-        output.Write(0);
-        output.Write(0);
+        output.WriteInt32LittleEndian(0);
+        output.WriteInt32LittleEndian(0);
+        output.WriteInt32LittleEndian(0);
 
-        output.Write((int)Flags);
+        output.WriteInt32LittleEndian((int)Flags);
 
-        output.Write((short)0);
-        output.Write(CastMemberId);
+        output.WriteInt16LittleEndian((short)0);
+        output.WriteInt16LittleEndian(CastMemberId);
 
-        output.Write(FactoryNameIndex);
+        output.WriteInt16LittleEndian(FactoryNameIndex);
     }
 }

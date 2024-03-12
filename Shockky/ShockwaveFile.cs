@@ -4,6 +4,7 @@ using Shockky.Resources;
 namespace Shockky;
 
 #nullable enable
+
 public class ShockwaveFile
 {
     public FileMetadata? Metadata { get; set; }
@@ -13,7 +14,6 @@ public class ShockwaveFile
 
     public ShockwaveFile()
     {
-        Version = DirectorVersion.Unknown;
         Resources = new Dictionary<int, IResource>();
     }
 
@@ -21,21 +21,27 @@ public class ShockwaveFile
     {
         var input = new ShockwaveReader(data);
         Metadata = new FileMetadata(ref input);
-        input.IsBigEndian = Metadata.IsBigEndian;
+        input.ReverseEndianness = Metadata.IsBigEndian;
 
         if (Metadata.Codec is CodecKind.FGDM or CodecKind.FGDC)
         {
-            if (IResource.Read(ref input, default) is FileVersion fileVersion)
-            {
-                ReaderContext readerContext = new(fileVersion.Version);
+            if (IResource.Read(ref input, default) is not FileVersion fileVersion)
+                throw new InvalidDataException();
+            
+            ReaderContext readerContext = new(fileVersion.Version);
 
-                if (IResource.Read(ref input, readerContext) is FileCompressionTypes compressionTypes &&
-                    IResource.Read(ref input, readerContext) is AfterburnerMap afterburnerMap)
-                {
-                    var fgeiHeader = new ResourceHeader(ref input);
-                    Resources = FileGzipEmbeddedImage.ReadResources(ref input, readerContext, afterburnerMap);
-                }
-            }
+            if (IResource.Read(ref input, readerContext) is not FileCompressionTypes compressionTypes)
+                throw new InvalidDataException();
+            
+            if (IResource.Read(ref input, readerContext) is not AfterburnerMap afterburnerMap)
+                throw new InvalidDataException();
+
+            var fgeiHeader = new ResourceHeader(ref input);
+
+            if (fgeiHeader.Kind is not OsType.FGEI)
+                throw new InvalidDataException();
+
+            Resources = FileGzipEmbeddedImage.ReadResources(ref input, readerContext, afterburnerMap, compressionTypes);    
         }
         else if (Metadata.Codec is CodecKind.MV93)
         {
@@ -60,11 +66,6 @@ public class ShockwaveFile
                 Resources.Add(i, IResource.Read(ref input, readerContext));
             }
         }
-    }
-
-    public void Assemble()
-    {
-        throw new NotImplementedException();
     }
 
     public static ShockwaveFile Load(string path)

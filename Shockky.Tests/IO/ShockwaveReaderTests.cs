@@ -29,18 +29,18 @@ public class ShockwaveReaderTests
 
         ShockwaveReader input = new(encodedValueBuffer);
 
-        Assert.Equal(0, input.ReadVarInt());
-        Assert.Equal(1, input.ReadVarInt());
-        Assert.Equal(127, input.ReadVarInt());
-        Assert.Equal(128, input.ReadVarInt());
-        Assert.Equal(8192, input.ReadVarInt());
-        Assert.Equal(16383, input.ReadVarInt());
-        Assert.Equal(16384, input.ReadVarInt());
-        Assert.Equal(2097151, input.ReadVarInt());
-        Assert.Equal(2097152, input.ReadVarInt());
-        Assert.Equal(134217728, input.ReadVarInt());
-        Assert.Equal(268435455, input.ReadVarInt());
-        Assert.Equal(8192, input.ReadVarInt());
-        Assert.Equal(13371337, input.ReadVarInt());
+        Assert.Equal(0, input.Read7BitEncodedInt());
+        Assert.Equal(1, input.Read7BitEncodedInt());
+        Assert.Equal(127, input.Read7BitEncodedInt());
+        Assert.Equal(128, input.Read7BitEncodedInt());
+        Assert.Equal(8192, input.Read7BitEncodedInt());
+        Assert.Equal(16383, input.Read7BitEncodedInt());
+        Assert.Equal(16384, input.Read7BitEncodedInt());
+        Assert.Equal(2097151, input.Read7BitEncodedInt());
+        Assert.Equal(2097152, input.Read7BitEncodedInt());
+        Assert.Equal(134217728, input.Read7BitEncodedInt());
+        Assert.Equal(268435455, input.Read7BitEncodedInt());
+        Assert.Equal(8192, input.Read7BitEncodedInt());
+        Assert.Equal(13371337, input.Read7BitEncodedInt());
     }
 }

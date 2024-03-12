@@ -12,15 +12,15 @@ public sealed class LingoNames : IShockwaveItem, IResource
     { }
     public LingoNames(ref ShockwaveReader input, ReaderContext context)
     {
-        input.IsBigEndian = true;
+        input.ReverseEndianness = true;
 
-        input.ReadInt32();
-        input.ReadInt32();
-        input.ReadInt32();
-        input.ReadInt32();
+        input.ReadInt32LittleEndian();
+        input.ReadInt32LittleEndian();
+        input.ReadInt32LittleEndian();
+        input.ReadInt32LittleEndian();
 
-        short nameOffset = input.ReadInt16();
-        Names = new List<string>(input.ReadInt16());
+        short nameOffset = input.ReadInt16LittleEndian();
+        Names = new List<string>(input.ReadInt16LittleEndian());
 
         input.Position = nameOffset;
         for (int i = 0; i < Names.Capacity; i++)
@@ -47,16 +47,16 @@ public sealed class LingoNames : IShockwaveItem, IResource
         const short NAME_OFFSET = 20;
         int namesLength = Names?.Sum(static n => sizeof(byte) + n.Length) ?? 0;
 
-        output.Write(0);
-        output.Write(0);
-        output.Write(namesLength);
-        output.Write(namesLength);
-        output.Write(NAME_OFFSET);
-        output.Write((short)Names.Count);
+        output.WriteInt32LittleEndian(0);
+        output.WriteInt32LittleEndian(0);
+        output.WriteInt32LittleEndian(namesLength);
+        output.WriteInt32LittleEndian(namesLength);
+        output.WriteInt16LittleEndian(NAME_OFFSET);
+        output.WriteInt16LittleEndian((short)Names.Count);
 
         foreach (string name in Names)
         {
-            output.Write(name);
+            output.WriteString(name);
         }
     }
 }

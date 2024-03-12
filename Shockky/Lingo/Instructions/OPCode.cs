@@ -1,6 +1,5 @@
 ﻿namespace Shockky.Lingo.Instructions;
 
-// WIP: Defines the OP table which is then used to generate the parsing logic and abstractions at build time.
 public enum OPCode : byte
 {
     [OP] Return = 0x01,
@@ -43,7 +42,7 @@ public enum OPCode : byte
 
     // Multi
     [OP(ImmediateKind.Integer)] PushInt = 0x41,
-    [OP(ImmediateKind.Integer)] NewArgList = 0x42, //actually just pushuint -csnover
+    [OP(ImmediateKind.Integer)] PushUInt = 0x42,
     [OP(ImmediateKind.Integer)] NewList = 0x43,
     [OP(ImmediateKind.Literal)] PushLiteral = 0x44,
     [OP(ImmediateKind.NameIndex)] PushSymbol = 0x45,
