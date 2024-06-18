@@ -48,11 +48,11 @@ public sealed class LingoLiteral : IShockwaveItem, IEquatable<LingoLiteral>
         {
             input.Position = entryOffset;
 
-            int length = input.ReadInt32LittleEndian();
+            int length = input.ReadInt32BigEndian();
             object value = entryKind switch
             {
                 VariantKind.String => input.ReadString(length),
-                VariantKind.Float when length == 8 => input.ReadDoubleLittleEndian(),
+                VariantKind.Float when length == 8 => input.ReadDoubleBigEndian(),
                 VariantKind.Float when length == 10 => throw new NotSupportedException("The 80-bit double-extended precision is not supported, yet."),
                 VariantKind.CompiledJavascript => input.ReadBytes(length).ToArray(),
 

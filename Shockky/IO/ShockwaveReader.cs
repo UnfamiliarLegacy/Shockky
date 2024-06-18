@@ -76,7 +76,7 @@ public ref struct ShockwaveReader
         Advance(sizeof(short));
 
         return ReverseEndianness ?
-            value : BinaryPrimitives.ReverseEndianness(value);
+            BinaryPrimitives.ReverseEndianness(value) : value;
     }
 
     public ushort ReadUInt16LittleEndian()
@@ -93,7 +93,7 @@ public ref struct ShockwaveReader
         Advance(sizeof(ushort));
 
         return ReverseEndianness ?
-            value : BinaryPrimitives.ReverseEndianness(value);
+            BinaryPrimitives.ReverseEndianness(value) : value;
     }
 
     public int ReadInt32LittleEndian()
@@ -110,7 +110,7 @@ public ref struct ShockwaveReader
         Advance(sizeof(int));
 
         return ReverseEndianness ?
-            value : BinaryPrimitives.ReverseEndianness(value);
+            BinaryPrimitives.ReverseEndianness(value) : value;
     }
 
     public uint ReadUInt32LittleEndian()
@@ -130,7 +130,7 @@ public ref struct ShockwaveReader
             value : BinaryPrimitives.ReverseEndianness(value);
     }
 
-    public ulong ReadUInt64()
+    public ulong ReadUInt64LittleEndian()
     {
         ulong value = BinaryPrimitives.ReadUInt64LittleEndian(CurrentSpan);
         Advance(sizeof(ulong));
@@ -138,13 +138,13 @@ public ref struct ShockwaveReader
         return ReverseEndianness ?
             BinaryPrimitives.ReverseEndianness(value) : value;
     }
-    public ulong ReadBEUInt64()
+    public ulong ReadUInt64BigEndian()
     {
         ulong value = BinaryPrimitives.ReadUInt64BigEndian(CurrentSpan);
         Advance(sizeof(ulong));
 
         return ReverseEndianness ?
-            value : BinaryPrimitives.ReverseEndianness(value);
+            BinaryPrimitives.ReverseEndianness(value) : value;
     }
     public double ReadDoubleLittleEndian()
     {
@@ -155,7 +155,7 @@ public ref struct ShockwaveReader
         Advance(sizeof(double));
         return value;
     }
-    public double ReadBEDouble()
+    public double ReadDoubleBigEndian()
     {
         double value = ReverseEndianness ?
             BinaryPrimitives.ReadDoubleLittleEndian(CurrentSpan) :

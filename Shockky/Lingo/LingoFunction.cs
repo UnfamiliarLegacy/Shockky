@@ -4,13 +4,17 @@ namespace Shockky.Lingo;
 
 public class LingoFunction : IShockwaveItem
 {
-    public byte[] Bytecode { get; set; }
-    public List<short> Arguments { get; }
-    public List<short> Locals { get; }
-    public byte[] BytesPerLine { get; }
-
     public short EnvironmentIndex { get; set; }
-    public LingoEventFlags EventKind { get; }
+    public LingoEventFlags EventFlags { get; set; }
+    
+    public byte[] Bytecode { get; set; }
+    public List<short> Arguments { get; set; }
+    public List<short> Locals { get; set; }
+    public List<short> Globals { get; set; }
+    public byte[] BytesPerLine { get; set; }
+    
+    public int ParserBytesRead { get; set; }
+    public int BodyLineNumber { get; set; }
 
     public int StackHeight { get; set; }
 
@@ -19,34 +23,36 @@ public class LingoFunction : IShockwaveItem
         Bytecode = [];
         Arguments = new List<short>();
         Locals = new List<short>();
+        Globals = new List<short>();
         BytesPerLine = [];
     }
     public LingoFunction(ref ShockwaveReader input)
     {
-        EnvironmentIndex = input.ReadInt16LittleEndian();
-        EventKind = (LingoEventFlags)input.ReadInt16LittleEndian();
+        EnvironmentIndex = input.ReadInt16BigEndian();
+        EventFlags = (LingoEventFlags)input.ReadInt16BigEndian();
 
-        Bytecode = new byte[input.ReadInt32LittleEndian()];
-        int bytecodeOffset = input.ReadInt32LittleEndian();
+        Bytecode = new byte[input.ReadInt32BigEndian()];
+        int bytecodeOffset = input.ReadInt32BigEndian();
 
-        Arguments = new List<short>(input.ReadInt16LittleEndian());
-        int argumentsOffset = input.ReadInt32LittleEndian();
+        Arguments = new List<short>(input.ReadInt16BigEndian());
+        int argumentsOffset = input.ReadInt32BigEndian();
 
-        Locals = new List<short>(input.ReadInt16LittleEndian());
-        int localsOffset = input.ReadInt32LittleEndian();
+        Locals = new List<short>(input.ReadInt16BigEndian());
+        int localsOffset = input.ReadInt32BigEndian();
 
-        short globalsCount = input.ReadInt16LittleEndian(); //v5
-        int globalsOffset = input.ReadInt32LittleEndian(); //v5
+        Globals = new List<short>(input.ReadInt16BigEndian()); //v5
+        int globalsOffset = input.ReadInt32BigEndian(); //v5
 
-        int parserBytesRead = input.ReadInt32LittleEndian();
-        short bodyLineNumber = input.ReadInt16LittleEndian();
+        ParserBytesRead = input.ReadInt32BigEndian();
+        BodyLineNumber = input.ReadInt16BigEndian();
 
-        BytesPerLine = new byte[input.ReadInt16LittleEndian()];
-        int lineOffset = input.ReadInt32LittleEndian();
+        BytesPerLine = new byte[input.ReadInt16BigEndian()];
+        int lineOffset = input.ReadInt32BigEndian();
 
         //if version > 0x800
-        StackHeight = input.ReadInt32LittleEndian();
+        StackHeight = input.ReadInt32BigEndian();
 
+        // TODO: Seperate "data" reading from handler body
         int bodyEndOffset = input.Position;
 
         input.Position = bytecodeOffset;
@@ -55,15 +61,21 @@ public class LingoFunction : IShockwaveItem
         input.Position = argumentsOffset;
         for (int i = 0; i < Arguments.Capacity; i++)
         {
-            Arguments.Add(input.ReadInt16LittleEndian());
+            Arguments.Add(input.ReadInt16BigEndian());
         }
 
         input.Position = localsOffset;
         for (int i = 0; i < Locals.Capacity; i++)
         {
-            Locals.Add(input.ReadInt16LittleEndian());
+            Locals.Add(input.ReadInt16BigEndian());
         }
 
+        input.Position = globalsOffset;
+        for (int i = 0; i < Globals.Capacity; i++)
+        {
+            Globals.Add(input.ReadInt16BigEndian());
+        }
+        
         input.Position = lineOffset;
         for (int i = 0; i < BytesPerLine.Length; i++)
         {
@@ -97,8 +109,16 @@ public class LingoFunction : IShockwaveItem
 
     public void WriteTo(ShockwaveWriter output, WriterOptions options)
     {
-        throw new NotImplementedException();
-        output.WriteInt16LittleEndian(EnvironmentIndex);
-        output.WriteInt16LittleEndian((short)EventKind);
+        output.WriteInt16BigEndian(EnvironmentIndex);
+        output.WriteUInt16BigEndian((ushort)EventFlags);
+        output.WriteUInt16BigEndian((ushort)Bytecode.Length);
+        output.WriteUInt16BigEndian(0); // Reserve
+        output.WriteUInt16BigEndian((ushort)Arguments.Count);
+        output.WriteInt32BigEndian(0); // Reserve
+        output.WriteUInt16BigEndian((ushort)Locals.Count);
+        output.WriteInt32BigEndian(0); // Reserve
+        output.WriteUInt16BigEndian((ushort)Globals.Count);
+        output.WriteInt32BigEndian(0); // Reserve
+        output.WriteUInt16BigEndian((ushort)BytesPerLine.Length);
     }
 }

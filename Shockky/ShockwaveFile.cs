@@ -24,7 +24,7 @@ public class ShockwaveFile
         var input = new ShockwaveReader(data);
 
         file.Metadata = new FileMetadata(ref input);
-        input.ReverseEndianness = file.Metadata.IsBigEndian;
+        input.ReverseEndianness = file.Metadata.IsLittleEndian;
 
         if (file.Metadata.Codec is CodecKind.FGDM or CodecKind.FGDC)
         {

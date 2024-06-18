@@ -16,10 +16,10 @@ public class LingoContextItem : IShockwaveItem
     { }
     public LingoContextItem(ref ShockwaveReader input)
     {
-        input.ReadInt32LittleEndian();
-        ChunkIndex = input.ReadInt32LittleEndian();
-        Flags = (LingoContextItemFlags)input.ReadInt16LittleEndian();
-        Link = input.ReadInt16LittleEndian();
+        input.ReadInt32BigEndian();
+        ChunkIndex = input.ReadInt32BigEndian();
+        Flags = (LingoContextItemFlags)input.ReadInt16BigEndian();
+        Link = input.ReadInt16BigEndian();
     }
 
     public int GetBodySize(WriterOptions options)
@@ -34,9 +34,9 @@ public class LingoContextItem : IShockwaveItem
 
     public void WriteTo(ShockwaveWriter output, WriterOptions options)
     {
-        output.WriteInt32LittleEndian(0);
-        output.WriteInt32LittleEndian(ChunkIndex);
-        output.WriteInt16LittleEndian((short)Flags);
-        output.WriteInt16LittleEndian(Link);
+        output.WriteInt32BigEndian(0);
+        output.WriteInt32BigEndian(ChunkIndex);
+        output.WriteInt16BigEndian((short)Flags);
+        output.WriteInt16BigEndian(Link);
     }
 }

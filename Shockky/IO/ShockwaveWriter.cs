@@ -168,6 +168,7 @@ public ref struct ShockwaveWriter
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int GetVarIntSize(int value) => GetVarUIntSize((uint)value);
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int GetVarUIntSize(uint value)
     {
@@ -179,6 +180,10 @@ public ref struct ShockwaveWriter
         return (x * 37) >> 8;
     }
 
+    /// <summary>
+    /// Writes length-prefixed UTF-8 string. 
+    /// </summary>
+    /// <param name="value">The UTF-8 string to write.</param>
     public void WriteString(ReadOnlySpan<char> value)
     {
         Write7BitEncodedUInt((uint)value.Length);
@@ -186,6 +191,11 @@ public ref struct ShockwaveWriter
         int len = Encoding.UTF8.GetBytes(value, _data.Slice(_position));
         _position += len;
     }
+    
+    /// <summary>
+    /// Writes a null-terminated UTF-8 string.
+    /// </summary>
+    /// <param name="value">The UTF-8 string to write.</param>
     public void WriteCString(ReadOnlySpan<char> value)
     {
         int len = Encoding.UTF8.GetBytes(value, _data.Slice(_position));
@@ -210,6 +220,8 @@ public ref struct ShockwaveWriter
 
         Advance(6);
     }
+    
+    // TODO: Endianness
     public void WritePoint(Point value)
     {
         WriteInt16LittleEndian((short)value.X);

@@ -14,7 +14,7 @@ public sealed class FileCompressionTypes : IShockwaveItem, IResource
     {
         using ZLibShockwaveReader decompressedInput = ZLib.CreateDeflateReaderUnsafe(ref input);
 
-        int compressionTypeCount = decompressedInput.ReadInt16LittleEndian();
+        int compressionTypeCount = decompressedInput.ReadInt16BigEndian();
 
         Guid[] ids = new Guid[compressionTypeCount];
         for (int i = 0; i < ids.Length; i++)

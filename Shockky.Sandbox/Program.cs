@@ -6,7 +6,6 @@ using Shockky.Resources.Cast;
 using Shockky.Resources.Types;
 
 using System.CommandLine;
-
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
@@ -20,9 +19,11 @@ var inputArgument = new Argument<IEnumerable<System.IO.FileInfo>>("input")
 }.ExistingOnly();
 
 var outputOption = new Option<DirectoryInfo>("--output",
-    getDefaultValue: () => new DirectoryInfo("Output/"),
+    getDefaultValue: () => new DirectoryInfo("Output"),
     description: "Directory for the extracted resources")
     .LegalFilePathsOnly();
+
+outputOption.AddAlias("-o");
 
 var rootCommand = new RootCommand()
 {
@@ -30,7 +31,7 @@ var rootCommand = new RootCommand()
     outputOption
 };
 
-rootCommand.SetHandler(HandleExtractCommand, 
+rootCommand.SetHandler(HandleExtractCommand,
     inputArgument, outputOption);
 
 return rootCommand.Invoke(args);
@@ -54,11 +55,10 @@ static IReadOnlyDictionary<int, System.Drawing.Color[]> ReadPalettes()
         System.Drawing.Color[] colors = new System.Drawing.Color[input.ReadInt16()];
         for (int i = 0; i < colors.Length; i++)
         {
-            byte r = input.ReadByte();
-            byte g = input.ReadByte();
-            byte b = input.ReadByte();
-
-            colors[i] = System.Drawing.Color.FromArgb(r, g, b);
+            colors[i] = System.Drawing.Color.FromArgb(
+                red: input.ReadByte(), 
+                green: input.ReadByte(), 
+                blue: input.ReadByte());
 
             input.ReadByte();
         }
@@ -95,7 +95,7 @@ static void HandleExtractCommand(IEnumerable<System.IO.FileInfo> input, Director
 
         Console.Write($"Disassembling file \"{file.Name}\"..");
 
-        var shockwaveFile = ShockwaveFile.Load(file.FullName);
+        var shockwaveFile = ShockwaveFile.Read(file.FullName);
 
         if (shockwaveFile.Resources.Values
             .FirstOrDefault(c => c.Kind == OsType.KEYPtr) is not KeyMap associationTable)

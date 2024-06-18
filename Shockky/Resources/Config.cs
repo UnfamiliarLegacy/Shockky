@@ -94,7 +94,7 @@ public sealed class Config : IShockwaveItem, IResource
         OriginalVersion = (DirectorVersion)input.ReadInt16LittleEndian();
         MaxCastColorDepth = input.ReadInt16LittleEndian();
         Flags = (ConfigFlags)input.ReadInt32LittleEndian();
-        ScoreUsedChannelsMask = input.ReadUInt64();
+        ScoreUsedChannelsMask = input.ReadUInt64LittleEndian();
 
         Trial = input.ReadBoolean();
         Field34 = input.ReadByte();

@@ -25,7 +25,7 @@ public sealed class AfterburnerMapEntry : IShockwaveItem
         Length = input.Read7BitEncodedInt();
         DecompressedLength = input.Read7BitEncodedInt();
         CompressionTypeIndex = input.Read7BitEncodedInt();
-        Kind = (OsType)input.ReadInt32LittleEndian();
+        Kind = (OsType)input.ReadInt32BigEndian();
     }
 
     public int GetBodySize(WriterOptions options)

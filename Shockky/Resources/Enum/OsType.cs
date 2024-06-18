@@ -1,7 +1,7 @@
 ﻿namespace Shockky.Resources;
 
 /// <summary>
-/// Represents all the resource types that Shockwave movies/casts can contain.
+/// Represents the resource types that Director authored Shockwave movies/casts can contain.
 /// <para/>
 /// See: https://en.wikipedia.org/wiki/FourCC
 /// </summary>
