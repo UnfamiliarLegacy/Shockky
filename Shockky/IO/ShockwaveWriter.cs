@@ -56,7 +56,7 @@ public ref struct ShockwaveWriter
     }
     public void WriteInt16BigEndian(short value)
     {
-        if (!_reverseEndianness)
+        if (_reverseEndianness)
         {
             value = BinaryPrimitives.ReverseEndianness(value);
         }
@@ -77,7 +77,7 @@ public ref struct ShockwaveWriter
     }
     public void WriteUInt16BigEndian(ushort value)
     {
-        if (!_reverseEndianness)
+        if (_reverseEndianness)
         {
             value = BinaryPrimitives.ReverseEndianness(value);
         }
@@ -98,7 +98,7 @@ public ref struct ShockwaveWriter
     }
     public void WriteInt32BigEndian(int value)
     {
-        if (!_reverseEndianness)
+        if (_reverseEndianness)
         {
             value = BinaryPrimitives.ReverseEndianness(value);
         }
@@ -119,7 +119,7 @@ public ref struct ShockwaveWriter
     }
     public void WriteUInt32BigEndian(uint value)
     {
-        if (!_reverseEndianness)
+        if (_reverseEndianness)
         {
             value = BinaryPrimitives.ReverseEndianness(value);
         }
@@ -140,7 +140,7 @@ public ref struct ShockwaveWriter
     }
     public void WriteUInt64BigEndian(ulong value)
     {
-        if (!_reverseEndianness)
+        if (_reverseEndianness)
         {
             value = BinaryPrimitives.ReverseEndianness(value);
         }

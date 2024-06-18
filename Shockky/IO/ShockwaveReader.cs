@@ -127,7 +127,7 @@ public ref struct ShockwaveReader
         Advance(sizeof(uint));
 
         return ReverseEndianness ?
-            value : BinaryPrimitives.ReverseEndianness(value);
+            BinaryPrimitives.ReverseEndianness(value) : value;
     }
 
     public ulong ReadUInt64LittleEndian()

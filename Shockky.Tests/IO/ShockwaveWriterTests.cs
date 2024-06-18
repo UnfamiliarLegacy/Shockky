@@ -33,12 +33,12 @@ public class ShockwaveWriterTests
     }
 
     [Fact]
-    public void Write_BigEndian_NumericValues_AreEqual() => Write_NumericValues_AreEqual(isBigEndian: true);
+    public void Write_BigEndian_NumericValues_AreEqual() => Write_NumericValues_AreEqual(reverseEndianness: true);
 
     [Fact]
-    public void Write_LittleEndian_NumericValues_AreEqual() => Write_NumericValues_AreEqual(isBigEndian: false);
+    public void Write_LittleEndian_NumericValues_AreEqual() => Write_NumericValues_AreEqual(reverseEndianness: false);
 
-    private void Write_NumericValues_AreEqual(bool isBigEndian)
+    private void Write_NumericValues_AreEqual(bool reverseEndianness)
     {
         const int OUTPUT_SIZE = sizeof(byte)
             + sizeof(short) * 2
@@ -47,26 +47,34 @@ public class ShockwaveWriterTests
             + sizeof(uint) * 2;
 
         Span<byte> buffer = stackalloc byte[OUTPUT_SIZE];
-        var output = new ShockwaveWriter(buffer, isBigEndian);
-        var input = new ShockwaveReader(buffer, isBigEndian);
+        var output = new ShockwaveWriter(buffer, reverseEndianness);
+        var input = new ShockwaveReader(buffer, reverseEndianness);
 
-        output.WriteByte((byte)42);
-        output.WriteInt16LittleEndian((short)4242);
-        output.WriteInt16BigEndian((short)4242);
-        output.WriteUInt16LittleEndian((ushort)4242);
-        output.WriteUInt16BigEndian((ushort)4242);
+        output.WriteByte(42);
+        
+        output.WriteInt16LittleEndian(4242);
+        output.WriteInt16BigEndian(4242);
+        
+        output.WriteUInt16LittleEndian(4242);
+        output.WriteUInt16BigEndian(4242);
+        
         output.WriteInt32LittleEndian(123456789);
         output.WriteInt32BigEndian(123456789);
-        output.WriteUInt32LittleEndian((uint)123456789);
-        output.WriteUInt32BigEndian((uint)123456789);
+        
+        output.WriteUInt32LittleEndian(123456789);
+        output.WriteUInt32BigEndian(123456789);
 
         Assert.Equal(42, input.ReadByte());
+        
         Assert.Equal(4242, input.ReadInt16LittleEndian());
         Assert.Equal(4242, input.ReadInt16BigEndian());
+        
         Assert.Equal((ushort)4242, input.ReadUInt16LittleEndian());
         Assert.Equal((ushort)4242, input.ReadUInt16BigEndian());
+        
         Assert.Equal(123456789, input.ReadInt32LittleEndian());
         Assert.Equal(123456789, input.ReadInt32BigEndian());
+        
         Assert.Equal((uint)123456789, input.ReadUInt32LittleEndian());
         Assert.Equal((uint)123456789, input.ReadUInt32BigEndian());
     }
