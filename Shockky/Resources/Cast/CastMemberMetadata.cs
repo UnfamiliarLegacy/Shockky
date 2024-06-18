@@ -151,7 +151,7 @@ public sealed class CastMemberMetadata : IResource, IShockwaveItem
         }
     }
 
-    
+
 
     public int GetBodySize(WriterOptions options)
     {

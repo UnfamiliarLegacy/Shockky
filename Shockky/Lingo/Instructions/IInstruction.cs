@@ -11,7 +11,7 @@ public partial interface IInstruction
     /// The <see cref="OPCode"/> value representing the instruction.
     /// </summary>
     OPCode OP { get; }
-    
+
     /// <summary>
     /// The immediate operand encoded in the instruction.
     /// </summary>

@@ -5,8 +5,8 @@ namespace Shockky.Lingo;
 // TODO: Attempt to rewrite this again, not happy.
 public sealed class LingoLiteral : IShockwaveItem, IEquatable<LingoLiteral>
 {
-    public VariantKind Kind { get; set; }
-    public object Value { get; set; }
+    public VariantKind Kind { get; }
+    public object Value { get; }
 
     public LingoLiteral(VariantKind kind, object value)
     {
@@ -66,6 +66,6 @@ public sealed class LingoLiteral : IShockwaveItem, IEquatable<LingoLiteral>
 
     public override int GetHashCode()
     {
-        throw new NotImplementedException();
+        return HashCode.Combine(Kind, Value);
     }
 }

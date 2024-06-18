@@ -17,22 +17,25 @@ public class ShockwaveFile
         Resources = new Dictionary<int, IResource>();
     }
 
-    public void Load(ReadOnlySpan<byte> data)
+    public static ShockwaveFile Read(string path) => Read(File.ReadAllBytes(path));
+    public static ShockwaveFile Read(ReadOnlySpan<byte> data)
     {
+        var file = new ShockwaveFile();
         var input = new ShockwaveReader(data);
-        Metadata = new FileMetadata(ref input);
-        input.ReverseEndianness = Metadata.IsBigEndian;
 
-        if (Metadata.Codec is CodecKind.FGDM or CodecKind.FGDC)
+        file.Metadata = new FileMetadata(ref input);
+        input.ReverseEndianness = file.Metadata.IsBigEndian;
+
+        if (file.Metadata.Codec is CodecKind.FGDM or CodecKind.FGDC)
         {
             if (IResource.Read(ref input, default) is not FileVersion fileVersion)
                 throw new InvalidDataException();
-            
+
             ReaderContext readerContext = new(fileVersion.Version);
 
             if (IResource.Read(ref input, readerContext) is not FileCompressionTypes compressionTypes)
                 throw new InvalidDataException();
-            
+
             if (IResource.Read(ref input, readerContext) is not AfterburnerMap afterburnerMap)
                 throw new InvalidDataException();
 
@@ -41,9 +44,9 @@ public class ShockwaveFile
             if (fgeiHeader.Kind is not OsType.FGEI)
                 throw new InvalidDataException();
 
-            Resources = FileGzipEmbeddedImage.ReadResources(ref input, readerContext, afterburnerMap, compressionTypes);    
+            file.Resources = FileGzipEmbeddedImage.ReadResources(ref input, readerContext, afterburnerMap, compressionTypes);
         }
-        else if (Metadata.Codec is CodecKind.MV93)
+        else if (file.Metadata.Codec is CodecKind.MV93)
         {
             if (IResource.Read(ref input, default) is not IndexMap initialMap)
                 throw new InvalidDataException($"Failed to read {nameof(IndexMap)}");
@@ -63,17 +66,10 @@ public class ShockwaveFile
                     continue;
 
                 input.Position = entry.Offset;
-                Resources.Add(i, IResource.Read(ref input, readerContext));
+                file.Resources.Add(i, IResource.Read(ref input, readerContext));
             }
         }
-    }
 
-    public static ShockwaveFile Load(string path)
-    {
-        ReadOnlySpan<byte> data = File.ReadAllBytes(path);
-        var shockwaveFile = new ShockwaveFile();
-        shockwaveFile.Load(data);
-
-        return shockwaveFile;
+        return file;
     }
 }

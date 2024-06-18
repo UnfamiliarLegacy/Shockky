@@ -9,7 +9,7 @@ public sealed class FileVersion : IResource, IShockwaveItem
     public DirectorVersion Version { get; set; }
     public string VersionString { get; set; }
 
-    public FileVersion(ref ShockwaveReader input, ReaderContext context)
+    public FileVersion(scoped ref ShockwaveReader input, ReaderContext context)
     {
         int versionMaybeTooForgot = input.Read7BitEncodedInt();
         if (versionMaybeTooForgot < 0x401) return;

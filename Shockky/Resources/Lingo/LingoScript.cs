@@ -1,4 +1,7 @@
-﻿using Shockky.IO;
+﻿using System.Diagnostics;
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Shockky.IO;
 using Shockky.Lingo;
 
 namespace Shockky.Resources;
@@ -32,8 +35,25 @@ public sealed class LingoScript : IShockwaveItem, IResource
     /// </summary>
     public LingoEventFlags EventFlags { get; set; }
 
+    public List<short> EventHandlerIndices { get; set; }
+    public List<short> Properties { get; set; }
+    public List<short> Globals { get; set; }
+
+    /// <summary>
+    /// Represents all lingo handlers in this script.
+    /// </summary>
+    public List<LingoFunction> Functions { get; set; }
+
+    public List<LingoLiteral> Literals { get; }
+
     public LingoScript()
-    { }
+    {
+        EventHandlerIndices = new List<short>();
+        Properties = new List<short>();
+        Globals = new List<short>();
+        Functions = new List<LingoFunction>();
+        Literals = new List<LingoLiteral>();
+    }
     public LingoScript(ref ShockwaveReader input)
     {
         input.ReverseEndianness = true;
@@ -62,25 +82,67 @@ public sealed class LingoScript : IShockwaveItem, IResource
 
         FactoryNameIndex = input.ReadInt16LittleEndian();
 
-        int eventHandlerCount = input.ReadInt16LittleEndian();
+        EventHandlerIndices = new List<short>(input.ReadInt16LittleEndian());
         int eventHandlerIndexOffset = input.ReadInt32LittleEndian();
 
         EventFlags = (LingoEventFlags)input.ReadInt32LittleEndian();
 
-        short propertiesCount = input.ReadInt16LittleEndian();
+        Properties = new List<short>(input.ReadInt16LittleEndian());
         int propertiesOffset = input.ReadInt32LittleEndian();
 
-        short globalsCount = input.ReadInt16LittleEndian();
+        Globals = new List<short>(input.ReadInt16LittleEndian());
         int globalsOffset = input.ReadInt32LittleEndian();
 
-        short functionsCount = input.ReadInt16LittleEndian();
+        Functions = new List<LingoFunction>(input.ReadInt16LittleEndian());
         int functionsOffset = input.ReadInt32LittleEndian();
 
-        short literalsCount = input.ReadInt16LittleEndian();
+        Literals = new List<LingoLiteral>(input.ReadInt16LittleEndian());
         int literalsOffset = input.ReadInt32LittleEndian();
 
         int literalDataLength = input.ReadInt32LittleEndian();
         int literalDataOffset = input.ReadInt32LittleEndian();
+
+        input.Position = propertiesOffset;
+        for (int i = 0; i < Properties.Capacity; i++)
+        {
+            Properties.Add(input.ReadInt16LittleEndian());
+        }
+
+        input.Position = globalsOffset;
+        for (int i = 0; i < Globals.Capacity; i++)
+        {
+            Globals.Add(input.ReadInt16LittleEndian());
+        }
+
+        input.Position = functionsOffset;
+        for (int i = 0; i < Functions.Capacity; i++)
+        {
+            Functions.Add(new LingoFunction(ref input));
+        }
+
+        input.Position = literalsOffset;
+        var literalEntries = new (VariantKind Kind, int Offset)[Literals.Capacity]; // TODO: Stackalloc/ArrayPool
+        for (int i = 0; i < Literals.Capacity; i++)
+        {
+            literalEntries[i].Kind = (VariantKind)input.ReadInt32LittleEndian();
+            literalEntries[i].Offset = input.ReadInt32LittleEndian();
+        }
+
+        input.Position = literalDataOffset;
+        for (int i = 0; i < Literals.Capacity; i++)
+        {
+            (VariantKind kind, int offset) = literalEntries[i];
+
+            Literals.Add(LingoLiteral.Read(ref input, kind, literalDataOffset + offset));
+
+            Debug.Assert(literalDataOffset + literalDataLength >= input.Position);
+        }
+
+        input.Position = eventHandlerIndexOffset;
+        for (int i = 0; i < EventHandlerIndices.Capacity; i++)
+        {
+            EventHandlerIndices.Add(input.ReadInt16LittleEndian());
+        }
     }
 
     public static int GetHeaderSize()

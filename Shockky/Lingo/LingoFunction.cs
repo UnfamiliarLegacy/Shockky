@@ -16,11 +16,12 @@ public class LingoFunction : IShockwaveItem
 
     public LingoFunction()
     {
+        Bytecode = [];
         Arguments = new List<short>();
         Locals = new List<short>();
-        BytesPerLine = Array.Empty<byte>();
+        BytesPerLine = [];
     }
-    public LingoFunction(ref ShockwaveReader input, ReaderContext context)
+    public LingoFunction(ref ShockwaveReader input)
     {
         EnvironmentIndex = input.ReadInt16LittleEndian();
         EventKind = (LingoEventFlags)input.ReadInt16LittleEndian();
@@ -28,10 +29,10 @@ public class LingoFunction : IShockwaveItem
         Bytecode = new byte[input.ReadInt32LittleEndian()];
         int bytecodeOffset = input.ReadInt32LittleEndian();
 
-        Arguments.Capacity = input.ReadInt16LittleEndian();
+        Arguments = new List<short>(input.ReadInt16LittleEndian());
         int argumentsOffset = input.ReadInt32LittleEndian();
 
-        Locals.Capacity = input.ReadInt16LittleEndian();
+        Locals = new List<short>(input.ReadInt16LittleEndian());
         int localsOffset = input.ReadInt32LittleEndian();
 
         short globalsCount = input.ReadInt16LittleEndian(); //v5
@@ -46,7 +47,7 @@ public class LingoFunction : IShockwaveItem
         //if version > 0x800
         StackHeight = input.ReadInt32LittleEndian();
 
-        int handlerEndOffset = input.Position;
+        int bodyEndOffset = input.Position;
 
         input.Position = bytecodeOffset;
         input.ReadBytes(Bytecode);
@@ -63,7 +64,13 @@ public class LingoFunction : IShockwaveItem
             Locals.Add(input.ReadInt16LittleEndian());
         }
 
-        throw new NotImplementedException(nameof(LingoFunction));
+        input.Position = lineOffset;
+        for (int i = 0; i < BytesPerLine.Length; i++)
+        {
+            BytesPerLine[i] = input.ReadByte();
+        }
+
+        input.Position = bodyEndOffset;
     }
 
     public int GetBodySize(WriterOptions options)

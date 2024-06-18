@@ -71,7 +71,7 @@ public sealed partial class InstructionGenerator : IIncrementalGenerator
 
             writer.WriteLine($"namespace {InstructionNamespace};");
             writer.WriteLine();
-            
+
             WriteInstructionReadSyntax(writer, instructions);
 
             context.AddSource($"{InstructionNamespace}.IInstruction.Read.g.cs", writer.ToString());

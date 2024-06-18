@@ -37,7 +37,7 @@ public sealed class CastMemberProperties : IResource, IShockwaveItem
             MemberKind.Script => new ScriptCastProperties(ref input, context),
             MemberKind.RichText => new RichTextCastProperties(ref input),
             MemberKind.Transition => new TransitionCastProperties(ref input, context),
-            MemberKind.Xtra => new XtraCastProperties(ref input, context),
+            // TODO: MemberKind.Xtra => new XtraCastProperties(ref input, context),
 
             _ => new UnknownCastProperties(ref input, dataLength)
         };

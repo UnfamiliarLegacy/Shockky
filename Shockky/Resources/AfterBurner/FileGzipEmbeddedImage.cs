@@ -7,7 +7,7 @@ public static class FileGzipEmbeddedImage
 {
     // TODO: Tidy up more.
     public static IDictionary<int, IResource> ReadResources(
-        ref ShockwaveReader input, ReaderContext context, 
+        ref ShockwaveReader input, ReaderContext context,
         AfterburnerMap afterburnerMap, FileCompressionTypes compressionTypes)
     {
         int chunkStart = input.Position;
@@ -22,8 +22,8 @@ public static class FileGzipEmbeddedImage
             input.Position = chunkStart + entry.Offset;
 
             // TODO: Support more compression types: font maps, sounds.
-            IResource resource = compressionTypes.CompressionTypes[entry.CompressionTypeIndex].Id.Equals(ZLib.MoaId) ? 
-                input.ReadCompressedResource(entry, context) 
+            IResource resource = compressionTypes.CompressionTypes[entry.CompressionTypeIndex].Id.Equals(ZLib.MoaId) ?
+                input.ReadCompressedResource(entry, context)
                 : IResource.Read(ref input, context, entry.Kind, entry.Length);
 
             resources.Add(index, resource);
@@ -32,7 +32,7 @@ public static class FileGzipEmbeddedImage
     }
 
     private static bool TryReadInitialLoadSegment(
-        ref ShockwaveReader input, ReaderContext context, 
+        ref ShockwaveReader input, ReaderContext context,
         AfterburnerMap afterburnerMap, Dictionary<int, IResource> resources)
     {
         // First entry in the AfterburnerMap must be ILS.

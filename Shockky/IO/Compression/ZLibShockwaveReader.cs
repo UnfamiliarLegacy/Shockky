@@ -4,7 +4,7 @@ using System.IO.Compression;
 
 namespace Shockky.IO;
 
-public sealed class ZLibShockwaveReader(Stream innerStream, bool isBigEndian, bool leaveOpen) 
+public sealed class ZLibShockwaveReader(Stream innerStream, bool isBigEndian, bool leaveOpen)
     : BinaryReader(new ZLibStream(innerStream, CompressionMode.Decompress, leaveOpen))
 {
     private readonly bool _isBigEndian = isBigEndian;

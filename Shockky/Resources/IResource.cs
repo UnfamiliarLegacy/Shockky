@@ -4,14 +4,14 @@ namespace Shockky.Resources;
 
 public interface IResource
 {
-    abstract OsType Kind { get; }
+    OsType Kind { get; }
 
-    public static IResource Read(ref ShockwaveReader input, ReaderContext context)
+    public static IResource Read(scoped ref ShockwaveReader input, ReaderContext context)
     {
         var header = new ResourceHeader(ref input);
         return Read(ref input, context, header.Kind, header.Length);
     }
-    public static IResource Read(ref ShockwaveReader input, ReaderContext context, OsType kind, int length)
+    public static IResource Read(scoped ref ShockwaveReader input, ReaderContext context, OsType kind, int length)
     {
         ReadOnlySpan<byte> chunkSpan = input.ReadBytes(length);
         var chunkInput = new ShockwaveReader(chunkSpan, input.ReverseEndianness);

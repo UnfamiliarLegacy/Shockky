@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 
 using Shockky.Resources;
 using System.Buffers;
+using System.Numerics;
 
 namespace Shockky.IO;
 
@@ -236,7 +237,7 @@ public ref struct ShockwaveReader
         try
         {
             Span<byte> decompressedData = entry.DecompressedLength <= StackallocThreshold ?
-                stackalloc byte[StackallocThreshold] : 
+                stackalloc byte[StackallocThreshold] :
                 (rentedBuffer = ArrayPool<byte>.Shared.Rent(entry.DecompressedLength));
 
             decompressedData = decompressedData.Slice(0, entry.DecompressedLength);
