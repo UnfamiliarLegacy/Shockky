@@ -14,7 +14,7 @@ public sealed class ResourceEntry : IShockwaveItem
     public short Unknown { get; set; }
     public int Link { get; set; }
 
-    public ResourceEntry(ref ShockwaveReader input, ReaderContext context)
+    public ResourceEntry(ref ShockwaveReader input)
     {
         Kind = (OsType)input.ReadInt32BigEndian();
         Length = input.ReadInt32BigEndian();

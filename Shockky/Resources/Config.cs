@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics;
+using System.Drawing;
 
 using Shockky.IO;
 using Shockky.Resources.Cast;
@@ -126,6 +127,8 @@ public sealed class Config : IShockwaveItem, IResource
         Field5E = input.ReadInt16BigEndian();
         Field60 = input.ReadInt16BigEndian();
         Field62 = input.ReadInt16BigEndian();
+        
+        Debug.Assert(Checksum == CalculateChecksum(), "Config checksum mismatch!");
     }
 
     public uint CalculateChecksum()
@@ -157,7 +160,7 @@ public sealed class Config : IShockwaveItem, IResource
             checksum += (uint)(ScoreUsedChannelsMask >> 32) + 23;
             checksum += (uint)(ScoreUsedChannelsMask & 0xFFFFFFFF) + 24;
             checksum *= (uint)Field34 + 25;
-            checksum *= (uint)Tempo + 26;
+            checksum += (uint)Tempo + 26;
             checksum *= (uint)Platform + 27;
             checksum *= (uint)((SaveSeed * 0xE06) + 0xFFF450000); // - 0xBB000
             checksum ^= 0x72616C66;

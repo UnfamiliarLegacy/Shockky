@@ -15,7 +15,7 @@ public sealed class IndexMap : IShockwaveItem, IResource
     public int Field10 { get; set; }
     public int Field14 { get; set; }
 
-    public IndexMap(ref ShockwaveReader input, ReaderContext context)
+    public IndexMap(ref ShockwaveReader input)
     {
         int memoryMapCount = input.ReadInt32BigEndian();
         Debug.Assert(memoryMapCount == 1);

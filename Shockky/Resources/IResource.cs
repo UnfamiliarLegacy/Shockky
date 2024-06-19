@@ -22,8 +22,8 @@ public interface IResource
             OsType.Fcdr => new FileCompressionTypes(ref bodyInput, context),
             OsType.ABMP => new AfterburnerMap(ref bodyInput, context),
 
-            OsType.imap => new IndexMap(ref bodyInput, context),
-            OsType.mmap => new MemoryMap(ref bodyInput, context),
+            OsType.imap => new IndexMap(ref bodyInput),
+            OsType.mmap => new MemoryMap(ref bodyInput),
             OsType.KEYPtr => new KeyMap(ref bodyInput, context),
             OsType.VWCF or OsType.DRCF => new Config(ref bodyInput, context),
 
