@@ -9,7 +9,7 @@ namespace Shockky.Resources;
 public record Tile(CastMemberId Id, Rectangle Rect) : IShockwaveItem
 {
     public Tile(ref ShockwaveReader input, ReaderContext context)
-        : this(new CastMemberId(input.ReadInt16LittleEndian(), input.ReadInt16LittleEndian()), input.ReadRect())
+        : this(new CastMemberId(input.ReadInt16LittleEndian(), input.ReadInt16LittleEndian()), input.ReadRectLittleEndian())
     { }
 
     public int GetBodySize(WriterOptions options)

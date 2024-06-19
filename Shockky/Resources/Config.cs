@@ -65,67 +65,67 @@ public sealed class Config : IShockwaveItem, IResource
 
     public Config(ref ShockwaveReader input, ReaderContext context)
     {
-        input.ReverseEndianness = true;
+        input.ReverseEndianness = false;
 
-        input.ReadInt16LittleEndian();
-        Version = (DirectorVersion)input.ReadInt16LittleEndian();
+        input.ReadInt16BigEndian();
+        Version = (DirectorVersion)input.ReadInt16BigEndian();
 
-        Rect = input.ReadRect();
+        Rect = input.ReadRectLittleEndian();
 
-        MinMemberNum = input.ReadInt16LittleEndian();
-        MaxMemberNum = input.ReadInt16LittleEndian();
+        MinMemberNum = input.ReadInt16BigEndian();
+        MaxMemberNum = input.ReadInt16BigEndian();
 
         LegacyTempo = input.ReadByte();
         LightSwitch = input.ReadBoolean();
 
-        Field12 = input.ReadInt16LittleEndian();
+        Field12 = input.ReadInt16BigEndian();
 
-        CommentFont = input.ReadInt16LittleEndian();
-        CommentSize = input.ReadInt16LittleEndian();
-        CommentStyle = input.ReadInt16LittleEndian();
+        CommentFont = input.ReadInt16BigEndian();
+        CommentSize = input.ReadInt16BigEndian();
+        CommentStyle = input.ReadInt16BigEndian();
         // v >= 1025
-        StagePalette = input.ReadInt16LittleEndian();
-        DefaultColorDepth = input.ReadInt16LittleEndian();
+        StagePalette = input.ReadInt16BigEndian();
+        DefaultColorDepth = input.ReadInt16BigEndian();
 
         Field1E = input.ReadByte();
         Field1F = input.ReadByte();
-        DataSize = input.ReadInt32LittleEndian();
+        DataSize = input.ReadInt32BigEndian();
 
-        OriginalVersion = (DirectorVersion)input.ReadInt16LittleEndian();
-        MaxCastColorDepth = input.ReadInt16LittleEndian();
-        Flags = (ConfigFlags)input.ReadInt32LittleEndian();
-        ScoreUsedChannelsMask = input.ReadUInt64LittleEndian();
+        OriginalVersion = (DirectorVersion)input.ReadInt16BigEndian();
+        MaxCastColorDepth = input.ReadInt16BigEndian();
+        Flags = (ConfigFlags)input.ReadInt32BigEndian();
+        ScoreUsedChannelsMask = input.ReadUInt64BigEndian();
 
         Trial = input.ReadBoolean();
         Field34 = input.ReadByte();
 
-        Tempo = input.ReadInt16LittleEndian();
-        Platform = (Platform)input.ReadInt16LittleEndian();
+        Tempo = input.ReadInt16BigEndian();
+        Platform = (Platform)input.ReadInt16BigEndian();
         // v >= 1113
-        SaveSeed = input.ReadInt16LittleEndian();
-        Field3C = input.ReadInt32LittleEndian();
-        Checksum = input.ReadUInt32LittleEndian();
+        SaveSeed = input.ReadInt16BigEndian();
+        Field3C = input.ReadInt32BigEndian();
+        Checksum = input.ReadUInt32BigEndian();
         // v >= 1114
-        OldDefaultPalette = input.ReadInt16LittleEndian();
+        OldDefaultPalette = input.ReadInt16BigEndian();
         // v >= 1115
-        Field46 = input.ReadInt16LittleEndian();
+        Field46 = input.ReadInt16BigEndian();
 
-        MaxCastResourceNum = input.ReadInt32LittleEndian();
-        DefaultPalette = new CastMemberId(input.ReadInt16LittleEndian(), input.ReadInt16LittleEndian());
+        MaxCastResourceNum = input.ReadInt32BigEndian();
+        DefaultPalette = new CastMemberId(input.ReadInt16BigEndian(), input.ReadInt16BigEndian());
 
         Field50 = input.ReadByte();
         Field51 = input.ReadByte();
-        Field52 = input.ReadInt16LittleEndian();
+        Field52 = input.ReadInt16BigEndian();
 
         if (!input.IsDataAvailable) return;
 
-        DownloadFramesBeforePlaying = input.ReadInt32LittleEndian();
-        Field58 = input.ReadInt16LittleEndian();
-        Field5A = input.ReadInt16LittleEndian();
-        Field5C = input.ReadInt16LittleEndian();
-        Field5E = input.ReadInt16LittleEndian();
-        Field60 = input.ReadInt16LittleEndian();
-        Field62 = input.ReadInt16LittleEndian();
+        DownloadFramesBeforePlaying = input.ReadInt32BigEndian();
+        Field58 = input.ReadInt16BigEndian();
+        Field5A = input.ReadInt16BigEndian();
+        Field5C = input.ReadInt16BigEndian();
+        Field5E = input.ReadInt16BigEndian();
+        Field60 = input.ReadInt16BigEndian();
+        Field62 = input.ReadInt16BigEndian();
     }
 
     public uint CalculateChecksum()
@@ -169,52 +169,52 @@ public sealed class Config : IShockwaveItem, IResource
 
     public void WriteTo(ShockwaveWriter output, WriterOptions options)
     {
-        output.WriteInt16LittleEndian(LENGTH);
-        output.WriteInt16LittleEndian((short)Version);
+        output.WriteInt16BigEndian(LENGTH);
+        output.WriteInt16BigEndian((short)Version);
         output.WriteRect(Rect);
-        output.WriteInt16LittleEndian(MinMemberNum);
-        output.WriteInt16LittleEndian(MaxMemberNum);
+        output.WriteInt16BigEndian(MinMemberNum);
+        output.WriteInt16BigEndian(MaxMemberNum);
         output.WriteByte(LegacyTempo);
         output.WriteBoolean(LightSwitch);
 
-        output.WriteInt16LittleEndian(Field12);
-        output.WriteInt16LittleEndian(CommentFont);
-        output.WriteInt16LittleEndian(CommentSize);
-        output.WriteInt16LittleEndian(CommentStyle);
+        output.WriteInt16BigEndian(Field12);
+        output.WriteInt16BigEndian(CommentFont);
+        output.WriteInt16BigEndian(CommentSize);
+        output.WriteInt16BigEndian(CommentStyle);
 
-        output.WriteInt16LittleEndian(StagePalette);
-        output.WriteInt16LittleEndian(DefaultColorDepth);
+        output.WriteInt16BigEndian(StagePalette);
+        output.WriteInt16BigEndian(DefaultColorDepth);
 
         output.WriteByte(Field1E);
         output.WriteByte(Field1F);
-        output.WriteInt32LittleEndian(DataSize);
+        output.WriteInt32BigEndian(DataSize);
 
-        output.WriteInt16LittleEndian((short)OriginalVersion);
-        output.WriteInt16LittleEndian(MaxCastColorDepth);
-        output.WriteInt32LittleEndian((int)Flags);
-        output.WriteUInt64LittleEndian(ScoreUsedChannelsMask);
+        output.WriteInt16BigEndian((short)OriginalVersion);
+        output.WriteInt16BigEndian(MaxCastColorDepth);
+        output.WriteInt32BigEndian((int)Flags);
+        output.WriteUInt64BigEndian(ScoreUsedChannelsMask);
         output.WriteBoolean(Trial);
         output.WriteByte(Field34);
-        output.WriteInt16LittleEndian(Tempo);
-        output.WriteInt16LittleEndian((short)Platform);
-        output.WriteInt16LittleEndian(SaveSeed);
-        output.WriteInt32LittleEndian(Field3C);
-        output.WriteUInt32LittleEndian(Checksum); // TODO: CalculateChecksum()
-        output.WriteInt16LittleEndian(OldDefaultPalette);
+        output.WriteInt16BigEndian(Tempo);
+        output.WriteInt16BigEndian((short)Platform);
+        output.WriteInt16BigEndian(SaveSeed);
+        output.WriteInt32BigEndian(Field3C);
+        output.WriteUInt32BigEndian(Checksum); // TODO: CalculateChecksum()
+        output.WriteInt16BigEndian(OldDefaultPalette);
 
-        output.WriteInt16LittleEndian(Field46);
-        output.WriteInt32LittleEndian(MaxCastResourceNum);
-        output.WriteMemberId(DefaultPalette);
+        output.WriteInt16BigEndian(Field46);
+        output.WriteInt32BigEndian(MaxCastResourceNum);
+        output.WriteMemberIdBigEndian(DefaultPalette);
         output.WriteByte(Field50);
         output.WriteByte(Field51);
-        output.WriteInt16LittleEndian(Field52);
+        output.WriteInt16BigEndian(Field52);
 
-        output.WriteInt32LittleEndian(DownloadFramesBeforePlaying);
-        output.WriteInt16LittleEndian(Field58);
-        output.WriteInt16LittleEndian(Field5A);
-        output.WriteInt16LittleEndian(Field5C);
-        output.WriteInt16LittleEndian(Field5E);
-        output.WriteInt16LittleEndian(Field60);
-        output.WriteInt16LittleEndian(Field62);
+        output.WriteInt32BigEndian(DownloadFramesBeforePlaying);
+        output.WriteInt16BigEndian(Field58);
+        output.WriteInt16BigEndian(Field5A);
+        output.WriteInt16BigEndian(Field5C);
+        output.WriteInt16BigEndian(Field5E);
+        output.WriteInt16BigEndian(Field60);
+        output.WriteInt16BigEndian(Field62);
     }
 }

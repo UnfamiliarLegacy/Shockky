@@ -215,16 +215,30 @@ public ref struct ShockwaveReader
         Advance(6);
         return Color.FromArgb(r, g, b);
     }
-    public Point ReadPoint()
+    public Point ReadPointLittleEndian()
     {
         return new(ReadInt16LittleEndian(), ReadInt16LittleEndian());
     }
-    public Rectangle ReadRect()
+    public Rectangle ReadRectLittleEndian()
     {
         short top = ReadInt16LittleEndian();
         short left = ReadInt16LittleEndian();
         short bottom = ReadInt16LittleEndian();
         short right = ReadInt16LittleEndian();
+
+        return Rectangle.FromLTRB(left, top, right, bottom);
+    }
+    
+    public Point ReadPointBigEndian()
+    {
+        return new(ReadInt16BigEndian(), ReadInt16BigEndian());
+    }
+    public Rectangle ReadRectBigEndian()
+    {
+        short top = ReadInt16BigEndian();
+        short left = ReadInt16BigEndian();
+        short bottom = ReadInt16BigEndian();
+        short right = ReadInt16BigEndian();
 
         return Rectangle.FromLTRB(left, top, right, bottom);
     }

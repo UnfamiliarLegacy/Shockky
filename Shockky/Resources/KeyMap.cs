@@ -12,12 +12,14 @@ public sealed class KeyMap : IShockwaveItem, IResource
     public Dictionary<ResourceId, int> ResourceMap { get; set; }
 
     public KeyMap()
-    { }
+    {
+        ResourceMap = new Dictionary<ResourceId, int>();
+    }
     public KeyMap(ref ShockwaveReader input, ReaderContext context)
     {
-        input.ReadInt16LittleEndian();
-        input.ReadInt16LittleEndian();
-        input.ReadInt32LittleEndian();
+        input.ReadInt16BigEndian();
+        input.ReadInt16BigEndian();
+        input.ReadInt32BigEndian();
         int count = input.ReadInt32BigEndian();
         ResourceMap = new Dictionary<ResourceId, int>(count);
 
@@ -47,8 +49,8 @@ public sealed class KeyMap : IShockwaveItem, IResource
     {
         output.WriteInt16BigEndian(ENTRY_SIZE);
         output.WriteInt16BigEndian(ENTRY_SIZE);
-        output.WriteInt32BigEndian(ResourceMap?.Count ?? 0);
-        output.WriteInt32BigEndian(ResourceMap?.Count ?? 0);
+        output.WriteInt32BigEndian(ResourceMap.Count);
+        output.WriteInt32BigEndian(ResourceMap.Count);
         foreach ((ResourceId resourceId, int index) in ResourceMap)
         {
             output.WriteInt32BigEndian(index);

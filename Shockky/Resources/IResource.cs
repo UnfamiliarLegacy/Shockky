@@ -14,45 +14,45 @@ public interface IResource
     public static IResource Read(scoped ref ShockwaveReader input, ReaderContext context, OsType kind, int length)
     {
         ReadOnlySpan<byte> chunkSpan = input.ReadBytes(length);
-        var chunkInput = new ShockwaveReader(chunkSpan, input.ReverseEndianness);
+        var bodyInput = new ShockwaveReader(chunkSpan, input.ReverseEndianness);
 
         return kind switch
         {
-            OsType.Fver => new FileVersion(ref chunkInput, context),
-            OsType.Fcdr => new FileCompressionTypes(ref chunkInput, context),
-            OsType.ABMP => new AfterburnerMap(ref chunkInput, context),
+            OsType.Fver => new FileVersion(ref bodyInput, context),
+            OsType.Fcdr => new FileCompressionTypes(ref bodyInput, context),
+            OsType.ABMP => new AfterburnerMap(ref bodyInput, context),
 
-            OsType.imap => new IndexMap(ref chunkInput, context),
-            OsType.mmap => new MemoryMap(ref chunkInput, context),
-            OsType.KEYPtr => new KeyMap(ref chunkInput, context),
-            OsType.VWCF or OsType.DRCF => new Config(ref chunkInput, context),
+            OsType.imap => new IndexMap(ref bodyInput, context),
+            OsType.mmap => new MemoryMap(ref bodyInput, context),
+            OsType.KEYPtr => new KeyMap(ref bodyInput, context),
+            OsType.VWCF or OsType.DRCF => new Config(ref bodyInput, context),
 
             // TODO: handle V1850
             //OsType.VWLB => new ScoreLabels(ref chunkInput, context),
-            OsType.VWFI => new FileInfo(ref chunkInput, context),
+            OsType.VWFI => new FileInfo(ref bodyInput, context),
 
-            OsType.Lnam => new LingoNames(ref chunkInput, context),
-            OsType.Lscr => new LingoScript(ref chunkInput),
-            OsType.Lctx or OsType.LctX => new LingoContext(ref chunkInput, context),
+            OsType.Lnam => new LingoNames(ref bodyInput, context),
+            OsType.Lscr => new LingoScript(ref bodyInput),
+            OsType.Lctx or OsType.LctX => new LingoContext(ref bodyInput, context),
 
-            OsType.CASPtr => new CastMap(ref chunkInput, context),
-            OsType.CASt => new CastMemberProperties(ref chunkInput, context),
+            OsType.CASPtr => new CastMap(ref bodyInput, context),
+            OsType.CASt => new CastMemberProperties(ref bodyInput, context),
 
-            OsType.SCRF => new ScoreReference(ref chunkInput, context),
-            OsType.Sord => new ScoreOrder(ref chunkInput, context),
-            OsType.CLUT => new Palette(ref chunkInput, context),
-            OsType.STXT => new StyledText(ref chunkInput, context),
+            OsType.SCRF => new ScoreReference(ref bodyInput, context),
+            OsType.Sord => new ScoreOrder(ref bodyInput, context),
+            OsType.CLUT => new Palette(ref bodyInput, context),
+            OsType.STXT => new StyledText(ref bodyInput, context),
 
-            OsType.snd => new SoundData(ref chunkInput),
+            OsType.snd => new SoundData(ref bodyInput),
 
-            OsType.Fmap => new FontMap(ref chunkInput, context),
+            OsType.Fmap => new FontMap(ref bodyInput, context),
 
-            OsType.GRID => new Grid(ref chunkInput, context),
-            OsType.FCOL => FavoriteColors.Read(ref chunkInput, context),
+            OsType.GRID => new Grid(ref bodyInput, context),
+            OsType.FCOL => FavoriteColors.Read(ref bodyInput, context),
 
-            OsType.BITD => new BitmapData(ref chunkInput, context),
+            OsType.BITD => new BitmapData(ref bodyInput, context),
 
-            _ => new UnknownResource(ref chunkInput, context, kind)
+            _ => new UnknownResource(ref bodyInput, context, kind)
         };
     }
 }

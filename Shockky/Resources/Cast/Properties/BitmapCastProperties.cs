@@ -18,13 +18,13 @@ public sealed class BitmapCastProperties : IMemberProperties
 
     public BitmapCastProperties(ref ShockwaveReader input, ReaderContext context)
     {
-        Stride = input.ReadUInt16LittleEndian();
-        Rectangle = input.ReadRect();
+        Stride = input.ReadUInt16BigEndian();
+        Rectangle = input.ReadRectBigEndian();
         //TODO: if version < 0x700 ? i16 : i8 i8
         AlphaThreshold = input.ReadByte();
         input.ReadByte();
         OLE = input.ReadBytes(6).ToArray();
-        RegistrationPoint = input.ReadPoint();
+        RegistrationPoint = input.ReadPointBigEndian();
         Flags = (BitmapFlags)input.ReadByte();
 
         if ((Stride & 0x8000u) != 0)
@@ -32,7 +32,7 @@ public sealed class BitmapCastProperties : IMemberProperties
             Stride &= 0x3FFF;
 
             BitDepth = input.ReadByte(); //if size == 26: i16 to u8 else u8 - src: eq-rs
-            PaletteRef = new CastMemberId(input.ReadInt16LittleEndian(), input.ReadInt16LittleEndian()); //is_v5 ? new CastMemberId(input.ReadInt16(), input.ReadInt16()); : new CastMemberId(-1, input.ReadInt16());
+            PaletteRef = new CastMemberId(input.ReadInt16BigEndian(), input.ReadInt16BigEndian()); //is_v5 ? new CastMemberId(input.ReadInt16(), input.ReadInt16()); : new CastMemberId(-1, input.ReadInt16());
         }
     }
 
@@ -61,17 +61,17 @@ public sealed class BitmapCastProperties : IMemberProperties
         if (BitDepth != 1)
             Stride |= 0x8000;
 
-        output.WriteUInt16LittleEndian(Stride);
+        output.WriteUInt16BigEndian(Stride);
 
         output.WriteRect(Rectangle);
         output.WriteByte(AlphaThreshold);
-        output.WriteByte((byte)0);
+        output.WriteByte(0);
         output.WriteBytes(OLE);
         output.WritePoint(RegistrationPoint);
         output.WriteByte((byte)Flags);
 
         if (BitDepth == 1) return;
         output.WriteByte(BitDepth);
-        output.WriteMemberId(PaletteRef);
+        output.WriteMemberIdBigEndian(PaletteRef);
     }
 }

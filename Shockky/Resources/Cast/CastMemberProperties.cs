@@ -14,11 +14,11 @@ public sealed class CastMemberProperties : IResource, IShockwaveItem
 
     public CastMemberProperties(ref ShockwaveReader input, ReaderContext context)
     {
-        input.ReverseEndianness = true;
+        input.ReverseEndianness = false;
 
-        Type = (MemberKind)input.ReadInt32LittleEndian();
-        int metadataLength = input.ReadInt32LittleEndian();
-        int propetiesLength = input.ReadInt32LittleEndian();
+        Type = (MemberKind)input.ReadInt32BigEndian();
+        int metadataLength = input.ReadInt32BigEndian();
+        int propetiesLength = input.ReadInt32BigEndian();
 
         Metadata = new CastMemberMetadata(ref input, context);
         Properties = ReadTypeProperties(ref input, context, propetiesLength);

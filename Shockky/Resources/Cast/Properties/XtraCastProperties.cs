@@ -27,8 +27,8 @@ public class XtraCastProperties : IMemberProperties
     public void WriteTo(ShockwaveWriter output, WriterOptions options)
     {
         throw new NotImplementedException(nameof(XtraCastProperties));
-        output.WriteInt32LittleEndian(SymbolName.Length);
-        output.WriteInt32LittleEndian(Data.Length);
+        output.WriteInt32BigEndian(SymbolName.Length);
+        output.WriteInt32BigEndian(Data.Length);
         output.WriteBytes(Data);
     }
 }

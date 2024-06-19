@@ -13,23 +13,25 @@ public sealed class ScoreOrder : IShockwaveItem, IResource
     public CastMemberId[] Entries { get; set; }
 
     public ScoreOrder()
-    { }
+    {
+        Entries = [];
+    }
     public ScoreOrder(ref ShockwaveReader input, ReaderContext context)
     {
-        input.ReverseEndianness = true;
+        input.ReverseEndianness = false;
 
-        input.ReadInt32LittleEndian();
-        input.ReadInt32LittleEndian();
+        input.ReadInt32BigEndian();
+        input.ReadInt32BigEndian();
 
-        Entries = new CastMemberId[input.ReadInt32LittleEndian()];
-        input.ReadInt32LittleEndian();
+        Entries = new CastMemberId[input.ReadInt32BigEndian()];
+        input.ReadInt32BigEndian();
 
-        input.ReadInt16LittleEndian();
-        input.ReadInt16LittleEndian(); //TODO: dir <= 0x500 ? sizeof(short) : sizeof(short) * 2.
+        input.ReadInt16BigEndian();
+        input.ReadInt16BigEndian(); //TODO: dir <= 0x500 ? sizeof(short) : sizeof(short) * 2.
 
         for (int i = 0; i < Entries.Length; i++)
         {
-            Entries[i] = new(input.ReadInt16LittleEndian(), input.ReadInt16LittleEndian());
+            Entries[i] = new(input.ReadInt16BigEndian(), input.ReadInt16BigEndian());
         }
     }
 
@@ -37,6 +39,7 @@ public sealed class ScoreOrder : IShockwaveItem, IResource
     {
         int size = 0;
         size += sizeof(int);
+        
         size += sizeof(int);
 
         size += sizeof(int);
@@ -52,18 +55,18 @@ public sealed class ScoreOrder : IShockwaveItem, IResource
         const short ENTRIES_OFFSET = 20;
         const short ENTRY_SIZE = sizeof(short) + sizeof(short);
 
-        output.WriteInt32LittleEndian(0);
-        output.WriteInt32LittleEndian(0);
+        output.WriteInt32BigEndian(0);
+        output.WriteInt32BigEndian(0);
 
-        output.WriteInt32LittleEndian(Entries.Length);
-        output.WriteInt32LittleEndian(Entries.Length);
+        output.WriteInt32BigEndian(Entries.Length);
+        output.WriteInt32BigEndian(Entries.Length);
 
-        output.WriteInt16LittleEndian(ENTRIES_OFFSET);
-        output.WriteInt16LittleEndian(ENTRY_SIZE);
+        output.WriteInt16BigEndian(ENTRIES_OFFSET);
+        output.WriteInt16BigEndian(ENTRY_SIZE);
 
         foreach (CastMemberId memberId in Entries)
         {
-            output.WriteMemberId(memberId);
+            output.WriteMemberIdBigEndian(memberId);
         }
     }
 }

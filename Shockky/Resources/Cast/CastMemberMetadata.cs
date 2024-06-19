@@ -31,15 +31,15 @@ public sealed class CastMemberMetadata : IResource, IShockwaveItem
 
         public MetadataHeader(ref ShockwaveReader input, ReaderContext context)
         {
-            int headerSize = input.ReadInt32LittleEndian();
+            int headerSize = input.ReadInt32BigEndian();
             Debug.Assert(headerSize == 16 || headerSize == 20);
 
-            int scriptGarbagePtr = input.ReadInt32LittleEndian();
-            int legacyFlags = input.ReadInt32LittleEndian();
-            Flags = (CastMemberInfoFlags)input.ReadInt32LittleEndian();
+            int scriptGarbagePtr = input.ReadInt32BigEndian();
+            int legacyFlags = input.ReadInt32BigEndian();
+            Flags = (CastMemberInfoFlags)input.ReadInt32BigEndian();
             if (headerSize >= 20)
             {
-                ScriptContextNum = input.ReadInt32LittleEndian();
+                ScriptContextNum = input.ReadInt32BigEndian();
             }
         }
     }
@@ -48,10 +48,10 @@ public sealed class CastMemberMetadata : IResource, IShockwaveItem
     {
         public MetadataEntries(ref ShockwaveReader input, ReaderContext context)
         {
-            int[] propertyOffsets = new int[input.ReadInt16LittleEndian() + 1];
+            int[] propertyOffsets = new int[input.ReadInt16BigEndian() + 1];
             for (int i = 0; i < propertyOffsets.Length; i++)
             {
-                propertyOffsets[i] = input.ReadInt32LittleEndian();
+                propertyOffsets[i] = input.ReadInt32BigEndian();
             }
 
             // TODO: Serialize the values
@@ -118,7 +118,7 @@ public sealed class CastMemberMetadata : IResource, IShockwaveItem
                     RegistrationPoints = new int[length / 4];
                     for (int i = 0; i < RegistrationPoints.Length; i++)
                     {
-                        RegistrationPoints[i] = input.ReadInt32LittleEndian();
+                        RegistrationPoints[i] = input.ReadInt32BigEndian();
                     }
                     break;
                 //15 - MoA ID?
@@ -126,10 +126,10 @@ public sealed class CastMemberMetadata : IResource, IShockwaveItem
                     ClipboardFormat = input.ReadString(length);
                     break;
                 case 17:
-                    CreationDate = input.ReadInt32LittleEndian() * 1000;
+                    CreationDate = input.ReadInt32BigEndian() * 1000;
                     break;
                 case 18:
-                    ModifiedDate = input.ReadInt32LittleEndian() * 1000;
+                    ModifiedDate = input.ReadInt32BigEndian() * 1000;
                     break;
                 case 19:
                     ModifiedBy = input.ReadNullString();
@@ -145,14 +145,11 @@ public sealed class CastMemberMetadata : IResource, IShockwaveItem
                     break;
                 default:
                     ReadOnlySpan<byte> unknown = input.ReadBytes(length);
-                    string test = Encoding.UTF8.GetString(unknown);
                     break;
             }
         }
     }
-
-
-
+    
     public int GetBodySize(WriterOptions options)
     {
         throw new NotImplementedException();

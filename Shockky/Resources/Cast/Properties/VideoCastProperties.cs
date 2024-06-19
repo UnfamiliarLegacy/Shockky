@@ -33,7 +33,7 @@ public class VideoCastProperties : IMemberProperties
         input.Advance(3);
         Framerate = input.ReadByte();
         input.Advance(32);
-        Rectangle = input.ReadRect();
+        Rectangle = input.ReadRectLittleEndian();
     }
 
     public int GetBodySize(WriterOptions options)

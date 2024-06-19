@@ -20,10 +20,10 @@ public class ShapeCastProperties : IMemberProperties
     { }
     public ShapeCastProperties(ref ShockwaveReader input, ReaderContext context)
     {
-        Type = (ShapeType)input.ReadInt16LittleEndian();
-        Rectangle = input.ReadRect();
+        Type = (ShapeType)input.ReadInt16BigEndian();
+        Rectangle = input.ReadRectBigEndian();
 
-        Pattern = input.ReadInt16LittleEndian();
+        Pattern = input.ReadInt16BigEndian();
         ForegroundColor = input.ReadByte();
         BackgroundColor = input.ReadByte();
 
@@ -55,10 +55,10 @@ public class ShapeCastProperties : IMemberProperties
 
     public void WriteTo(ShockwaveWriter output, WriterOptions options)
     {
-        output.WriteInt16LittleEndian((short)Type);
+        output.WriteInt16BigEndian((short)Type);
         output.WriteRect(Rectangle);
 
-        output.WriteInt16LittleEndian(Pattern);
+        output.WriteInt16BigEndian(Pattern);
         output.WriteByte(ForegroundColor);
         output.WriteByte(BackgroundColor);
 

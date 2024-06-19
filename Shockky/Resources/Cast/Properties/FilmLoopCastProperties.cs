@@ -13,9 +13,9 @@ public class FilmLoopCastProperties : IMemberProperties
     { }
     public FilmLoopCastProperties(ref ShockwaveReader input)
     {
-        Rectangle = input.ReadRect();
-        Flags = (FilmLoopFlags)input.ReadInt32LittleEndian();
-        short unk14 = input.ReadInt16LittleEndian();
+        Rectangle = input.ReadRectBigEndian();
+        Flags = (FilmLoopFlags)input.ReadInt32BigEndian();
+        short unk14 = input.ReadInt16BigEndian();
     }
 
     public int GetBodySize(WriterOptions options)
@@ -30,6 +30,6 @@ public class FilmLoopCastProperties : IMemberProperties
     public void WriteTo(ShockwaveWriter output, WriterOptions options)
     {
         output.WriteRect(Rectangle);
-        output.WriteInt32LittleEndian((int)Flags);
+        output.WriteInt32BigEndian((int)Flags);
     }
 }

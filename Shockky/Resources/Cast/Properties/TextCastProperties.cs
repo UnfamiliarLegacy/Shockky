@@ -30,11 +30,11 @@ public class TextCastProperties : IMemberProperties
         BoxShadowSize = (SizeType)input.ReadByte();
         BoxType = (TextBoxType)input.ReadByte();
 
-        Alignment = (TextAlignment)input.ReadInt16LittleEndian();
+        Alignment = (TextAlignment)input.ReadInt16BigEndian();
         BackgroundColor = input.ReadColor();
-        Font = input.ReadInt16LittleEndian();
-        Rectangle = input.ReadRect();
-        LineHeight = input.ReadInt16LittleEndian();
+        Font = input.ReadInt16BigEndian();
+        Rectangle = input.ReadRectBigEndian();
+        LineHeight = input.ReadInt16BigEndian();
 
         TextShadowSize = (SizeType)input.ReadByte();
         Flags = (TextFlags)input.ReadByte();
@@ -66,12 +66,12 @@ public class TextCastProperties : IMemberProperties
         output.WriteByte((byte)BoxShadowSize);
         output.WriteByte((byte)BoxType);
 
-        output.WriteInt16LittleEndian((short)Alignment);
+        output.WriteInt16BigEndian((short)Alignment);
         output.WriteColor(BackgroundColor);
 
-        output.WriteInt16LittleEndian(Font);
+        output.WriteInt16BigEndian(Font);
         output.WriteRect(Rectangle);
-        output.WriteInt16LittleEndian(LineHeight);
+        output.WriteInt16BigEndian(LineHeight);
 
         output.WriteByte((byte)TextShadowSize);
         output.WriteByte((byte)Flags);

@@ -10,10 +10,10 @@ public class Score : IShockwaveItem, IResource
     { }
     public Score(ref ShockwaveReader input)
     {
-        input.ReverseEndianness = true;
+        input.ReverseEndianness = false;
 
-        int totalLength = input.ReadInt32LittleEndian();
-        int headerType = input.ReadInt32LittleEndian(); //-3
+        int totalLength = input.ReadInt32BigEndian();
+        int headerType = input.ReadInt32BigEndian(); //-3
 
         throw new NotImplementedException();
     }

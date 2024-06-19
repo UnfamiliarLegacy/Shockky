@@ -234,9 +234,14 @@ public ref struct ShockwaveWriter
         WriteInt16LittleEndian((short)value.Bottom);
         WriteInt16LittleEndian((short)value.Right);
     }
-    public void WriteMemberId(CastMemberId memberId)
+    public void WriteMemberIdLittleEndian(CastMemberId memberId)
     {
         WriteInt16LittleEndian(memberId.CastLib);
         WriteInt16LittleEndian(memberId.MemberNum);
+    }
+    public void WriteMemberIdBigEndian(CastMemberId memberId)
+    {
+        WriteInt16BigEndian(memberId.CastLib);
+        WriteInt16BigEndian(memberId.MemberNum);
     }
 }

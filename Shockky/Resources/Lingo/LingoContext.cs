@@ -120,9 +120,4 @@ public sealed class LingoContext : IShockwaveItem, IResource
             section.WriteTo(output, options);
         }
     }
-
-    public static LingoContext Read(ref ShockwaveReader input, ReaderContext context)
-    {
-        throw new NotImplementedException();
-    }
 }

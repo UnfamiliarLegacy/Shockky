@@ -11,7 +11,7 @@ public sealed class ButtonCastProperties : TextCastProperties, IMemberProperties
     public ButtonCastProperties(ref ShockwaveReader input, ReaderContext context)
         : base(ref input, context)
     {
-        ButtonType = (ButtonType)input.ReadInt16LittleEndian();
+        ButtonType = (ButtonType)input.ReadInt16BigEndian();
     }
 
     public new int GetBodySize(WriterOptions options)
@@ -25,6 +25,6 @@ public sealed class ButtonCastProperties : TextCastProperties, IMemberProperties
     public new void WriteTo(ShockwaveWriter output, WriterOptions options)
     {
         base.WriteTo(output, options);
-        output.WriteInt16LittleEndian((short)ButtonType);
+        output.WriteInt16BigEndian((short)ButtonType);
     }
 }
