@@ -1,8 +1,9 @@
 ﻿using System.Diagnostics;
-
 using Shockky.IO;
+using Shockky.IO.Compression;
+using Shockky.Resources.Enum;
 
-namespace Shockky.Resources;
+namespace Shockky.Resources.AfterBurner;
 
 [DebuggerDisplay("[{Index}] {Kind} Offset: {Offset}")]
 public sealed class AfterburnerMapEntry : IShockwaveItem

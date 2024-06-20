@@ -1,4 +1,5 @@
 ﻿using Shockky.IO;
+using Shockky.Resources.Enum;
 
 #nullable enable
 namespace Shockky.Resources.Cast.Properties;

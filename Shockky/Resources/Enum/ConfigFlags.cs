@@ -1,4 +1,4 @@
-﻿namespace Shockky.Resources;
+﻿namespace Shockky.Resources.Enum;
 
 [Flags]
 public enum ConfigFlags : int

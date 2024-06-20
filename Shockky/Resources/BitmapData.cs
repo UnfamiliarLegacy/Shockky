@@ -1,7 +1,10 @@
 ﻿using System.Buffers;
 
 using Shockky.IO;
+using Shockky.IO.Compression;
 using Shockky.Resources.Cast;
+using Shockky.Resources.Cast.Properties;
+using Shockky.Resources.Enum;
 
 namespace Shockky.Resources;
 

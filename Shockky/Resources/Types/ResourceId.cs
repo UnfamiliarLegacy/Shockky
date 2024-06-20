@@ -1,4 +1,6 @@
-﻿namespace Shockky.Resources.Types;
+﻿using Shockky.Resources.Enum;
+
+namespace Shockky.Resources.Types;
 
 /// <summary>
 /// Represents a 

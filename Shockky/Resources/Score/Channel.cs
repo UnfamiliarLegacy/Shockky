@@ -1,6 +1,6 @@
 ﻿using Shockky.IO;
 
-namespace Shockky.Resources;
+namespace Shockky.Resources.Score;
 
 public class Channel : IShockwaveItem
 {

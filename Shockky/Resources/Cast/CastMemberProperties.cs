@@ -1,8 +1,8 @@
 ﻿using Shockky.IO;
-using Shockky.Resources.Cast;
 using Shockky.Resources.Cast.Properties;
+using Shockky.Resources.Enum;
 
-namespace Shockky.Resources;
+namespace Shockky.Resources.Cast;
 
 public sealed class CastMemberProperties : IResource, IShockwaveItem
 {

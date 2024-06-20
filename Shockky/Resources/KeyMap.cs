@@ -1,4 +1,5 @@
 ﻿using Shockky.IO;
+using Shockky.Resources.Enum;
 using Shockky.Resources.Types;
 
 namespace Shockky.Resources;

@@ -1,8 +1,8 @@
-﻿using Shockky.IO;
+﻿using System.Drawing;
+using Shockky.IO;
+using Shockky.Resources.Enum;
 
-using System.Drawing;
-
-namespace Shockky.Resources.Cast;
+namespace Shockky.Resources.Cast.Properties;
 
 public class FilmLoopCastProperties : IMemberProperties
 {

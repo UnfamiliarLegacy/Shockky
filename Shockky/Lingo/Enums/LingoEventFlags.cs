@@ -1,7 +1,7 @@
-﻿namespace Shockky.Lingo;
+﻿namespace Shockky.Lingo.Enums;
 
 [Flags]
-public enum LingoEventFlags : int
+public enum LingoEventFlags
 {
     None = 0,
     MouseDown = 1 << 0,

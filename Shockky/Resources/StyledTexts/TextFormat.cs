@@ -1,8 +1,7 @@
 ﻿using System.Drawing;
-
 using Shockky.IO;
 
-namespace Shockky.Resources;
+namespace Shockky.Resources.StyledTexts;
 
 public sealed class TextFormat : IShockwaveItem
 {

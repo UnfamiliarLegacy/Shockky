@@ -1,5 +1,7 @@
 ﻿using Shockky.IO;
 using Shockky.Resources;
+using Shockky.Resources.AfterBurner;
+using Shockky.Resources.Enum;
 
 namespace Shockky;
 

@@ -1,8 +1,8 @@
 ﻿using System.Drawing;
-
 using Shockky.IO;
+using Shockky.Resources.Enum;
 
-namespace Shockky.Resources.Cast;
+namespace Shockky.Resources.Cast.Properties;
 
 // TODO: D3Mac does extra stuff on loading for versions < 1026: - src: csnover
 public class TextCastProperties : IMemberProperties

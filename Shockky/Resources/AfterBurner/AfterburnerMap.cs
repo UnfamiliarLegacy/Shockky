@@ -1,6 +1,8 @@
 ﻿using Shockky.IO;
+using Shockky.IO.Compression;
+using Shockky.Resources.Enum;
 
-namespace Shockky.Resources;
+namespace Shockky.Resources.AfterBurner;
 
 public sealed class AfterburnerMap : IShockwaveItem, IResource
 {

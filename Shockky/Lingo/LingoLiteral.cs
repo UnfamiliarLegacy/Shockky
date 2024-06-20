@@ -1,4 +1,5 @@
 ﻿using Shockky.IO;
+using Shockky.Lingo.Enums;
 
 namespace Shockky.Lingo;
 

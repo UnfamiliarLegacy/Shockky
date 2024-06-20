@@ -1,8 +1,8 @@
-﻿using System.Text;
-using System.Buffers.Binary;
+﻿using System.Buffers.Binary;
 using System.IO.Compression;
+using System.Text;
 
-namespace Shockky.IO;
+namespace Shockky.IO.Compression;
 
 public sealed class ZLibShockwaveReader(Stream innerStream, bool isBigEndian, bool leaveOpen)
     : BinaryReader(new ZLibStream(innerStream, CompressionMode.Decompress, leaveOpen))

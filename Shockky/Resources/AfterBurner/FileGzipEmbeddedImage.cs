@@ -1,6 +1,7 @@
 ﻿using Shockky.IO;
+using Shockky.IO.Compression;
 
-namespace Shockky.Resources;
+namespace Shockky.Resources.AfterBurner;
 
 // Contains logic to read embedded Zlib compressed resources from the FGEI resource
 public static class FileGzipEmbeddedImage

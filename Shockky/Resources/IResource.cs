@@ -1,4 +1,9 @@
 ﻿using Shockky.IO;
+using Shockky.Resources.AfterBurner;
+using Shockky.Resources.Cast;
+using Shockky.Resources.Enum;
+using Shockky.Resources.Lingo;
+using Shockky.Resources.Score;
 
 namespace Shockky.Resources;
 

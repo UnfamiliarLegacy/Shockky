@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 
 using Shockky.IO;
+using Shockky.Resources.Enum;
 
 namespace Shockky.Resources;
 

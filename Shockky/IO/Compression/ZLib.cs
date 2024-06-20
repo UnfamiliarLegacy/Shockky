@@ -1,6 +1,6 @@
 ﻿using System.IO.Compression;
 
-namespace Shockky.IO;
+namespace Shockky.IO.Compression;
 
 public static class ZLib
 {

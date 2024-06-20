@@ -1,8 +1,8 @@
 ﻿using System.Drawing;
-
 using Shockky.IO;
+using Shockky.Resources.Enum;
 
-namespace Shockky.Resources.Cast;
+namespace Shockky.Resources.Cast.Properties;
 
 public sealed class BitmapCastProperties : IMemberProperties
 {

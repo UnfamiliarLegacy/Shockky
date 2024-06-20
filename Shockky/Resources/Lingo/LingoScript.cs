@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics;
-using System.Numerics;
-using System.Runtime.InteropServices;
 using Shockky.IO;
 using Shockky.Lingo;
+using Shockky.Lingo.Enums;
+using Shockky.Resources.Enum;
 
-namespace Shockky.Resources;
+namespace Shockky.Resources.Lingo;
 
 public sealed class LingoScript : IShockwaveItem, IResource
 {

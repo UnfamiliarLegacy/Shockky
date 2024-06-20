@@ -8,6 +8,8 @@ using System.Runtime.CompilerServices;
 using Shockky.Resources;
 using System.Buffers;
 using System.Numerics;
+using Shockky.IO.Compression;
+using Shockky.Resources.AfterBurner;
 
 namespace Shockky.IO;
 

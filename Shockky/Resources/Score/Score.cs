@@ -1,6 +1,7 @@
 ﻿using Shockky.IO;
+using Shockky.Resources.Enum;
 
-namespace Shockky.Resources;
+namespace Shockky.Resources.Score;
 
 public class Score : IShockwaveItem, IResource
 {

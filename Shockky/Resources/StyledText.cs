@@ -1,4 +1,6 @@
 ﻿using Shockky.IO;
+using Shockky.Resources.Enum;
+using Shockky.Resources.StyledTexts;
 
 namespace Shockky.Resources;
 

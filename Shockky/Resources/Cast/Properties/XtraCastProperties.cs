@@ -1,6 +1,6 @@
 ﻿using Shockky.IO;
 
-namespace Shockky.Resources.Cast;
+namespace Shockky.Resources.Cast.Properties;
 
 public class XtraCastProperties : IMemberProperties
 {

@@ -1,4 +1,4 @@
-﻿namespace Shockky.IO;
+﻿namespace Shockky.IO.Compression;
 
 /// <summary>
 /// Provides methods to (de)compress using Run-Length Encoding 

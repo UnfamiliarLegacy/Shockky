@@ -1,4 +1,4 @@
-﻿namespace Shockky.Resources;
+﻿namespace Shockky.Resources.Enum;
 
 /// <summary>
 /// All Director's built-in ink definitions.

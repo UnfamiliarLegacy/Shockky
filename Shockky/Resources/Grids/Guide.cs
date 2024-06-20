@@ -1,6 +1,7 @@
 ﻿using Shockky.IO;
+using Shockky.Resources.Enum;
 
-namespace Shockky.Resources;
+namespace Shockky.Resources.Grids;
 
 public readonly record struct Guide(Axis Axis, short Position) : IShockwaveItem
 {

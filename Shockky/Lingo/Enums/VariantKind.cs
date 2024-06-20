@@ -1,6 +1,6 @@
-﻿namespace Shockky.Lingo;
+﻿namespace Shockky.Lingo.Enums;
 
-public enum VariantKind : int
+public enum VariantKind
 {
     Null = 0,
     String = 1,
