@@ -1,4 +1,5 @@
-﻿using Shockky.IO;
+﻿using System.Buffers;
+using Shockky.IO;
 using Shockky.Resources;
 using Shockky.Resources.AfterBurner;
 using Shockky.Resources.Enum;
@@ -17,6 +18,36 @@ public class ShockwaveFile
     public ShockwaveFile()
     {
         Resources = new Dictionary<int, IResource>();
+    }
+
+    public static async ValueTask<ShockwaveFile> Read(Stream stream, long streamLen)
+    {
+        var bufferLength = (int)streamLen;
+        var buffer = ArrayPool<byte>.Shared.Rent(bufferLength);
+        
+        try
+        {
+            // Read stream in chunks of 4096 to buffer.
+            const int chunkSize = 8192;
+            
+            var bufferMemory = buffer.AsMemory(0, bufferLength);
+            var bytesRead = 0;
+            
+            while (bytesRead < bufferLength)
+            {
+                var read = await stream.ReadAsync(bufferMemory.Slice(bytesRead, Math.Min(chunkSize, bufferLength - bytesRead)));
+                if (read == 0)
+                    break;
+                
+                bytesRead += read;
+            }
+
+            return Read(buffer.AsSpan(0, bufferLength));
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(buffer);
+        }
     }
 
     public static ShockwaveFile Read(string path) => Read(File.ReadAllBytes(path));
