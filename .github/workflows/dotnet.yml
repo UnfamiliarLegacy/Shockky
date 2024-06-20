@@ -3,20 +3,32 @@ name: Build
 on:
   push:
     branches:
-      - master
       - wip
-  pull_request:
-    branches:
-      - master
-      - wip
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  
+  NUGET_FEED: https://api.nuget.org/v3/index.json
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0
+      with:
+        versionSpec: '5.x'
+    - name: GitVersion - Determine Version
+      uses: gittools/actions/gitversion/execute@v0
+      id: gitversion
+    
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
@@ -25,5 +37,9 @@ jobs:
       run: dotnet restore --verbosity normal
     - name: Build
       run: dotnet build --configuration Release --no-restore --verbosity normal
-    - name: Testi
+    - name: Test
       run: dotnet test --configuration Release --no-restore --no-build --verbosity normal
+    - name: Pack
+      run: dotnet pack -c Release --no-restore --no-build -v normal -p:Version='${{ steps.gitversion.outputs.SemVer }}'
+    - name: NuGet push
+      run: dotnet nuget push ./Shockky/bin/Release/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s ${{ env.NUGET_FEED }}
