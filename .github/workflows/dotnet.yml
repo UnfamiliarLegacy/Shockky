@@ -20,15 +20,6 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    
-    - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0
-      with:
-        versionSpec: '5.x'
-    - name: GitVersion - Determine Version
-      uses: gittools/actions/gitversion/execute@v0
-      id: gitversion
-    
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
@@ -39,7 +30,3 @@ jobs:
       run: dotnet build --configuration Release --no-restore --verbosity normal
     - name: Test
       run: dotnet test --configuration Release --no-restore --no-build --verbosity normal
-    - name: Pack
-      run: dotnet pack -c Release --no-restore --no-build -v normal -p:Version='${{ steps.gitversion.outputs.SemVer }}'
-    - name: NuGet push
-      run: dotnet nuget push ./Shockky/bin/Release/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s ${{ env.NUGET_FEED }}
