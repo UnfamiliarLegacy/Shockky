@@ -44,6 +44,7 @@ public class ShockwaveFile
             if (fgeiHeader.Kind is not OsType.FGEI)
                 throw new InvalidDataException();
 
+            file.Version = fileVersion.Version;
             file.Resources = FileGzipEmbeddedImage.ReadResources(ref input, readerContext, afterburnerMap, compressionTypes);
         }
         else if (file.Metadata.Codec is CodecKind.MV93)
@@ -68,6 +69,8 @@ public class ShockwaveFile
                 input.Position = entry.Offset;
                 file.Resources.Add(i, IResource.Read(ref input, readerContext));
             }
+            
+            file.Version = initialMap.Version;
         }
 
         return file;

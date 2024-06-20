@@ -25,7 +25,8 @@ public interface IResource
             OsType.imap => new IndexMap(ref bodyInput),
             OsType.mmap => new MemoryMap(ref bodyInput),
             OsType.KEYPtr => new KeyMap(ref bodyInput, context),
-            OsType.VWCF or OsType.DRCF => new Config(ref bodyInput, context),
+            // TODO: Fix crash on "hh_room_starlounge bug.cct".
+            // OsType.VWCF or OsType.DRCF => new Config(ref bodyInput, context),
 
             // TODO: handle V1850
             //OsType.VWLB => new ScoreLabels(ref chunkInput, context),
@@ -41,7 +42,8 @@ public interface IResource
             OsType.SCRF => new ScoreReference(ref bodyInput, context),
             OsType.Sord => new ScoreOrder(ref bodyInput, context),
             OsType.CLUT => new Palette(ref bodyInput, context),
-            OsType.STXT => new StyledText(ref bodyInput, context),
+            // TODO: Fix crash on "hh_bbinterface.cct".
+            // OsType.STXT => new StyledText(ref bodyInput, context),
 
             OsType.snd => new SoundData(ref bodyInput),
 
