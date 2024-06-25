@@ -16,6 +16,7 @@ public class LiteralNode : ExprNode
             VariantKind.String => new Datum(DatumType.kDatumString, (string) literal.Value),
             VariantKind.Integer => new Datum((int) literal.Value),
             VariantKind.Float => new Datum((double) literal.Value),
+            VariantKind.Null => new Datum(),
             _ => throw new ArgumentOutOfRangeException()
         };
     }

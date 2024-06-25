@@ -1094,7 +1094,10 @@ public class LingoHandler
             }
             default:
             {
-                throw new NotImplementedException($"Missing opcode translation for {bytecode.OpCode}");
+                translation = new CommentNode($"ERROR: Unhandled opcode {bytecode.OpCode}");
+                _stack.Clear();
+                // throw new NotImplementedException($"Missing opcode translation for {bytecode.OpCode}");
+                break;
             }
         }
 

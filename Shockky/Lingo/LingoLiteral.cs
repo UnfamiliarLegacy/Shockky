@@ -7,9 +7,9 @@ namespace Shockky.Lingo;
 public sealed class LingoLiteral : IShockwaveItem, IEquatable<LingoLiteral>
 {
     public VariantKind Kind { get; }
-    public object Value { get; }
+    public object? Value { get; }
 
-    public LingoLiteral(VariantKind kind, object value)
+    public LingoLiteral(VariantKind kind, object? value)
     {
         Kind = kind;
         Value = value;
@@ -26,8 +26,9 @@ public sealed class LingoLiteral : IShockwaveItem, IEquatable<LingoLiteral>
                 VariantKind.String => Value.ToString().Length + 1,
                 VariantKind.Float => 8,
                 VariantKind.CompiledJavascript => ((byte[])Value).Length,
+                VariantKind.Null => 0,
 
-                _ => throw new ArgumentException(nameof(Kind))
+                _ => throw new ArgumentException($"Unknown kind {Kind}")
             };
         }
         return size;
@@ -56,8 +57,9 @@ public sealed class LingoLiteral : IShockwaveItem, IEquatable<LingoLiteral>
                 VariantKind.Float when length == 8 => input.ReadDoubleBigEndian(),
                 VariantKind.Float when length == 10 => throw new NotSupportedException("The 80-bit double-extended precision is not supported, yet."),
                 VariantKind.CompiledJavascript => input.ReadBytes(length).ToArray(),
+                VariantKind.Null => new LingoLiteral(VariantKind.Null, null),
 
-                _ => throw new ArgumentException(nameof(Kind))
+                _ => throw new ArgumentException($"Unknown kind {entryKind}")
             };
 
             return new LingoLiteral(entryKind, value);
