@@ -18,7 +18,7 @@ public class ShapeCastProperties : IMemberProperties
 
     public ShapeCastProperties()
     { }
-    public ShapeCastProperties(ref ShockwaveReader input, ReaderContext context)
+    public ShapeCastProperties(ref ShockwaveReader input)
     {
         Type = (ShapeType)input.ReadInt16BigEndian();
         Rectangle = input.ReadRectBigEndian();

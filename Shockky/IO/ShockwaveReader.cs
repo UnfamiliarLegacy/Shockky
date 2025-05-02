@@ -2,20 +2,15 @@
 using System.Drawing;
 using System.Diagnostics;
 using System.Buffers.Binary;
-using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 
 using Shockky.Resources;
 using System.Buffers;
-using System.Numerics;
 using Shockky.IO.Compression;
 using Shockky.Resources.AfterBurner;
 
 namespace Shockky.IO;
 
-#nullable enable
-
-// TODO: Use extensions on ROS<byte> with ReaderContext
 public ref struct ShockwaveReader
 {
     private readonly ReadOnlySpan<byte> _data;
@@ -245,7 +240,7 @@ public ref struct ShockwaveReader
         return Rectangle.FromLTRB(left, top, right, bottom);
     }
 
-    public unsafe IResource ReadCompressedResource(AfterburnerMapEntry entry, ReaderContext context)
+    public unsafe IResource ReadCompressedResource(AfterburnerMapEntry entry)
     {
         const int StackallocThreshold = 512;
 
@@ -262,7 +257,7 @@ public ref struct ShockwaveReader
             Advance(entry.Length);
 
             var input = new ShockwaveReader(decompressedData, ReverseEndianness);
-            return IResource.Read(ref input, context, entry.Kind, entry.DecompressedLength);
+            return IResource.Read(ref input, entry.Kind, entry.DecompressedLength);
         }
         finally
         {

@@ -14,7 +14,7 @@ public sealed partial class BitmapData : IShockwaveItem, IResource
 
     public byte[] Data { get; set; }
 
-    public BitmapData(ref ShockwaveReader input, ReaderContext context)
+    public BitmapData(ref ShockwaveReader input)
     {
         Data = new byte[input.Length];
         input.ReadBytes(Data);

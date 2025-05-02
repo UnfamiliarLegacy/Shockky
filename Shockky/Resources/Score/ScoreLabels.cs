@@ -10,7 +10,7 @@ public sealed class ScoreLabels : IShockwaveItem, IResource
 
     public Dictionary<short, string> Labels { get; set; }
 
-    public ScoreLabels(ref ShockwaveReader input, ReaderContext context)
+    public ScoreLabels(ref ShockwaveReader input)
     {
         input.ReverseEndianness = false;
 

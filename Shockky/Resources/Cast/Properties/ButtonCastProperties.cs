@@ -6,11 +6,8 @@ namespace Shockky.Resources.Cast.Properties;
 public sealed class ButtonCastProperties : TextCastProperties, IMemberProperties
 {
     public ButtonType ButtonType { get; set; }
-
-    public ButtonCastProperties()
-    { }
-    public ButtonCastProperties(ref ShockwaveReader input, ReaderContext context)
-        : base(ref input, context)
+    
+    public ButtonCastProperties(ref ShockwaveReader input) : base(ref input)
     {
         ButtonType = (ButtonType)input.ReadInt16BigEndian();
     }

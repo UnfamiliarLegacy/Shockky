@@ -8,13 +8,13 @@ public static class FileGzipEmbeddedImage
 {
     // TODO: Tidy up more.
     public static IDictionary<int, IResource> ReadResources(
-        ref ShockwaveReader input, ReaderContext context,
+        ref ShockwaveReader input,
         AfterburnerMap afterburnerMap, FileCompressionTypes compressionTypes)
     {
         int chunkStart = input.Position;
         var resources = new Dictionary<int, IResource>(afterburnerMap.Entries.Count);
 
-        TryReadInitialLoadSegment(ref input, context, afterburnerMap, resources);
+        TryReadInitialLoadSegment(ref input, afterburnerMap, resources);
 
         foreach ((int index, AfterburnerMapEntry entry) in afterburnerMap.Entries)
         {
@@ -24,8 +24,8 @@ public static class FileGzipEmbeddedImage
 
             // TODO: Support more compression types: font maps, sounds.
             IResource resource = compressionTypes.CompressionTypes[entry.CompressionTypeIndex].Id.Equals(ZLib.MoaId) ?
-                input.ReadCompressedResource(entry, context)
-                : IResource.Read(ref input, context, entry.Kind, entry.Length);
+                input.ReadCompressedResource(entry)
+                : IResource.Read(ref input, entry.Kind, entry.Length);
 
             resources.Add(index, resource);
         }
@@ -33,7 +33,7 @@ public static class FileGzipEmbeddedImage
     }
 
     private static bool TryReadInitialLoadSegment(
-        ref ShockwaveReader input, ReaderContext context,
+        ref ShockwaveReader input,
         AfterburnerMap afterburnerMap, Dictionary<int, IResource> resources)
     {
         // First entry in the AfterburnerMap must be ILS.
@@ -58,7 +58,7 @@ public static class FileGzipEmbeddedImage
                 return false;
 
             AfterburnerMapEntry entry = afterburnerMap.Entries[index];
-            resources.Add(index, IResource.Read(ref ilsReader, context, entry.Kind, entry.DecompressedLength));
+            resources.Add(index, IResource.Read(ref ilsReader, entry.Kind, entry.DecompressedLength));
         }
         return true;
     }

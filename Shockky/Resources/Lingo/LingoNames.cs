@@ -11,7 +11,7 @@ public sealed class LingoNames : IShockwaveItem, IResource
 
     public LingoNames()
     { }
-    public LingoNames(ref ShockwaveReader input, ReaderContext context)
+    public LingoNames(ref ShockwaveReader input)
     {
         input.ReverseEndianness = false;
 

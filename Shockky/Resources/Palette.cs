@@ -13,7 +13,7 @@ public sealed class Palette : IShockwaveItem, IResource
 
     public Palette()
     { }
-    public Palette(ref ShockwaveReader input, ReaderContext context)
+    public Palette(ref ShockwaveReader input)
     {
         Colors = new Color[input.Length / 6];
         for (int i = 0; i < Colors.Length; i++)

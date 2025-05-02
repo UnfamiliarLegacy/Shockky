@@ -26,7 +26,7 @@ public sealed class LingoContext : IShockwaveItem, IResource
     {
         Items = new List<LingoContextItem>();
     }
-    public LingoContext(ref ShockwaveReader input, ReaderContext context)
+    public LingoContext(ref ShockwaveReader input)
     {
         input.ReverseEndianness = false;
 

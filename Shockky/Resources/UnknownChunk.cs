@@ -8,7 +8,7 @@ public sealed class UnknownResource : IShockwaveItem, IResource
     public OsType Kind { get; }
     public byte[] Data { get; set; }
 
-    public UnknownResource(ref ShockwaveReader input, ReaderContext context, OsType kind)
+    public UnknownResource(ref ShockwaveReader input, OsType kind)
     {
         Kind = kind;
 

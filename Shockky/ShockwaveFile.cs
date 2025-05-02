@@ -6,8 +6,6 @@ using Shockky.Resources.Enum;
 
 namespace Shockky;
 
-#nullable enable
-
 public class ShockwaveFile
 {
     public FileMetadata? Metadata { get; set; }
@@ -15,7 +13,7 @@ public class ShockwaveFile
 
     public IDictionary<int, IResource> Resources { get; set; }
 
-    public ShockwaveFile()
+    protected ShockwaveFile()
     {
         Resources = new Dictionary<int, IResource>();
     }
@@ -61,15 +59,13 @@ public class ShockwaveFile
 
         if (file.Metadata.Codec is CodecKind.FGDM or CodecKind.FGDC)
         {
-            if (IResource.Read(ref input, default) is not FileVersion fileVersion)
+            if (IResource.Read(ref input) is not FileVersion fileVersion)
                 throw new InvalidDataException();
 
-            ReaderContext readerContext = new(fileVersion.Version);
-
-            if (IResource.Read(ref input, readerContext) is not FileCompressionTypes compressionTypes)
+            if (IResource.Read(ref input) is not FileCompressionTypes compressionTypes)
                 throw new InvalidDataException();
 
-            if (IResource.Read(ref input, readerContext) is not AfterburnerMap afterburnerMap)
+            if (IResource.Read(ref input) is not AfterburnerMap afterburnerMap)
                 throw new InvalidDataException();
 
             var fgeiHeader = new ResourceHeader(ref input);
@@ -78,18 +74,16 @@ public class ShockwaveFile
                 throw new InvalidDataException();
 
             file.Version = fileVersion.Version;
-            file.Resources = FileGzipEmbeddedImage.ReadResources(ref input, readerContext, afterburnerMap, compressionTypes);
+            file.Resources = FileGzipEmbeddedImage.ReadResources(ref input, afterburnerMap, compressionTypes);
         }
         else if (file.Metadata.Codec is CodecKind.MV93)
         {
-            if (IResource.Read(ref input, default) is not IndexMap initialMap)
+            if (IResource.Read(ref input) is not IndexMap initialMap)
                 throw new InvalidDataException($"Failed to read {nameof(IndexMap)}");
-
-            ReaderContext readerContext = new(initialMap.Version);
 
             input.Position = initialMap.MemoryMapOffset;
 
-            if (IResource.Read(ref input, readerContext) is not MemoryMap memoryMap)
+            if (IResource.Read(ref input) is not MemoryMap memoryMap)
                 throw new InvalidDataException($"Failed to read {nameof(MemoryMap)}.");
 
             for (int i = 1; i < memoryMap.Entries.Length; i++)
@@ -100,7 +94,7 @@ public class ShockwaveFile
                     continue;
 
                 input.Position = entry.Offset;
-                file.Resources.Add(i, IResource.Read(ref input, readerContext));
+                file.Resources.Add(i, IResource.Read(ref input));
             }
             
             file.Version = initialMap.Version;

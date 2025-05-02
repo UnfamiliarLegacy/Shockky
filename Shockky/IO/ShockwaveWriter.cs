@@ -1,171 +1,12 @@
-﻿using System.Text;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Numerics;
-using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
-
 using Shockky.Resources.Cast;
 
 namespace Shockky.IO;
 
-public ref struct ShockwaveWriter
+public interface ShockwaveWriter
 {
-    private int _position;
-    private readonly bool _reverseEndianness;
-    private readonly Span<byte> _data;
-
-    public readonly Span<byte> CurrentSpan => _data.Slice(_position);
-
-    public ShockwaveWriter(Span<byte> data, bool reverseEndianness)
-    {
-        _data = data;
-        _position = 0;
-        _reverseEndianness = reverseEndianness;
-    }
-
-    //TODO: Measure, with and without inlining
-    //Advance? - Zero fill variant?
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Advance(int count) => _position += count;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void WriteByte(byte value) => _data[_position++] = value;
-
-    public void WriteBytes(ReadOnlySpan<byte> value)
-    {
-        value.CopyTo(_data.Slice(_position));
-        _position += value.Length;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void WriteBoolean(bool value)
-    {
-        _data[_position++] = (byte)(value ? 1 : 0);
-    }
-
-    public void WriteInt16LittleEndian(short value)
-    {
-        if (_reverseEndianness)
-        {
-            value = BinaryPrimitives.ReverseEndianness(value);
-        }
-
-        BinaryPrimitives.WriteInt16LittleEndian(_data.Slice(_position), value);
-        _position += sizeof(short);
-    }
-    public void WriteInt16BigEndian(short value)
-    {
-        if (_reverseEndianness)
-        {
-            value = BinaryPrimitives.ReverseEndianness(value);
-        }
-
-        BinaryPrimitives.WriteInt16BigEndian(_data.Slice(_position), value);
-        _position += sizeof(short);
-    }
-
-    public void WriteUInt16LittleEndian(ushort value)
-    {
-        if (_reverseEndianness)
-        {
-            value = BinaryPrimitives.ReverseEndianness(value);
-        }
-
-        BinaryPrimitives.WriteUInt16LittleEndian(_data.Slice(_position), value);
-        _position += sizeof(ushort);
-    }
-    public void WriteUInt16BigEndian(ushort value)
-    {
-        if (_reverseEndianness)
-        {
-            value = BinaryPrimitives.ReverseEndianness(value);
-        }
-
-        BinaryPrimitives.WriteUInt16BigEndian(_data.Slice(_position), value);
-        _position += sizeof(ushort);
-    }
-
-    public void WriteInt32LittleEndian(int value)
-    {
-        if (_reverseEndianness)
-        {
-            value = BinaryPrimitives.ReverseEndianness(value);
-        }
-
-        BinaryPrimitives.WriteInt32LittleEndian(_data.Slice(_position), value);
-        _position += sizeof(int);
-    }
-    public void WriteInt32BigEndian(int value)
-    {
-        if (_reverseEndianness)
-        {
-            value = BinaryPrimitives.ReverseEndianness(value);
-        }
-
-        BinaryPrimitives.WriteInt32BigEndian(_data.Slice(_position), value);
-        _position += sizeof(int);
-    }
-
-    public void WriteUInt32LittleEndian(uint value)
-    {
-        if (_reverseEndianness)
-        {
-            value = BinaryPrimitives.ReverseEndianness(value);
-        }
-
-        BinaryPrimitives.WriteUInt32LittleEndian(_data.Slice(_position), value);
-        _position += sizeof(uint);
-    }
-    public void WriteUInt32BigEndian(uint value)
-    {
-        if (_reverseEndianness)
-        {
-            value = BinaryPrimitives.ReverseEndianness(value);
-        }
-
-        BinaryPrimitives.WriteUInt32BigEndian(_data.Slice(_position), value);
-        _position += sizeof(uint);
-    }
-
-    public void WriteUInt64LittleEndian(ulong value)
-    {
-        if (_reverseEndianness)
-        {
-            value = BinaryPrimitives.ReverseEndianness(value);
-        }
-
-        BinaryPrimitives.WriteUInt64LittleEndian(_data.Slice(_position), value);
-        _position += sizeof(ulong);
-    }
-    public void WriteUInt64BigEndian(ulong value)
-    {
-        if (_reverseEndianness)
-        {
-            value = BinaryPrimitives.ReverseEndianness(value);
-        }
-
-        BinaryPrimitives.WriteUInt64BigEndian(_data.Slice(_position), value);
-        _position += sizeof(ulong);
-    }
-
-    public void Write7BitEncodedInt(int value) => Write7BitEncodedUInt((uint)value);
-    public void Write7BitEncodedUInt(uint value)
-    {
-        // TODO: Optimize
-        int size = GetVarUIntSize(value);
-        int pos = size - 1;
-
-        Span<byte> buffer = _data.Slice(_position, size);
-        buffer[pos] = (byte)(value & 0x7F);
-
-        while ((value >>= 7) != 0)
-        {
-            buffer[--pos] = (byte)(0x80 | (value & 0x7F));
-        }
-        _position += size;
-    }
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int GetVarIntSize(int value) => GetVarUIntSize((uint)value);
     
@@ -180,68 +21,47 @@ public ref struct ShockwaveWriter
         return (x * 37) >> 8;
     }
 
-    /// <summary>
-    /// Writes length-prefixed UTF-8 string. 
-    /// </summary>
-    /// <param name="value">The UTF-8 string to write.</param>
-    public void WriteString(ReadOnlySpan<char> value)
-    {
-        Write7BitEncodedUInt((uint)value.Length);
-
-        int len = Encoding.UTF8.GetBytes(value, _data.Slice(_position));
-        _position += len;
-    }
+    void WriteBoolean(bool value);
     
-    /// <summary>
-    /// Writes a null-terminated UTF-8 string.
-    /// </summary>
-    /// <param name="value">The UTF-8 string to write.</param>
-    public void WriteCString(ReadOnlySpan<char> value)
-    {
-        int len = Encoding.UTF8.GetBytes(value, _data.Slice(_position));
-        _data[_position + len] = 0;
-        _position += len + 1;
-    }
-
-    public void WriteColor(Color color) => WriteColor(color.R, color.G, color.B);
-    public void WriteColor(byte r, byte g, byte b)
-    {
-        // Eliminate bounds-checks.
-        var buffer = _data.Slice(_position, 6);
-
-        buffer[0] = r;
-        buffer[1] = r;
-
-        buffer[2] = g;
-        buffer[3] = g;
-
-        buffer[4] = b;
-        buffer[5] = b;
-
-        Advance(6);
-    }
+    void WriteByte(byte value);
     
-    // TODO: Endianness
-    public void WritePoint(Point value)
-    {
-        WriteInt16LittleEndian((short)value.X);
-        WriteInt16LittleEndian((short)value.Y);
-    }
-    public void WriteRect(Rectangle value)
-    {
-        WriteInt16LittleEndian((short)value.Top);
-        WriteInt16LittleEndian((short)value.Left);
-        WriteInt16LittleEndian((short)value.Bottom);
-        WriteInt16LittleEndian((short)value.Right);
-    }
-    public void WriteMemberIdLittleEndian(CastMemberId memberId)
-    {
-        WriteInt16LittleEndian(memberId.CastLib);
-        WriteInt16LittleEndian(memberId.MemberNum);
-    }
-    public void WriteMemberIdBigEndian(CastMemberId memberId)
-    {
-        WriteInt16BigEndian(memberId.CastLib);
-        WriteInt16BigEndian(memberId.MemberNum);
-    }
+    void WriteBytes(ReadOnlySpan<byte> value);
+
+    void WriteString(ReadOnlySpan<char> value);
+    
+    void WriteInt16LittleEndian(short value);
+    
+    void WriteInt16BigEndian(short value);
+    
+    void WriteUInt16LittleEndian(ushort value);
+    
+    void WriteUInt16BigEndian(ushort value);
+
+    void Write7BitEncodedInt(int value);
+    
+    void Write7BitEncodedUInt(uint value);
+
+    void WriteInt32LittleEndian(int value);
+    
+    void WriteInt32BigEndian(int value);
+
+    void WriteUInt32LittleEndian(uint value);
+
+    void WriteUInt32BigEndian(uint value);
+
+    void WriteUInt64LittleEndian(ulong value);
+
+    void WriteUInt64BigEndian(ulong value);
+
+    void WriteColor(Color color);
+    
+    void WriteColor(byte r, byte g, byte b);
+    
+    void WritePoint(Point value);
+
+    void WriteRect(Rectangle value);
+
+    void WriteMemberIdLittleEndian(CastMemberId memberId);
+
+    void WriteMemberIdBigEndian(CastMemberId memberId);
 }

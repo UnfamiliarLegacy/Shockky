@@ -1,7 +1,6 @@
 ﻿using Shockky.IO;
 using Shockky.Resources.Enum;
 
-#nullable enable
 namespace Shockky.Resources.Cast.Properties;
 
 public class TransitionCastProperties : IMemberProperties
@@ -14,7 +13,7 @@ public class TransitionCastProperties : IMemberProperties
 
     public XtraCastProperties? Xtra { get; set; }
 
-    public TransitionCastProperties(ref ShockwaveReader input, ReaderContext context)
+    public TransitionCastProperties(ref ShockwaveReader input)
     {
         //TODO: Version differences.
         LegacyDuration = input.ReadByte();
@@ -24,7 +23,9 @@ public class TransitionCastProperties : IMemberProperties
         DurationInMilliseconds = input.ReadInt16BigEndian(); //TODO: Not in < D5
 
         if (!Flags.HasFlag(TransitionFlags.Standard))
-            Xtra = new XtraCastProperties(ref input, context);
+        {
+            Xtra = new XtraCastProperties(ref input);
+        }
     }
 
     public int GetBodySize(WriterOptions options)

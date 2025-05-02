@@ -12,7 +12,7 @@ public sealed class CastMemberProperties : IResource, IShockwaveItem
     public CastMemberMetadata Metadata { get; set; }
     public IMemberProperties Properties { get; set; }
 
-    public CastMemberProperties(ref ShockwaveReader input, ReaderContext context)
+    public CastMemberProperties(ref ShockwaveReader input)
     {
         input.ReverseEndianness = false;
 
@@ -20,24 +20,24 @@ public sealed class CastMemberProperties : IResource, IShockwaveItem
         int metadataLength = input.ReadInt32BigEndian();
         int propetiesLength = input.ReadInt32BigEndian();
 
-        Metadata = new CastMemberMetadata(ref input, context);
-        Properties = ReadTypeProperties(ref input, context, propetiesLength);
+        Metadata = new CastMemberMetadata(ref input);
+        Properties = ReadTypeProperties(ref input, propetiesLength);
     }
 
-    private IMemberProperties ReadTypeProperties(ref ShockwaveReader input, ReaderContext context, int dataLength)
+    private IMemberProperties ReadTypeProperties(ref ShockwaveReader input, int dataLength)
     {
         return Type switch
         {
-            MemberKind.Bitmap or MemberKind.OLE => new BitmapCastProperties(ref input, context),
+            MemberKind.Bitmap or MemberKind.OLE => new BitmapCastProperties(ref input),
             MemberKind.FilmLoop or MemberKind.Movie => new FilmLoopCastProperties(ref input),
-            MemberKind.Text => new TextCastProperties(ref input, context),
-            MemberKind.Button => new ButtonCastProperties(ref input, context),
-            MemberKind.Shape => new ShapeCastProperties(ref input, context),
-            MemberKind.DigitalVideo => new VideoCastProperties(ref input, context),
-            MemberKind.Script => new ScriptCastProperties(ref input, context),
+            MemberKind.Text => new TextCastProperties(ref input),
+            MemberKind.Button => new ButtonCastProperties(ref input),
+            MemberKind.Shape => new ShapeCastProperties(ref input),
+            MemberKind.DigitalVideo => new VideoCastProperties(ref input),
+            MemberKind.Script => new ScriptCastProperties(ref input),
             MemberKind.RichText => new RichTextCastProperties(ref input),
-            MemberKind.Transition => new TransitionCastProperties(ref input, context),
-            // TODO: MemberKind.Xtra => new XtraCastProperties(ref input, context),
+            MemberKind.Transition => new TransitionCastProperties(ref input),
+            // TODO: MemberKind.Xtra => new XtraCastProperties(ref input),
 
             _ => new UnknownCastProperties(ref input, dataLength)
         };

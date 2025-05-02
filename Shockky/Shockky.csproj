@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
+		<TargetFramework>net9.0</TargetFramework>
 
 		<IsPackable>true</IsPackable>
 		<IsTrimmable>true</IsTrimmable>
@@ -18,10 +18,10 @@
 	</PropertyGroup>
 
 	<PropertyGroup Label="NuGet Metadata">
-		<Version>0.1.0</Version>
+		<Version>0.1.1</Version>
 		<Title>Shockky</Title>
 		<PackageId>Shockky</PackageId>
-		<Authors>Paulus Pärssinen</Authors>
+		<Authors>UnfamiliarLegacy, Paulus Pärssinen</Authors>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<RepositoryUrl>https://github.com/PaulusParssinen/Shockky</RepositoryUrl>

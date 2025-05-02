@@ -16,7 +16,7 @@ public sealed class BitmapCastProperties : IMemberProperties
     public byte BitDepth { get; set; } = 1;
     public CastMemberId PaletteRef { get; set; } = new CastMemberId(-1, 0);
 
-    public BitmapCastProperties(ref ShockwaveReader input, ReaderContext context)
+    public BitmapCastProperties(ref ShockwaveReader input)
     {
         Stride = input.ReadUInt16BigEndian();
         Rectangle = input.ReadRectBigEndian();

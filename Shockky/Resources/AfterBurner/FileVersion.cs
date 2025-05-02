@@ -8,9 +8,9 @@ public sealed class FileVersion : IResource, IShockwaveItem
     public OsType Kind => OsType.Fver;
 
     public DirectorVersion Version { get; set; }
-    public string VersionString { get; set; }
+    public string? VersionString { get; set; }
 
-    public FileVersion(scoped ref ShockwaveReader input, ReaderContext context)
+    public FileVersion(scoped ref ShockwaveReader input)
     {
         int versionMaybeTooForgot = input.Read7BitEncodedInt();
         if (versionMaybeTooForgot < 0x401) return;
@@ -30,5 +30,5 @@ public sealed class FileVersion : IResource, IShockwaveItem
         throw new NotImplementedException();
     }
 
-    public static FileVersion Read(ref ShockwaveReader input, ReaderContext context) => new FileVersion(ref input, context);
+    public static FileVersion Read(ref ShockwaveReader input) => new(ref input);
 }

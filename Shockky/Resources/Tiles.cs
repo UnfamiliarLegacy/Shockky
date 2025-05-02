@@ -9,7 +9,7 @@ namespace Shockky.Resources;
 //TODO: v5 = memberNum or MemberId
 public record Tile(CastMemberId Id, Rectangle Rect) : IShockwaveItem
 {
-    public Tile(ref ShockwaveReader input, ReaderContext context)
+    public Tile(ref ShockwaveReader input)
         : this(new CastMemberId(input.ReadInt16LittleEndian(), input.ReadInt16LittleEndian()), input.ReadRectLittleEndian())
     { }
 
@@ -24,7 +24,7 @@ public record Tile(CastMemberId Id, Rectangle Rect) : IShockwaveItem
         throw new NotImplementedException();
     }
 
-    public static Tile Read(ref ShockwaveReader input, ReaderContext context)
+    public static Tile Read(ref ShockwaveReader input)
     {
         throw new NotImplementedException();
     }
@@ -36,14 +36,14 @@ public sealed class Tiles : IShockwaveItem, IResource
 
     public Tile[] Items { get; } = new Tile[8];
 
-    public Tiles(ref ShockwaveReader input, ReaderContext context)
+    public Tiles(ref ShockwaveReader input)
     {
         for (int i = 0; i < Items.Length; i++)
         {
             input.ReadInt32LittleEndian();
             input.ReadInt32LittleEndian();
 
-            Items[i] = new Tile(ref input, context);
+            Items[i] = new Tile(ref input);
         }
     }
 

@@ -12,7 +12,7 @@ public sealed class FileCompressionTypes : IShockwaveItem, IResource
 
     public FileCompressionTypes()
     { }
-    public FileCompressionTypes(ref ShockwaveReader input, ReaderContext context)
+    public FileCompressionTypes(ref ShockwaveReader input)
     {
         using ZLibShockwaveReader decompressedInput = ZLib.CreateDeflateReaderUnsafe(ref input);
 

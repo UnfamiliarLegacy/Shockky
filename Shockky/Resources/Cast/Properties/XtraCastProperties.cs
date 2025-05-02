@@ -7,7 +7,7 @@ public class XtraCastProperties : IMemberProperties
     public string SymbolName { get; set; }
     public byte[] Data { get; set; }
 
-    public XtraCastProperties(ref ShockwaveReader input, ReaderContext context)
+    public XtraCastProperties(ref ShockwaveReader input)
     {
         SymbolName = input.ReadString(input.ReadInt32LittleEndian());
         Data = new byte[input.ReadInt32LittleEndian()];

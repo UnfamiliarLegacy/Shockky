@@ -10,7 +10,7 @@ public sealed class CrossCastLinks : IShockwaveItem, IResource
 {
     public OsType Kind => OsType.ccl;
 
-    public CrossCastLinks(ref ShockwaveReader input, ReaderContext context)
+    public CrossCastLinks(ref ShockwaveReader input)
     {
         //TODO: VList<CrossCastLink>
     }

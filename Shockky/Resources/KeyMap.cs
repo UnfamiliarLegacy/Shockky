@@ -16,7 +16,7 @@ public sealed class KeyMap : IShockwaveItem, IResource
     {
         ResourceMap = new Dictionary<ResourceId, int>();
     }
-    public KeyMap(ref ShockwaveReader input, ReaderContext context)
+    public KeyMap(ref ShockwaveReader input)
     {
         input.ReadInt16BigEndian();
         input.ReadInt16BigEndian();

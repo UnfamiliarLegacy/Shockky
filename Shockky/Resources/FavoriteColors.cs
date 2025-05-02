@@ -55,7 +55,7 @@ public sealed class FavoriteColors : IShockwaveItem, IResource
         }
     }
 
-    public static FavoriteColors Read(ref ShockwaveReader input, ReaderContext context)
+    public static FavoriteColors Read(ref ShockwaveReader input)
     {
         FavoriteColors favoriteColors = new();
 

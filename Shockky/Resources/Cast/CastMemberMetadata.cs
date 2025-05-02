@@ -1,5 +1,4 @@
-﻿using System.Text;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 using Shockky.IO;
 using Shockky.Resources.Enum;
@@ -14,10 +13,10 @@ public sealed class CastMemberMetadata : IResource, IShockwaveItem
     public MetadataHeader Header { get; set; }
     public MetadataEntries Entries { get; set; }
 
-    public CastMemberMetadata(ref ShockwaveReader input, ReaderContext context)
+    public CastMemberMetadata(ref ShockwaveReader input)
     {
-        Header = new MetadataHeader(ref input, context);
-        Entries = new MetadataEntries(ref input, context);
+        Header = new MetadataHeader(ref input);
+        Entries = new MetadataEntries(ref input);
     }
 
     public sealed class MetadataHeader
@@ -30,7 +29,7 @@ public sealed class CastMemberMetadata : IResource, IShockwaveItem
         /// </summary>
         public int? ScriptContextNum { get; set; }
 
-        public MetadataHeader(ref ShockwaveReader input, ReaderContext context)
+        public MetadataHeader(ref ShockwaveReader input)
         {
             int headerSize = input.ReadInt32BigEndian();
             Debug.Assert(headerSize == 16 || headerSize == 20);
@@ -47,7 +46,7 @@ public sealed class CastMemberMetadata : IResource, IShockwaveItem
 
     public sealed class MetadataEntries
     {
-        public MetadataEntries(ref ShockwaveReader input, ReaderContext context)
+        public MetadataEntries(ref ShockwaveReader input)
         {
             int[] propertyOffsets = new int[input.ReadInt16BigEndian() + 1];
             for (int i = 0; i < propertyOffsets.Length; i++)

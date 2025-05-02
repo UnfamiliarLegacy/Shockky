@@ -11,7 +11,7 @@ public class StyledText : IShockwaveItem, IResource
     public string Text { get; set; }
     public TextFormat[] Formats { get; set; } = Array.Empty<TextFormat>();
 
-    public StyledText(ref ShockwaveReader input, ReaderContext context)
+    public StyledText(ref ShockwaveReader input)
     {
         input.ReverseEndianness = true;
 
@@ -24,7 +24,7 @@ public class StyledText : IShockwaveItem, IResource
         Formats = new TextFormat[input.ReadInt16LittleEndian()];
         for (int i = 0; i < Formats.Length; i++)
         {
-            Formats[i] = new TextFormat(ref input, context);
+            Formats[i] = new TextFormat(ref input);
         }
     }
 

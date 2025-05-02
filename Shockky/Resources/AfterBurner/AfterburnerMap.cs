@@ -13,7 +13,7 @@ public sealed class AfterburnerMap : IShockwaveItem, IResource
     public int LastIndex { get; set; }
     public Dictionary<int, AfterburnerMapEntry> Entries { get; set; }
 
-    public AfterburnerMap(ref ShockwaveReader input, ReaderContext context)
+    public AfterburnerMap(ref ShockwaveReader input)
     {
         input.ReadByte();
         Unknown = input.Read7BitEncodedInt();

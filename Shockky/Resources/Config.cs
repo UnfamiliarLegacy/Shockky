@@ -65,7 +65,7 @@ public sealed class Config : IShockwaveItem, IResource
     public short Field60 { get; set; }
     public short Field62 { get; set; }
 
-    public Config(ref ShockwaveReader input, ReaderContext context)
+    public Config(ref ShockwaveReader input)
     {
         input.ReverseEndianness = false;
 

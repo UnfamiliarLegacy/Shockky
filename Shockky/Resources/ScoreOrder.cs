@@ -17,7 +17,7 @@ public sealed class ScoreOrder : IShockwaveItem, IResource
     {
         Entries = [];
     }
-    public ScoreOrder(ref ShockwaveReader input, ReaderContext context)
+    public ScoreOrder(ref ShockwaveReader input)
     {
         input.ReverseEndianness = false;
 

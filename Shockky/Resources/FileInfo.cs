@@ -11,7 +11,7 @@ public sealed class FileInfo : IShockwaveItem, IResource
     public string ModifiedBy { get; set; }
     public string FilePath { get; set; }
 
-    public FileInfo(ref ShockwaveReader input, ReaderContext context)
+    public FileInfo(ref ShockwaveReader input)
     {
         input.ReverseEndianness = true;
 

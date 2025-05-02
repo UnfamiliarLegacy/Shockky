@@ -9,7 +9,7 @@ public class FontMap : IShockwaveItem, IResource, IBinaryData
 
     public byte[] Data { get; set; }
 
-    public FontMap(ref ShockwaveReader input, ReaderContext context)
+    public FontMap(ref ShockwaveReader input)
     {
         Data = new byte[input.Length];
         input.ReadBytes(Data);

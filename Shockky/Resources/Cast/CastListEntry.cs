@@ -17,7 +17,7 @@ public sealed class CastListEntry : IShockwaveItem
 
     public CastListEntry()
     { }
-    public CastListEntry(ref ShockwaveReader input, ReaderContext context)
+    public CastListEntry(ref ShockwaveReader input)
     {
         Name = input.ReadString();
         FilePath = input.ReadString();

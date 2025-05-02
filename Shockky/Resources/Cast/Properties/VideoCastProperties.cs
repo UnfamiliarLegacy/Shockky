@@ -16,7 +16,7 @@ public class VideoCastProperties : IMemberProperties
     public byte Framerate { get; set; }
     public Rectangle Rectangle { get; set; }
 
-    public VideoCastProperties(ref ShockwaveReader input, ReaderContext context)
+    public VideoCastProperties(ref ShockwaveReader input)
     {
         Type = input.ReadString((int)input.ReadUInt32LittleEndian());
         input.Advance(10);

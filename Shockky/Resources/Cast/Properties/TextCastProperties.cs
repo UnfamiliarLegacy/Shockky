@@ -23,7 +23,7 @@ public class TextCastProperties : IMemberProperties
 
     public TextCastProperties()
     { }
-    public TextCastProperties(ref ShockwaveReader input, ReaderContext context)
+    public TextCastProperties(ref ShockwaveReader input)
     {
         BorderSize = (SizeType)input.ReadByte();
         GutterSize = (SizeType)input.ReadByte();

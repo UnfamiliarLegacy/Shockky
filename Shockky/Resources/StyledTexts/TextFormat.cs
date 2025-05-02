@@ -14,7 +14,7 @@ public sealed class TextFormat : IShockwaveItem
     public short FontSize { get; set; }
     public Color Color { get; set; }
 
-    public TextFormat(ref ShockwaveReader input, ReaderContext context)
+    public TextFormat(ref ShockwaveReader input)
     {
         Offset = input.ReadInt32LittleEndian();
         Height = input.ReadInt16LittleEndian();

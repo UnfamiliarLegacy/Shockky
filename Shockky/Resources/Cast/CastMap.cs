@@ -11,7 +11,7 @@ public sealed class CastMap : IResource, IShockwaveItem
 
     public CastMap()
     { }
-    public CastMap(ref ShockwaveReader input, ReaderContext context)
+    public CastMap(ref ShockwaveReader input)
     {
         input.ReverseEndianness = false;
 

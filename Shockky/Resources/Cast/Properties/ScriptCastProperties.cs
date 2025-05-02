@@ -9,7 +9,7 @@ public class ScriptCastProperties : IMemberProperties
 
     public ScriptCastProperties()
     { }
-    public ScriptCastProperties(ref ShockwaveReader input, ReaderContext context)
+    public ScriptCastProperties(ref ShockwaveReader input)
     {
         Kind = (ScriptKind)input.ReadInt16BigEndian();
     }

@@ -20,7 +20,7 @@ public sealed class Grid : IShockwaveItem, IResource
     public short GuideColor { get; set; }
     public Guide[] Guides { get; set; }
 
-    public Grid(ref ShockwaveReader input, ReaderContext context)
+    public Grid(ref ShockwaveReader input)
     {
         input.ReverseEndianness = true;
 
@@ -35,7 +35,7 @@ public sealed class Grid : IShockwaveItem, IResource
         GuideColor = input.ReadInt16LittleEndian();
         for (int i = 0; i < Guides.Length; i++)
         {
-            Guides[i] = Guide.Read(ref input, context);
+            Guides[i] = Guide.Read(ref input);
         }
     }
 

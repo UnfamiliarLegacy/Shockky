@@ -12,7 +12,7 @@ public sealed class ScoreReference : IShockwaveItem, IResource
 
     public ScoreReference()
     { }
-    public ScoreReference(ref ShockwaveReader input, ReaderContext context)
+    public ScoreReference(ref ShockwaveReader input)
     {
         input.ReadInt32LittleEndian();
         input.ReadInt32LittleEndian();

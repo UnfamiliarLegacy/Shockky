@@ -23,7 +23,7 @@ public class ShockwaveWriterTests
     {
         Span<byte> buffer = stackalloc byte[ShockwaveWriter.GetVarIntSize(value)];
 
-        var output = new ShockwaveWriter(buffer, reverseEndianness: false);
+        var output = new ShockwaveWriterRaw(buffer, reverseEndianness: false);
         var input = new ShockwaveReader(buffer, reverseEndianness: false);
 
         output.Write7BitEncodedInt(value);
@@ -47,7 +47,7 @@ public class ShockwaveWriterTests
             + sizeof(uint) * 2;
 
         Span<byte> buffer = stackalloc byte[OUTPUT_SIZE];
-        var output = new ShockwaveWriter(buffer, reverseEndianness);
+        var output = new ShockwaveWriterRaw(buffer, reverseEndianness);
         var input = new ShockwaveReader(buffer, reverseEndianness);
 
         output.WriteByte(42);
